@@ -1,0 +1,9 @@
+.idea
+.vscode
+Pipfile.lock
+__pycache__
+*/__pycache__/
+*.pytest_cache/
+*.db
+*.pyc
+*.cpython-36.pyc

@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==1.0.2"
+flask-sqlalchemy = "==2.3.2"
+flask-wtf = "==0.14.2"
+cymysql = "==0.9.1"
+flask-cors = "==2.1.0"
+requests = "==2.18.4"
+pipfile = "*"
+lin-cms = "==0.1.1"
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.6"
