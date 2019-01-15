@@ -6,7 +6,7 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 本项目是 Lin CMS 后端的 Flask 实现，访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
 
-## 地址文档
+## 文档地址
 
 [http://doc.cms.7yue.pro/](http://doc.cms.7yue.pro/)
 
@@ -57,7 +57,6 @@ Lin 的服务端框架是基于 Python Flask 的，所以如果你比较熟悉 F
 
 但前端不同，前端还是需要开发者比较熟悉 Vue 的。但我想以 Vue 在国内的普及程度，绝大多数的开发者是没有问题的。这也正是我们选择 Vue 作为前端框架的原因。如果你喜欢 React Or Angular，那么加入我们，为 Lin 开发一个对应的版本吧。
 
-## TODO LIST
+## 下个版本开发计划
 
-- [ ] 消息推送
-- [ ] Node 版 CMS
+- [ ] 添加消息推送机制
