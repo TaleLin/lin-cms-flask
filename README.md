@@ -31,11 +31,15 @@
 
 Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内容管理系统框架**。Lin-CMS 可以有效的帮助开发者提高 CMS 的开发效率。
 
-本项目是 Lin CMS 后端的 Flask 实现，访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
+本项目是 Lin CMS 后端的 Flask 实现，需要前端？请访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
 
 ### 文档地址
 
 [http://doc.cms.7yue.pro/](http://doc.cms.7yue.pro/)
+
+### 线上 demo
+
+[http://face.cms.7yue.pro/](http://face.cms.7yue.pro/)
 
 ### Lin CMS 的特点
 
@@ -146,7 +150,7 @@ python starter.py
 pipenv shell
 ```
 
-如果一切顺利，你将在命令行中看到项目成功运行的信息。如果你没有修改代码，Lin 将默认在本地启动一个端口号为 5000 的端口用来监听请求。此时，我们访问http://localhost:5000，将看到一组字符：
+如果一切顺利，你将在命令行中看到项目成功运行的信息。如果你没有修改代码，Lin 将默认在本地启动一个端口号为 5000 的端口用来监听请求。此时，我们访问`http://localhost:5000`，将看到一组字符：
 
 “心上无垢，林间有风"
 
