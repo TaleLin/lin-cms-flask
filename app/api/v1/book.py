@@ -26,7 +26,7 @@ def get_book(id):
 
 @book_api.route('/', methods=['GET'])
 def get_books():
-    books = Book.query.filter_by(soft=False).all()
+    books = Book.query.filter_by(delete_time=None).all()
     if books is None or len(books) < 1:
         raise NotFound(msg='没有找到相关书籍')
     return jsonify(books)
