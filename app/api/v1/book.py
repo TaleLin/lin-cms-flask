@@ -45,7 +45,7 @@ def search():
 @book_api.route('/', methods=['POST'])
 def create_book():
     form = CreateOrUpdateBookForm().validate_for_api()  # 校验参数
-    book = Book.query.filter_by(title=form.title.data).first()  # 避免同名图书
+    book = Book.query.filter_by(title=form.title.data).filter(Book.delete_time == None).first()  # 避免同名图书
     if book is not None:
         raise ParameterException(msg='图书已存在')
     # 新增图书
