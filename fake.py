@@ -6,10 +6,18 @@
 from app.app import create_app
 from app.models.book import Book
 from lin.db import db
+from lin.core import User
 
 app = create_app()
 with app.app_context():
     with db.auto_commit():
+        # 创建一个超级管理员
+        user = User()
+        user.nickname = 'super'
+        user.password = '123456'
+        user.email = '12345678@qq.com'
+        user.super = 2
+        db.session.add(user)
         # 添加书籍
         book1 = Book()
         book1.title = '深入理解计算机系统'
