@@ -16,5 +16,5 @@ JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 # plugin config写在字典里面
 PLUGIN_PATH = {
     'oss': {'path': 'app.plugins.oss', 'enable': True, 'upload_folder': 'app/static'},
-    'poem': {'path': 'app.plugins.poem', 'enable': True},
+    'poem': {'path': 'app.plugins.poem', 'enable': True, 'limit': 5},
 }
