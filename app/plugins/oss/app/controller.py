@@ -8,7 +8,7 @@ from lin.db import db
 from lin.redprint import Redprint
 from lin.core import lin_config
 
-api = Redprint('uploader')
+api = Redprint('oss')
 
 
 @api.route('/upload_to_local', methods=['POST'])

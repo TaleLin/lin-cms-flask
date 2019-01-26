@@ -4,7 +4,7 @@ from lin.redprint import Redprint
 from app.plugins.poem.app.forms import PoemSearchForm
 from .model import Poem
 
-api = Redprint('demo')
+api = Redprint('poem')
 
 
 @api.route('/all', methods=['GET'])
