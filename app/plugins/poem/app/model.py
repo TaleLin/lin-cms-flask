@@ -8,7 +8,7 @@ class Poem(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(50), nullable=False, comment='标题')
     author = Column(String(50), default='未名', comment='作者')
-    dynasty = Column(String(50), default='位置', comment='朝代')
+    dynasty = Column(String(50), default='未知', comment='朝代')
     content = Column(Text, nullable=False, comment='内容')
     image = Column(String(255), default='', comment='配图')
 
