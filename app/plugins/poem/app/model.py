@@ -1,7 +1,8 @@
+from lin import db
 from lin.core import lin_config
 from lin.exception import NotFound
 from lin.interface import InfoCrud as Base
-from sqlalchemy import Column, String, Integer, Text
+from sqlalchemy import Column, String, Integer, Text, text
 
 
 class Poem(Base):
@@ -12,10 +13,17 @@ class Poem(Base):
     content = Column(Text, nullable=False, comment='内容')
     image = Column(String(255), default='', comment='配图')
 
-    def get_all(self):
-        poems = self.query.filter_by(delete_time=None).limit(
-            lin_config.get_config('poem.limit')
-        ).all()
+    def get_all(self, form):
+        query = self.query.filter_by(delete_time=None)
+
+        if form.author.data:
+            query = query.filter_by(author=form.author.data)
+
+        limit = form.count.data if\
+            form.count.data else lin_config.get_config('poem.limit')
+
+        poems = query.limit(limit).all()
+
         if not poems:
             raise NotFound(msg='没有找到相关诗词')
         return poems
@@ -25,3 +33,10 @@ class Poem(Base):
         if not poems:
             raise NotFound(msg='没有找到相关诗词')
         return poems
+
+    @classmethod
+    def get_authors(cls):
+        authors = db.session.query(cls.author).filter_by(soft=False).group_by(
+            text('author')).having(text('count(author) > 0')).all()
+        ret = [author[0] for author in authors]
+        return ret
