@@ -80,6 +80,8 @@ def delete_user(id):
     user = manager.user_model.get(id=id)
     if user is None:
         raise NotFound(msg='用户不存在')
+    # user.delete(commit=True)
+    # 此处我们使用硬删除，一般情况下，推荐使用软删除即，上一行注释的代码
     user.hard_delete(commit=True)
     return Success(msg='操作成功')
 
