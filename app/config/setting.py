@@ -14,5 +14,7 @@ JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
 # 插件模块暂时没有开启，以下配置可忽略
 # plugin config写在字典里面
-BP_URL_PREFIX = '/plugin'
-PLUGIN_PATH = {}
+PLUGIN_PATH = {
+    'oss': {'path': 'app.plugins.oss', 'enable': True, 'upload_folder': 'app/static'},
+    'poem': {'path': 'app.plugins.poem', 'enable': True, 'limit': 5},
+}

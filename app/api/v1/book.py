@@ -4,7 +4,8 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from lin import db, route_meta, group_required
+from lin import db, route_meta, group_required, login_required
+from lin.notify import Notify
 from lin.redprint import Redprint
 from flask import jsonify
 from lin.exception import NotFound, ParameterException, Success
@@ -16,7 +17,11 @@ from app.validators.forms import BookSearchForm, CreateOrUpdateBookForm
 book_api = Redprint('book')
 
 
+# 注意：如果Notify添加的视图函数，没有添加任何视图函数，那么不可识别用户身份
+# 这与真实的情况是一致的，因为一般的情况下，重要的接口需要被保护，重要的消息才需要推送
 @book_api.route('/<id>', methods=['GET'])
+@login_required
+@Notify(template='{user.nickname}查询了一本图书', event='queryBook')
 def get_book(id):
     book = Book.query.filter_by(id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
     if book is None:
@@ -25,8 +30,10 @@ def get_book(id):
 
 
 @book_api.route('/', methods=['GET'])
+@login_required
+@Notify(template='{user.nickname}查询了所有图书', event='queryBooks')
 def get_books():
-    books = Book.query.filter_by(delete_time=None).all()
+    books = Book.query.filter_by(soft=True).all()
     if books is None or len(books) < 1:
         raise NotFound(msg='没有找到相关书籍')
     return jsonify(books)
