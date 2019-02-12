@@ -5,7 +5,7 @@
 
 ## 获取所有诗词接口
 URL:
->GET http://localhost:5000/plugin/poem/demo/all
+>GET http://localhost:5000/plugin/poem/all
 
 Parameters:
 - count: （可选）获取的数量，最小1，最大100，默认5
