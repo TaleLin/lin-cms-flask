@@ -34,7 +34,6 @@ class Poem(Base):
 
         if not poems:
             raise NotFound(msg='没有找到相关诗词')
-
         return poems
 
     def search(self, q):
