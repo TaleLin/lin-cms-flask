@@ -40,7 +40,7 @@ def get_admin_users():
     condition = {'super': UserSuper.COMMON.value, 'group_id': group_id} if group_id else {
         'super': UserSuper.COMMON.value}
     users = db.session.query(manager.user_model, manager.group_model.name) \
-        .filter_by(**condition) \
+        .filter_by(soft=True, **condition) \
         .join(manager.group_model, manager.user_model.group_id == manager.group_model.id) \
         .offset(start).limit(count).all()
     user_and_group = []
