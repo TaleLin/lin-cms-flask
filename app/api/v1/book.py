@@ -23,7 +23,7 @@ book_api = Redprint('book')
 @login_required
 @Notify(template='{user.nickname}查询了一本图书', event='queryBook')
 def get_book(id):
-    book = Book.query.filter_by(id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
+    book = Book.query.filter_by(soft=True, id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
     if book is None:
         raise NotFound(msg='没有找到相关书籍')  # 如果书籍不存在，返回一个异常给前端
     return jsonify(book)  # 如果存在，返回该数据的信息
