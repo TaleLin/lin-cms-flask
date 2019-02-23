@@ -1,4 +1,8 @@
-# -*- coding: utf8 -*-
+"""
+    :copyright: © 2019 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
 from itertools import groupby
 from operator import itemgetter
 
@@ -8,9 +12,6 @@ from lin.exception import NotFound, Forbidden
 
 from app.dao.auth import AuthDAO
 from app.libs.utils import paginate
-
-__author__ = 'Colorful'
-__date__ = '2019/2/23 7:20 PM'
 
 
 class GroupDAO(Group):

@@ -1,13 +1,14 @@
-# -*- coding: utf8 -*-
+"""
+    :copyright: © 2019 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
 from flask import request
 from lin import db
 from lin.core import Log
 from lin.exception import NotFound, ParameterException
 from lin.util import paginate
 from sqlalchemy import text
-
-__author__ = 'Colorful'
-__date__ = '2019/2/23 10:24 PM'
 
 
 class LogDAO(Log):

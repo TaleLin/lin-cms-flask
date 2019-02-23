@@ -1,10 +1,11 @@
-# -*- coding: utf8 -*-
+"""
+    :copyright: © 2019 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
 from lin import db
 from lin.core import Auth, manager, find_auth_module
 from lin.exception import Forbidden
-
-__author__ = 'Colorful'
-__date__ = '2019/2/23 7:22 PM'
 
 
 class AuthDAO(Auth):

@@ -1,4 +1,8 @@
-# -*- coding: utf8 -*-
+"""
+    :copyright: © 2019 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
 from flask import request
 from flask_jwt_extended import get_current_user
 from lin import db
@@ -10,9 +14,6 @@ from sqlalchemy import and_
 
 from app.libs.utils import paginate
 from app.validators.forms import RegisterForm
-
-__author__ = 'Colorful'
-__date__ = '2019/2/23 5:10 PM'
 
 
 class UserDAO(LinUser):
