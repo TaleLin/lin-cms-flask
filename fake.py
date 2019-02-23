@@ -1,8 +1,3 @@
-"""
-    :copyright: © 2019 by the Lin team.
-    :license: MIT, see LICENSE for more details.
-"""
-
 from app.app import create_app
 from app.plugins.poem.app.model import Poem
 from lin.db import db
@@ -12,29 +7,57 @@ with app.app_context():
     with db.auto_commit():
         # 添加诗歌
         poem1 = Poem()
-        poem1.title = '夜宿山寺'
-        poem1.author = '李白'
-        poem1.dynasty = '唐代'
-        poem1.content = '危楼高百尺，手可摘星辰。不敢高声语，恐惊天上人。'
+        poem1.title = '生查子·元夕'
+        poem1.author = '欧阳修'
+        poem1.dynasty = '宋代'
+        poem1._content = """去年元夜时/花市灯如昼/月上柳梢头/人约黄昏后|今年元夜时/月与灯依旧/不见去年人/泪湿春衫袖"""
         db.session.add(poem1)
 
         poem2 = Poem()
-        poem2.title = '视刀环歌'
-        poem2.author = '刘禹锡'
-        poem2.dynasty = '唐代'
-        poem2.content = '常恨言语浅，不如人意深。今朝两相视，脉脉万重心。'
+        poem2.title = '临江仙·送钱穆父'
+        poem2.author = '苏轼'
+        poem2.dynasty = '宋代'
+        poem2._content = """一别都门三改火/天涯踏尽红尘/依然一笑作春温/无波真古井/有节是秋筠|惆怅孤帆连夜发/送行淡月微云/尊前不用翠眉颦/人生如逆旅/我亦是行人"""
         db.session.add(poem2)
 
         poem3 = Poem()
-        poem3.title = '己亥杂诗 · 其五'
-        poem3.author = '龚自珍'
-        poem3.dynasty = '清代'
-        poem3.content = '浩荡离愁白日斜，吟鞭东指即天涯。落红不是无情物，化作春泥更护花。'
+        poem3.title = '春望词四首'
+        poem3.author = '薛涛'
+        poem3.dynasty = '唐代'
+        poem3._content = """花开不同赏/花落不同悲/欲问相思处/花开花落时/揽草结同心/将以遗知音/春愁正断绝/春鸟复哀吟/风花日将老/佳期犹渺渺/不结同心人/空结同心草/那堪花满枝/翻作两相思/玉箸垂朝镜/春风知不知"""
         db.session.add(poem3)
 
         poem4 = Poem()
-        poem4.title = '杨柳枝'
-        poem4.author = '温庭筠'
-        poem4.dynasty = '唐代'
-        poem4.content = '井底点灯深烛伊，共郎长行莫围棋。玲珑骰子安红豆，入骨相思知不知。'
+        poem4.title = '长相思'
+        poem4.author = '纳兰性德'
+        poem4.dynasty = '清代'
+        poem4._content = """山一程/水一程/身向榆关那畔行/夜深千帐灯|风一更/雪一更/聒碎乡心梦不成/故园无此声"""
         db.session.add(poem4)
+
+        poem5 = Poem()
+        poem5.title = '离思五首·其四'
+        poem5.author = '元稹'
+        poem5.dynasty = '唐代'
+        poem5._content = """曾经沧海难为水/除却巫山不是云/取次花丛懒回顾/半缘修道半缘君"""
+        db.session.add(poem5)
+
+        poem6 = Poem()
+        poem6.title = '浣溪沙·一曲新词酒一杯'
+        poem6.author = '晏殊'
+        poem6.dynasty = '宋代'
+        poem6._content = """一曲新词酒一杯/去年天气旧亭台/夕阳西下几时回|无可奈何花落去/似曾相识燕归来/小园香径独徘徊"""
+        db.session.add(poem6)
+
+        poem7 = Poem()
+        poem7.title = '浣溪沙·残雪凝辉冷画屏'
+        poem7.author = '纳兰性德'
+        poem7.dynasty = '清代'
+        poem7._content = """残雪凝辉冷画屏/落梅横笛已三更/更无人处月胧明|我是人间惆怅客/知君何事泪纵横/断肠声里忆平生"""
+        db.session.add(poem7)
+
+        poem8 = Poem()
+        poem8.title = '蝶恋花·春景'
+        poem8.author = '苏轼'
+        poem8.dynasty = '宋代'
+        poem8._content = """花褪残红青杏小/燕子飞时/绿水人家绕/枝上柳绵吹又少/天涯何处无芳草|墙里秋千墙外道/墙外行人/墙里佳人笑/笑渐不闻声渐悄/多情却被无情恼"""
+        db.session.add(poem8)
