@@ -78,5 +78,5 @@ def event_stream():
             yield sser.pop()
         else:
             yield sser.heartbeat()
-            # 每个5秒发送一次心跳
-            time.sleep(5)
+            # 每个3秒发送一次心跳
+            time.sleep(3)
