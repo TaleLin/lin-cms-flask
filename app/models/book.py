@@ -53,7 +53,7 @@ class Book(Base):
         if book is None:
             raise NotFound(msg='没有找到相关书籍')
 
-        self.update(
+        book.update(
             id=bid,
             title=form.title.data,
             author=form.author.data,
