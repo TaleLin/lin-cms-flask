@@ -16,39 +16,44 @@ class Book(Base):
     summary = Column(String(1000))
     image = Column(String(50))
 
-    def get_detail(self, bid):
-        book = self.query.filter_by(id=bid, delete_time=None).first()
+    @classmethod
+    def get_detail(cls, bid):
+        book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
             raise NotFound(msg='没有找到相关书籍')
         return book
 
-    def get_all(self):
-        books = self.query.filter_by(delete_time=None).all()
+    @classmethod
+    def get_all(cls):
+        books = cls.query.filter_by(delete_time=None).all()
         if not books:
             raise NotFound(msg='没有找到相关书籍')
         return books
 
-    def search_by_keywords(self, q):
-        books = self.query.filter(Book.title.like('%' + q + '%'), Book.delete_time == None).all()
+    @classmethod
+    def search_by_keywords(cls, q):
+        books = cls.query.filter(Book.title.like('%' + q + '%'), Book.delete_time == None).all()
         if not books:
             raise BookNotFound()
         return books
 
-    def new_book(self, form):
+    @classmethod
+    def new_book(cls, form):
         book = Book.query.filter_by(title=form.title.data, delete_time=None).first()
         if book is not None:
             raise ParameterException(msg='图书已存在')
 
-        self.create(
+        Book.create(
             title=form.title.data,
             author=form.author.data,
             summary=form.summary.data,
             image=form.image.data,
             commit=True
         )
-        return self
+        return True
 
-    def edit_book(self, bid, form):
+    @classmethod
+    def edit_book(cls, bid, form):
         book = Book.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
             raise NotFound(msg='没有找到相关书籍')
@@ -61,12 +66,13 @@ class Book(Base):
             image=form.image.data,
             commit=True
         )
-        return self
+        return True
 
-    def remove_book(self, bid):
-        book = self.query.filter_by(id=bid, delete_time=None).first()
+    @classmethod
+    def remove_book(cls, bid):
+        book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
             raise NotFound(msg='没有找到相关书籍')
         # 删除图书，软删除
         book.delete(commit=True)
-        return self
+        return True

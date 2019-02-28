@@ -22,7 +22,7 @@ book_api = Redprint('book')
 @login_required
 @Notify(template='{user.nickname}查询了一本图书', event='queryBook')
 def get_book(bid):
-    book = Book().get_detail(bid)
+    book = Book.get_detail(bid)
     return jsonify(book)
 
 
@@ -30,28 +30,28 @@ def get_book(bid):
 @login_required
 @Notify(template='{user.nickname}查询了所有图书', event='queryBooks')
 def get_books():
-    books = Book().get_all()
+    books = Book.get_all()
     return jsonify(books)
 
 
 @book_api.route('/search', methods=['GET'])
 def search():
     form = BookSearchForm().validate_for_api()
-    books = Book().search_by_keywords(form.q.data)
+    books = Book.search_by_keywords(form.q.data)
     return jsonify(books)
 
 
 @book_api.route('/', methods=['POST'])
 def create_book():
     form = CreateOrUpdateBookForm().validate_for_api()
-    Book().new_book(form)
+    Book.new_book(form)
     return Success(msg='新建图书成功')
 
 
 @book_api.route('/<bid>', methods=['PUT'])
 def update_book(bid):
     form = CreateOrUpdateBookForm().validate_for_api()
-    Book().edit_book(bid, form)
+    Book.edit_book(bid, form)
     return Success(msg='更新图书成功')
 
 
@@ -59,5 +59,5 @@ def update_book(bid):
 @route_meta(auth='删除图书', module='图书')
 @group_required
 def delete_book(bid):
-    Book().remove_book(bid)
+    Book.remove_book(bid)
     return Success(msg='删除图书成功')
