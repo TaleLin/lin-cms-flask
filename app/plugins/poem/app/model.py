@@ -6,6 +6,7 @@ from sqlalchemy import Column, String, Integer, Text, text
 
 
 class Poem(Base):
+    __tablename__ = 'lin_poem'
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(50), nullable=False, comment='标题')
     author = Column(String(50), default='未名', comment='作者')
