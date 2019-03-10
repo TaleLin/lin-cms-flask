@@ -12,6 +12,9 @@ def initial_data():
 
     app = create_app()
     with app.app_context():
+        data = Poem.query.limit(1).all()
+        if data:
+            return
         with db.auto_commit():
             # 添加诗歌
             img_url = 'http://yanlan.oss-cn-shenzhen.aliyuncs.com/gqmgbmu06yO2zHD.png'
