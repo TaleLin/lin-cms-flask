@@ -9,7 +9,7 @@ from flask_jwt_extended import get_current_user
 
 from lin import db
 from lin.core import route_meta, Event
-from lin.exception import NotFound, Success
+from lin.exception import NotFound, Success, Forbidden
 from lin.jwt import group_required, admin_required
 from lin.redprint import Redprint
 from lin.notify import MESSAGE_EVENTS
@@ -51,7 +51,7 @@ def create_events():
     form = EventsForm().validate_for_api()
     event = Event.query.filter_by(group_id=form.group_id.data, soft=False).first()
     if event:
-        raise NotFound(msg='当前权限组已存在推送项')
+        raise Forbidden(msg='当前权限组已存在推送项')
     with db.auto_commit():
         ev = Event()
         ev.group_id = form.group_id.data
@@ -78,5 +78,5 @@ def event_stream():
             yield sser.pop()
         else:
             yield sser.heartbeat()
-            # 每个5秒发送一次心跳
-            time.sleep(5)
+            # 每个3秒发送一次心跳
+            time.sleep(3)

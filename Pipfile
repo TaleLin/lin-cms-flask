@@ -13,6 +13,9 @@ requests = "==2.18.4"
 pipfile = "*"
 lin-cms = "==0.1.1a3"
 
+"oss2" = "*"
+
+
 [dev-packages]
 pytest = "*"
 
