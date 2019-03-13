@@ -44,7 +44,8 @@ class PluginInit:
         else:
             names = self.name.split(" ")
         for name in names:
-            exit('插件名称不能为空，请重试') if self.name == '' else print('正在初始化插件' + name + '...')
+            if self.name == '':
+                exit('插件名称不能为空，请重试')
             self.path_info[name] = {
                 'plugin_path': self.plugin_path + '.' + name,
                 'plugin_config_path': self.plugin_path + '.' + name + '.config',
@@ -58,6 +59,7 @@ class PluginInit:
             raise Exception('安装插件依赖时发生错误！\nError:' + str(e))
         from subprocess import CalledProcessError
         for name in self.path_info:
+            print('正在初始化插件' + name + '...')
             filename = 'requirements.txt'
             file_path = self.app.config.root_path + '/plugins/' + name + '/' + filename
             success_msg = '安装' + name + '插件的依赖成功'
@@ -280,9 +282,9 @@ class DependenciesResolve:
 
     def __check_top_dependencies(self, top_package):
             for plugin_package in self.plugin_graph:
-                # top_version = top_package['installed_version']
-                # plugin_version = plugin_package['version']
-                if top_package['key'] == plugin_package['package']['key']:
+                top_version = top_package['installed_version']
+                plugin_version = plugin_package['package']['version']
+                if top_package['key'] == plugin_package['package']['key'] and top_version != plugin_version:
                     err_msg = '由于项目主目录已经存在在包' \
                               '' + top_package['package_name'] + '，但 ' + plugin_package['package']['plugin_name']\
                               + ' 插件尝试重复安装不同版本，请尝试手动去掉该插件的requirements.txt中的包'

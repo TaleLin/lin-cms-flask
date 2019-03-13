@@ -4,14 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "==1.0.2"
-flask-sqlalchemy = "==2.3.2"
-flask-wtf = "==0.14.2"
 cymysql = "==0.9.1"
-flask-cors = "==2.1.0"
 requests = "==2.18.4"
 pipfile = "*"
-lin-cms = "==0.1.1a4"
+oss2 = "==2.6.1"
+Flask = "==1.0.2"
+Flask-SQLAlchemy = "==2.3.2"
+Flask-WTF = "==0.14.2"
+Flask-Cors = "==2.1.0"
+Lin-CMS = "==0.1.1a4"
 
 [dev-packages]
 pytest = "*"
