@@ -35,7 +35,7 @@ def stream():
 @group_required
 def get_events():
     current_user = get_current_user()
-    if current_user.is_super:
+    if current_user.is_admin:
         return jsonify({'events': list(MESSAGE_EVENTS)})
     event = Event.query.filter_by(group_id=current_user.group_id, soft=False).first()
     if event is None:

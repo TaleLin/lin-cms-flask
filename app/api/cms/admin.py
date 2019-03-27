@@ -11,7 +11,7 @@ from flask import jsonify, request
 from lin import db
 from lin.core import get_ep_infos, route_meta, manager, find_user, find_auth_module
 from lin.db import get_total_nums
-from lin.enums import UserSuper, UserActive
+from lin.enums import UserAdmin, UserActive
 from lin.exception import Success, NotFound, ParameterException, Forbidden
 from lin.jwt import admin_required
 from lin.log import Logger
@@ -38,10 +38,10 @@ def get_admin_users():
     start, count = paginate()
     group_id = request.args.get('group_id')
     condition = {
-        'super': UserSuper.COMMON.value,
+        'admin': UserAdmin.COMMON.value,
         'group_id': group_id
     } if group_id else {
-        'super': UserSuper.COMMON.value
+        'admin': UserAdmin.COMMON.value
     }
 
     users = db.session.query(
@@ -58,7 +58,7 @@ def get_admin_users():
         user.hide('update_time', 'delete_time')
         user_and_group.append(user)
     # 有分组的时候就加入分组条件
-    # total_nums = get_total_nums(manager.user_model, is_soft=True, super=UserSuper.COMMON.value)
+    # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
     total_nums = get_total_nums(manager.user_model, is_soft=True, **condition)
     return jsonify({
         "collection": user_and_group,
