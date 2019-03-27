@@ -7,7 +7,8 @@
 from operator import and_
 
 from flask import jsonify
-from flask_jwt_extended import create_access_token, jwt_refresh_token_required, get_jwt_identity, get_current_user
+from flask_jwt_extended import create_access_token, jwt_refresh_token_required, get_jwt_identity, get_current_user, \
+    create_refresh_token
 from lin.core import manager, route_meta, Log
 from lin.db import db
 from lin.exception import NotFound, Success, Failed, RepeatException, ParameterException
@@ -104,8 +105,10 @@ def refresh():
     identity = get_jwt_identity()
     if identity:
         access_token = create_access_token(identity=identity)
+        refresh_token = create_refresh_token(identity=identity)
         return jsonify({
-            'access_token': access_token
+            'access_token': access_token,
+            'refresh_token': refresh_token
         })
     return NotFound(msg='refresh_token未被识别')
 
