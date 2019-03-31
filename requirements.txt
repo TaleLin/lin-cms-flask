@@ -1,4 +1,4 @@
-certifi==2018.11.29
+certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
 cymysql==0.9.1
@@ -10,8 +10,8 @@ Flask-WTF==0.14.2
 idna==2.6
 itsdangerous==1.1.0
 Jinja2==2.10
-Lin-CMS==0.1.1a1
-MarkupSafe==1.1.0
+Lin-CMS==0.1.1a4
+MarkupSafe==1.1.1
 pipfile==0.0.2
 PyJWT==1.7.1
 requests==2.18.4

@@ -15,6 +15,6 @@ with app.app_context():
         user.nickname = 'super'
         user.password = '123456'
         user.email = '1234995678@qq.com'
-        # super为 2 的时候为超级管理员，普通用户为 1
-        user.super = 2
+        # admin 2 的时候为超级管理员，普通用户为 1
+        user.admin = 2
         db.session.add(user)
