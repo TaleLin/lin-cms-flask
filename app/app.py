@@ -25,13 +25,14 @@ def create_tables(app):
         db.create_all()
 
 
-def create_app():
+def create_app(register_all=True):
     app = Flask(__name__)
     app.config.from_object('app.config.setting')
     app.config.from_object('app.config.secure')
-    register_blueprints(app)
-    Lin(app)
-    apply_cors(app)
-    # 创建所有表格
-    create_tables(app)
+    if register_all:
+        register_blueprints(app)
+        Lin(app)
+        apply_cors(app)
+        # 创建所有表格
+        create_tables(app)
     return app
