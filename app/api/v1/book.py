@@ -4,83 +4,60 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from lin import db, route_meta, group_required
-from lin.redprint import Redprint
 from flask import jsonify
-from lin.exception import NotFound, ParameterException, Success
+from lin import route_meta, group_required, login_required
+from lin.exception import Success
+from lin.notify import Notify
+from lin.redprint import Redprint
 
-from app.libs.error_code import BookNotFound
 from app.models.book import Book
 from app.validators.forms import BookSearchForm, CreateOrUpdateBookForm
 
 book_api = Redprint('book')
 
 
-@book_api.route('/<id>', methods=['GET'])
-def get_book(id):
-    book = Book.query.filter_by(id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
-    if book is None:
-        raise NotFound(msg='没有找到相关书籍')  # 如果书籍不存在，返回一个异常给前端
-    return jsonify(book)  # 如果存在，返回该数据的信息
+# 注意：如果Notify添加的视图函数，没有添加任何视图函数，那么不可识别用户身份
+# 这与真实的情况是一致的，因为一般的情况下，重要的接口需要被保护，重要的消息才需要推送
+@book_api.route('/<bid>', methods=['GET'])
+@login_required
+@Notify(template='{user.nickname}查询了一本图书', event='queryBook')
+def get_book(bid):
+    book = Book.get_detail(bid)
+    return jsonify(book)
 
 
 @book_api.route('/', methods=['GET'])
+@login_required
+@Notify(template='{user.nickname}查询了所有图书', event='queryBooks')
 def get_books():
-    books = Book.query.filter_by(delete_time=None).all()
-    if books is None or len(books) < 1:
-        raise NotFound(msg='没有找到相关书籍')
+    books = Book.get_all()
     return jsonify(books)
 
 
 @book_api.route('/search', methods=['GET'])
 def search():
     form = BookSearchForm().validate_for_api()
-    q = '%' + form.q.data + '%'
-    books = Book.query.filter(Book.title.like(q)).all()
-    if books is None or len(books) < 1:
-        raise BookNotFound()
+    books = Book.search_by_keywords(form.q.data)
     return jsonify(books)
 
 
 @book_api.route('/', methods=['POST'])
 def create_book():
-    form = CreateOrUpdateBookForm().validate_for_api()  # 校验参数
-    book = Book.query.filter_by(title=form.title.data).filter(Book.delete_time == None).first()  # 避免同名图书
-    if book is not None:
-        raise ParameterException(msg='图书已存在')
-    # 新增图书
-    with db.auto_commit():
-        new_book = Book()
-        new_book.title = form.title.data
-        new_book.author = form.author.data
-        new_book.summary = form.summary.data
-        new_book.image = form.image.data
-        db.session.add(new_book)
+    form = CreateOrUpdateBookForm().validate_for_api()
+    Book.new_book(form)
     return Success(msg='新建图书成功')
 
 
-@book_api.route('/<id>', methods=['PUT'])
-def update_book(id):
-    form = CreateOrUpdateBookForm().validate_for_api()  # 校验参数
-    book = Book.query.filter_by(id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
-    if book is None:
-        raise NotFound(msg='没有找到相关书籍')  # 如果书籍不存在，返回一个异常给前端
-    # 更新图书
-    with db.auto_commit():
-        book.title = form.title.data
-        book.author = form.author.data
-        book.summary = form.summary.data
-        book.image = form.image.data
+@book_api.route('/<bid>', methods=['PUT'])
+def update_book(bid):
+    form = CreateOrUpdateBookForm().validate_for_api()
+    Book.edit_book(bid, form)
     return Success(msg='更新图书成功')
 
 
-@book_api.route('/<id>', methods=['DELETE'])
+@book_api.route('/<bid>', methods=['DELETE'])
 @route_meta(auth='删除图书', module='图书')
 @group_required
-def delete_book(id):
-    book = Book.query.filter_by(id=id).first()  # 通过Book模型在数据库中查询id=`id`的书籍
-    if book is None:
-        raise NotFound(msg='没有找到相关书籍')  # 如果书籍不存在，返回一个异常给前端
-    # 删除图书，软删除
-    book.delete(commit=True)
+def delete_book(bid):
+    Book.remove_book(bid)
     return Success(msg='删除图书成功')
