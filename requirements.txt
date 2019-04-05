@@ -10,7 +10,7 @@ Flask-WTF==0.14.2
 idna==2.6
 itsdangerous==1.1.0
 Jinja2==2.10
-Lin-CMS==0.1.1a4
+Lin-CMS==0.1.1a6
 MarkupSafe==1.1.1
 pipfile==0.0.2
 PyJWT==1.7.1
@@ -21,3 +21,4 @@ toml==0.10.0
 urllib3==1.22
 Werkzeug==0.14.1
 WTForms==2.2.1
+oss2==2.6.1
