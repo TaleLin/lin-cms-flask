@@ -8,7 +8,6 @@ from app.app import create_app
 from lin.db import db
 from lin.core import User
 
-
 def main():
     app = create_app()
     with app.app_context():
