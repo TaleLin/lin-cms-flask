@@ -7,8 +7,8 @@
 from operator import and_
 
 from flask import jsonify
-from flask_jwt_extended import create_access_token, jwt_refresh_token_required, get_jwt_identity, get_current_user, \
-    create_refresh_token
+from flask_jwt_extended import create_access_token, get_jwt_identity, get_current_user, \
+    create_refresh_token, verify_jwt_refresh_token_in_request
 from lin.core import manager, route_meta, Log
 from lin.db import db
 from lin.exception import NotFound, Success, Failed, RepeatException, ParameterException
@@ -16,6 +16,7 @@ from lin.jwt import login_required, admin_required, get_tokens
 from lin.log import Logger
 from lin.redprint import Redprint
 
+from app.libs.error_code import RefreshException
 from app.validators.forms import LoginForm, RegisterForm, ChangePasswordForm, UpdateInfoForm
 
 user_api = Redprint('user')
@@ -100,8 +101,13 @@ def get_information():
 
 @user_api.route('/refresh', methods=['GET'])
 @route_meta(auth='刷新令牌', module='用户', mount=False)
-@jwt_refresh_token_required
 def refresh():
+
+    try:
+        verify_jwt_refresh_token_in_request()
+    except Exception:
+        return RefreshException()
+
     identity = get_jwt_identity()
     if identity:
         access_token = create_access_token(identity=identity)
@@ -110,6 +116,7 @@ def refresh():
             'access_token': access_token,
             'refresh_token': refresh_token
         })
+
     return NotFound(msg='refresh_token未被识别')
 
 
