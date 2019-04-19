@@ -11,11 +11,12 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_curren
     create_refresh_token, verify_jwt_refresh_token_in_request
 from lin.core import manager, route_meta, Log
 from lin.db import db
-from lin.exception import NotFound, Success, Failed, RepeatException, ParameterException, RefreshException
+from lin.exception import NotFound, Success, Failed, RepeatException, ParameterException
 from lin.jwt import login_required, admin_required, get_tokens
 from lin.log import Logger
 from lin.redprint import Redprint
 
+from app.libs.error_code import RefreshException
 from app.validators.forms import LoginForm, RegisterForm, ChangePasswordForm, UpdateInfoForm
 
 user_api = Redprint('user')
