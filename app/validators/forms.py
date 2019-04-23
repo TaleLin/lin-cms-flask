@@ -2,7 +2,7 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-
+from lin import manager
 from wtforms import DateTimeField, PasswordField, FieldList, IntegerField, StringField
 from wtforms.validators import DataRequired, Regexp, EqualTo, length, Optional, NumberRange
 import time
@@ -26,6 +26,11 @@ class RegisterForm(Form):
         Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()
     ])
+
+    def validate_group_id(self, value):
+        exists = manager.group_model.get(id=value.data)
+        if not exists:
+            raise ValueError('分组id不存在')
 
 
 # 登陆校验
