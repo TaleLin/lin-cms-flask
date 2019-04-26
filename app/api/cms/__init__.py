@@ -13,11 +13,9 @@ def create_cms():
     from .admin import admin_api
     from .user import user_api
     from .log import log_api
-    from .notify import notify_api
     from .test import test_api
     admin_api.register(cms)
     user_api.register(cms)
     log_api.register(cms)
-    notify_api.register(cms)
     test_api.register(cms)
     return cms

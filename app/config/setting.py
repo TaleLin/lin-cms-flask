@@ -12,6 +12,9 @@ PAGE_DEFAULT = 0
 # 令牌配置
 JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
+# 屏蔽 sql alchemy 的 FSADeprecationWarning
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 # 插件模块暂时没有开启，以下配置可忽略
 # plugin config写在字典里面
 PLUGIN_PATH = {
