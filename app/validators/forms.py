@@ -30,7 +30,7 @@ class RegisterForm(Form):
     def validate_group_id(self, value):
         exists = manager.group_model.get(id=value.data)
         if not exists:
-            raise ValueError('分组id不存在')
+            raise ValueError('分组不存在')
 
 
 # 登陆校验
