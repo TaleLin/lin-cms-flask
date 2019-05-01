@@ -2,11 +2,11 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from sqlalchemy.exc import IntegrityError
+
+from lin.core import User
+from lin.db import db
 
 from app.app import create_app
-from lin.db import db
-from lin.core import User
 
 
 def main():
