@@ -33,6 +33,13 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 本项目是 Lin CMS 后端的 Flask 实现，需要前端？请访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
 
+## 最新版本
+
+核心库：0.1.1a8
+
+示例工程：0.1.0-beta.1
+
+
 ### 文档地址
 
 [http://doc.cms.7yue.pro/](http://doc.cms.7yue.pro/)
@@ -158,4 +165,4 @@ pipenv shell
 
 ## 下个版本开发计划
 
-- [ ] 添加消息推送机制
+- [ ] 调整 jwt 机制，增强灵活性
