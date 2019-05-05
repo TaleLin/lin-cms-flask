@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-cymysql = "==0.9.1"
+cymysql = "==0.9.13"
 requests = "==2.18.4"
 pipfile = "*"
 oss2 = "==2.6.1"
@@ -12,7 +12,7 @@ Flask = "==1.0.2"
 Flask-SQLAlchemy = "==2.3.2"
 Flask-WTF = "==0.14.2"
 Flask-Cors = "==2.1.0"
-Lin-CMS = "==0.1.1a6"
+Lin-CMS = "==0.1.1b1"
 
 [dev-packages]
 pytest = "*"

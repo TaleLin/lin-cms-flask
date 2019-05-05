@@ -1,7 +1,7 @@
 certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
-cymysql==0.9.1
+cymysql==0.9.13
 Flask==1.0.2
 Flask-Cors==2.1.0
 Flask-JWT-Extended==3.12.1
@@ -10,7 +10,7 @@ Flask-WTF==0.14.2
 idna==2.6
 itsdangerous==1.1.0
 Jinja2==2.10
-Lin-CMS==0.1.1a6
+Lin-CMS==0.1.1b1
 MarkupSafe==1.1.1
 pipfile==0.0.2
 PyJWT==1.7.1
