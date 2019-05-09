@@ -35,7 +35,6 @@ def info():
 # @test_api.route('/ac', methods=['GET'])
 # @route_meta(auth='用户查询自己信息', module='权限')
 # @login_required
-# # @Notify(template='{user.nickname}查看自己是否为激活状态 ，状态码为{response.status_code}', event='激活')
 # @Logger(template='{user.nickname}查询了自己的名字，状态码为{response.status_code}')
 # def get_active():
 #     return jsonify({
@@ -46,7 +45,6 @@ def info():
 # @test_api.route('/ni', methods=['GET'])
 # @route_meta(auth='用户查询自己信息', module='权限')
 # @group_required
-# # @Notify(template='{user.nickname}查询了自己的名字，状态码为{response.status_code}', event='名称', hello='world')
 # @Logger(template='{user.nickname}查询了自己的名字，状态码为{response.status_code}')
 # def get_name():
 #     return jsonify({

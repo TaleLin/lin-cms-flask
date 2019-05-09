@@ -7,7 +7,6 @@
 from flask import jsonify
 from lin import route_meta, group_required, login_required
 from lin.exception import Success
-from lin.notify import Notify
 from lin.redprint import Redprint
 
 from app.models.book import Book
@@ -16,11 +15,9 @@ from app.validators.forms import BookSearchForm, CreateOrUpdateBookForm
 book_api = Redprint('book')
 
 
-# 注意：如果Notify添加的视图函数，没有添加任何视图函数，那么不可识别用户身份
 # 这与真实的情况是一致的，因为一般的情况下，重要的接口需要被保护，重要的消息才需要推送
 @book_api.route('/<bid>', methods=['GET'])
 @login_required
-@Notify(template='{user.nickname}查询了一本图书', event='queryBook')
 def get_book(bid):
     book = Book.get_detail(bid)
     return jsonify(book)
@@ -28,7 +25,6 @@ def get_book(bid):
 
 @book_api.route('/', methods=['GET'])
 @login_required
-@Notify(template='{user.nickname}查询了所有图书', event='queryBooks')
 def get_books():
     books = Book.get_all()
     return jsonify(books)
