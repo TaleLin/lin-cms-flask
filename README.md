@@ -48,6 +48,18 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 [http://face.cms.7yue.pro/](http://face.cms.7yue.pro/)
 
+### QQ 交流群
+
+QQ 群号：643205479
+
+<img class="QR-img" width="258" height="300" src="http://imglf3.nosdn0.126.net/img/Qk5LWkJVWkF3Nmdyc2xGcUtScEJLOVV1clErY1dJa0FsQ3E1aDZQWlZHZ2dCbSt4WXA1V3dRPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+
+### 微信公众号
+
+微信搜索：林间有风
+
+<img class="QR-img" src="http://imglf6.nosdn0.126.net/img/YUdIR2E3ME5weEdlNThuRmI4TFh3UWhiNmladWVoaTlXUXpicEFPa1F6czFNYkdmcWRIbGRRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg">
+
 ### Lin CMS 的特点
 
 Lin CMS 的构筑思想是有其自身特点的。下面我们阐述一些 Lin 的主要特点。
