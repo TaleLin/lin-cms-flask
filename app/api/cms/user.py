@@ -4,10 +4,9 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from collections import namedtuple
 from operator import and_
 
-from flask import jsonify, request, url_for
+from flask import jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_current_user, \
     create_refresh_token, verify_jwt_refresh_token_in_request
 from lin.core import manager, route_meta, Log
@@ -17,7 +16,6 @@ from lin.jwt import login_required, admin_required, get_tokens
 from lin.log import Logger
 from lin.redprint import Redprint
 
-from app.extensions.file.local_uploader import LocalUploader
 from app.libs.error_code import RefreshException
 from app.validators.forms import LoginForm, RegisterForm, ChangePasswordForm, UpdateInfoForm, \
     AvatarUpdateForm
@@ -146,7 +144,7 @@ def set_avatar():
     user = get_current_user()
     with db.auto_commit():
         user.avatar = form.avatar.data
-    return Success(msg='操作成功')
+    return Success(msg='更新头像成功')
 
 
 def _register_user(form: RegisterForm):

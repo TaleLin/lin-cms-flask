@@ -10,7 +10,7 @@ class LocalUploader(Uploader):
     def upload(self, **kwargs):
         ret = []
         site_domain = current_app.config.get('SITE_DOMAIN')\
-            if current_app.config.get('SITE_DOMAIN') else '127.0.0.1:5000'
+            if current_app.config.get('SITE_DOMAIN') else 'http://127.0.0.1:5000'
         for single in self._file_storage:
             file_md5 = self._generate_md5(single.read())
             single.seek(0)
