@@ -26,7 +26,7 @@ def create_tables(app):
 
 
 def create_app(register_all=True):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='./assets')
     app.config.from_object('app.config.setting')
     app.config.from_object('app.config.secure')
     if register_all:
