@@ -17,7 +17,7 @@ class LocalUploader(Uploader):
             exists = File.query.filter_by(md5=file_md5).first()
             if exists:
                 ret.append({
-                    "key": single.filename,
+                    "key": single.name,
                     "id": exists.id,
                     "url": site_domain + '/assets/' + exists.path
                 })
@@ -34,7 +34,7 @@ class LocalUploader(Uploader):
                     commit=True
                 )
                 ret.append({
-                    "key": single.filename,
+                    "key": single.name,
                     "id": file.id,
                     "url": site_domain + '/assets/' + file.path
                 })
