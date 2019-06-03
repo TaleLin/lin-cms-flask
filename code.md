@@ -26,6 +26,12 @@
 
 10100 refresh token 获取失败
 
+10110 文件体积过大
+
+10120 文件数量过多
+
+10130 文件扩展名不符合规范
+
 20000 werkzeug 中的HTTP EXCEPTION，error_code统一为1007，前端应读取msg
 
 ## 项目使用的状态码
