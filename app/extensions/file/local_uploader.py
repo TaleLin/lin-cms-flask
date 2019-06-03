@@ -7,7 +7,7 @@ from lin.file import Uploader
 
 class LocalUploader(Uploader):
 
-    def upload(self, **kwargs):
+    def upload(self):
         ret = []
         site_domain = current_app.config.get('SITE_DOMAIN')\
             if current_app.config.get('SITE_DOMAIN') else 'http://127.0.0.1:5000'
