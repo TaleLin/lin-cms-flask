@@ -144,12 +144,12 @@ class PluginInit:
         sub_str = 'PLUGIN_PATH = ' + self.__format_setting(final_setting)
 
         setting_path = self.app.config.root_path + '/config/setting.py'
-        with open(setting_path, 'r') as f:
+        with open(setting_path, 'r', encoding='UTF-8') as f:
             content = f.read()
             pattern = 'PLUGIN_PATH = \{([\s\S]*)\}+.*?'
             result = re.sub(pattern, sub_str, content)
 
-        with open(setting_path, 'w+') as f:
+        with open(setting_path, 'w+', encoding='UTF-8') as f:
             f.write(result)
 
     def __get_all_plugins(self):
@@ -255,7 +255,7 @@ class DependenciesResolve:
                 '.', '/').replace('app', '')
             requirements_path = self.app.config.root_path + \
                 plugin_path + '/requirements.txt'
-            with open(requirements_path, 'r') as f:
+            with open(requirements_path, 'r', encoding='UTF-8') as f:
                 while True:
 
                     # 正则匹配requirements的每一行的信息
