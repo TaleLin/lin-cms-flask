@@ -141,6 +141,12 @@ class UpdateUserInfoForm(Form):
     ])
 
 
+class AvatarUpdateForm(Form):
+    avatar = StringField('头像', validators=[
+        DataRequired(message='请输入头像url')
+    ])
+
+
 class BookSearchForm(Form):
     q = StringField(validators=[DataRequired(message='必须传入搜索关键字')])  # 前端的请求参数中必须携带`q`
 
