@@ -2,8 +2,10 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import json
+import time
 
-from flask import Flask
+from flask import Flask, request, g
 from flask_cors import CORS
 from lin import Lin
 
@@ -25,14 +27,52 @@ def create_tables(app):
         db.create_all()
 
 
+def register_before_request(app):
+    @app.before_request
+    def request_cost_time():
+        g.request_start_time = time.time()
+        g.request_time = lambda: "%.5f" % (time.time() - g.request_start_time)
+
+
+def register_after_request(app):
+    @app.after_request
+    def log_response(resp):
+        log_config = app.config.get('LOG')
+        if not log_config['REQUEST_LOG']:
+            return resp
+        message = '[%s]->[%s] from:%s costs:%.3f ms' % (
+            request.method,
+            request.path,
+            request.remote_addr,
+            float(g.request_time()) * 1000
+        )
+        if log_config['LEVEL'] == 'INFO':
+            app.logger.info(message)
+        elif log_config['LEVEL'] == 'DEBUG':
+            req_body = '{}'
+            try:
+                req_body = request.get_json()
+            except:
+                pass
+            message += ' data:{param:%s, body:%s} ' % (
+                json.dumps(request.args, ensure_ascii=False),
+                req_body
+            )
+            app.logger.debug(message)
+        return resp
+
+
 def create_app(register_all=True):
     app = Flask(__name__, static_folder='./assets')
     app.config.from_object('app.config.setting')
     app.config.from_object('app.config.secure')
+    app.config.from_object('app.config.log')
     if register_all:
         register_blueprints(app)
         Lin(app)
         apply_cors(app)
         # 创建所有表格
         create_tables(app)
+        register_before_request(app)
+        register_after_request(app)
     return app
