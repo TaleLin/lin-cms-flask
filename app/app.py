@@ -40,7 +40,7 @@ def register_after_request(app):
         log_config = app.config.get('LOG')
         if not log_config['REQUEST_LOG']:
             return resp
-        message = '[%s]->[%s] from:%s costs:%.3f ms' % (
+        message = '[%s] -> [%s] from:%s costs:%.3f ms' % (
             request.method,
             request.path,
             request.remote_addr,
@@ -54,7 +54,7 @@ def register_after_request(app):
                 req_body = request.get_json()
             except:
                 pass
-            message += ' data:{param:%s, body:%s} ' % (
+            message += " data:{\n\tparam: %s, \n\tbody: %s\n} " % (
                 json.dumps(request.args, ensure_ascii=False),
                 req_body
             )
@@ -70,9 +70,10 @@ def create_app(register_all=True):
     if register_all:
         register_blueprints(app)
         Lin(app)
+        register_before_request(app)
+        register_after_request(app)
         apply_cors(app)
         # 创建所有表格
         create_tables(app)
-        register_before_request(app)
-        register_after_request(app)
+
     return app
