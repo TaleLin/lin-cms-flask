@@ -51,7 +51,7 @@ def register_after_request(app):
         elif log_config['LEVEL'] == 'DEBUG':
             req_body = '{}'
             try:
-                req_body = request.get_json()
+                req_body = request.get_json() if request.get_json() else {}
             except:
                 pass
             message += " data:{\n\tparam: %s, \n\tbody: %s\n} " % (
