@@ -9,6 +9,7 @@ class LocalUploader(Uploader):
 
     def upload(self):
         ret = []
+        self.mkdir_if_not_exists()
         site_domain = current_app.config.get('SITE_DOMAIN')\
             if current_app.config.get('SITE_DOMAIN') else 'http://127.0.0.1:5000'
         for single in self._file_storage:
