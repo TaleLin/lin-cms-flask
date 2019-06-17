@@ -55,7 +55,7 @@ def get_admin_users():
     for user, group_name in users:
         setattr(user, 'group_name', group_name)
         user._fields.append('group_name')
-        user.hide('update_time', 'delete_time')
+        user.hide('update_time')
         user_and_group.append(user)
     # 有分组的时候就加入分组条件
     # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
