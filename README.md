@@ -35,9 +35,9 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 ## 最新版本
 
-核心库：0.1.1b3
+核心库：0.1.1b4
 
-示例工程：0.1.0-beta.2
+示例工程：0.1.0-beta.3
 
 
 ### 文档地址
@@ -47,6 +47,18 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 ### 线上 demo
 
 [http://face.cms.7yue.pro/](http://face.cms.7yue.pro/)
+
+### QQ 交流群
+
+QQ 群号：643205479
+
+<img class="QR-img" width="258" height="300" src="http://imglf3.nosdn0.126.net/img/Qk5LWkJVWkF3Nmdyc2xGcUtScEJLOVV1clErY1dJa0FsQ3E1aDZQWlZHZ2dCbSt4WXA1V3dRPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+
+### 微信公众号
+
+微信搜索：林间有风
+
+<img class="QR-img" src="http://imglf6.nosdn0.126.net/img/YUdIR2E3ME5weEdlNThuRmI4TFh3UWhiNmladWVoaTlXUXpicEFPa1F6czFNYkdmcWRIbGRRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg">
 
 ### Lin CMS 的特点
 
@@ -162,7 +174,3 @@ pipenv shell
 “心上无垢，林间有风"
 
 这证明你已经成功的将 Lin 运行起来了，Congratulations！
-
-## 下个版本开发计划
-
-- [ ] 系统访问日志、错误日志
