@@ -4,9 +4,10 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import os
 from operator import and_
 
-from flask import jsonify
+from flask import jsonify, current_app
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_current_user, \
     create_refresh_token, verify_jwt_refresh_token_in_request
 from lin.core import manager, route_meta, Log
@@ -97,6 +98,11 @@ def change_password():
 @login_required
 def get_information():
     current_user = get_current_user()
+    site_domain = current_app.config.get('SITE_DOMAIN') if current_app.config.get(
+        'SITE_DOMAIN') else "http://127.0.0.1:5000"
+    if current_user.avatar is not None:
+        current_user.avatar = site_domain + os.path.join(
+            current_app.static_url_path, current_user.avatar)
     return jsonify(current_user)
 
 
