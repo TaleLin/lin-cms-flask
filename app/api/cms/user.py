@@ -98,11 +98,6 @@ def change_password():
 @login_required
 def get_information():
     current_user = get_current_user()
-    site_domain = current_app.config.get('SITE_DOMAIN') if current_app.config.get(
-        'SITE_DOMAIN') else "http://127.0.0.1:5000"
-    if current_user.avatar is not None:
-        current_user.avatar = site_domain + os.path.join(
-            current_app.static_url_path, current_user.avatar)
     return jsonify(current_user)
 
 
