@@ -5,7 +5,7 @@
 
 from app.app import create_app
 
-app = create_app()
+app = create_app(environment='development')
 
 
 @app.route('/', methods=['GET'], strict_slashes=False)

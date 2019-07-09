@@ -4,10 +4,9 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import os
 from operator import and_
 
-from flask import jsonify, current_app
+from flask import jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_current_user, \
     create_refresh_token, verify_jwt_refresh_token_in_request
 from lin.core import manager, route_meta, Log
