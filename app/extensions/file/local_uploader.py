@@ -41,6 +41,6 @@ class LocalUploader(Uploader):
                     "key": single.name,
                     "id": file.id,
                     "path": file.path,
-                    "url": site_domain + os.path.join(current_app.static_url_path, exists.path)
+                    "url": site_domain + os.path.join(current_app.static_url_path, file.path)
                 })
         return ret
