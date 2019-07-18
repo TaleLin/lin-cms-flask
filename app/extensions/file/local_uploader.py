@@ -1,3 +1,5 @@
+import os
+
 from flask import current_app
 from werkzeug.utils import secure_filename
 
@@ -20,7 +22,8 @@ class LocalUploader(Uploader):
                 ret.append({
                     "key": single.name,
                     "id": exists.id,
-                    "url": site_domain + '/assets/' + exists.path
+                    "path": exists.path,
+                    "url": site_domain + os.path.join(current_app.static_url_path, exists.path)
                 })
             else:
                 absolute_path, relative_path, real_name = self._get_store_path(single.filename)
@@ -37,6 +40,7 @@ class LocalUploader(Uploader):
                 ret.append({
                     "key": single.name,
                     "id": file.id,
-                    "url": site_domain + '/assets/' + file.path
+                    "path": file.path,
+                    "url": site_domain + os.path.join(current_app.static_url_path, file.path)
                 })
         return ret

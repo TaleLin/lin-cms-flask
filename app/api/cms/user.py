@@ -143,7 +143,7 @@ def set_avatar():
     form = AvatarUpdateForm().validate_for_api()
     user = get_current_user()
     with db.auto_commit():
-        user.avatar = form.avatar.data
+        user._avatar = form.avatar.data
     return Success(msg='更新头像成功')
 
 
