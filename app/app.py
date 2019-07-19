@@ -62,10 +62,16 @@ def register_after_request(app):
         return resp
 
 
-def create_app(register_all=True):
+def create_app(register_all=True, environment='production'):
     app = Flask(__name__, static_folder='./assets')
-    app.config.from_object('app.config.setting')
-    app.config.from_object('app.config.secure')
+    app.config['ENV'] = environment
+    env = app.config.get('ENV')
+    if env == 'production':
+        app.config.from_object('app.config.setting.ProductionConfig')
+        app.config.from_object('app.config.secure.ProductionSecure')
+    elif env == 'development':
+        app.config.from_object('app.config.setting.DevelopmentConfig')
+        app.config.from_object('app.config.secure.DevelopmentSecure')
     app.config.from_object('app.config.log')
     if register_all:
         register_blueprints(app)
