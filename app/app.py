@@ -5,7 +5,8 @@
 import json
 import time
 
-from flask import Flask, request, g
+from app.libs.LinFlask import LinFlask
+from flask import request, g
 from flask_cors import CORS
 from lin import Lin
 
@@ -63,7 +64,7 @@ def register_after_request(app):
 
 
 def create_app(register_all=True, environment='production'):
-    app = Flask(__name__, static_folder='./assets')
+    app = LinFlask(__name__, static_folder='./assets')
     app.config['ENV'] = environment
     env = app.config.get('ENV')
     if env == 'production':
