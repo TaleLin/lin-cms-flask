@@ -61,8 +61,10 @@ def get_admin_users():
     # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
     total_nums = get_total_nums(manager.user_model, is_soft=True, **condition)
     return jsonify({
-        "collection": user_and_group,
-        'total_nums': total_nums
+        "page": start,
+        "count": count,
+        'item': user_and_group,
+        'total': total_nums
     })
 
 
@@ -153,8 +155,10 @@ def get_admin_groups():
     total_nums = get_total_nums(manager.group_model)
 
     return jsonify({
-        "collection": groups,
-        'total_nums': total_nums
+        "page": start,
+        "count": count,
+        'item': groups,
+        'total': total_nums
     })
 
 
