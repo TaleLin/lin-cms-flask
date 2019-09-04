@@ -59,10 +59,12 @@ def get_user_logs():
     total_nums = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
     if not logs:
-        raise NotFound(msg='没有找到相关日志')
+        logs = []
     return jsonify({
-        "total_nums": total_nums,
-        "collection": logs
+        "page": start,
+        "count": count,
+        "total": total_nums,
+        "items": logs
     })
 
 
