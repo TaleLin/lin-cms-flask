@@ -23,7 +23,7 @@ def get_book(bid):
     return jsonify(book)
 
 
-@book_api.route('/', methods=['GET'])
+@book_api.route('', methods=['GET'])
 @login_required
 def get_books():
     books = Book.get_all()
@@ -37,7 +37,7 @@ def search():
     return jsonify(books)
 
 
-@book_api.route('/', methods=['POST'])
+@book_api.route('', methods=['POST'])
 def create_book():
     form = CreateOrUpdateBookForm().validate_for_api()
     Book.new_book(form)

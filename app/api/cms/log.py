@@ -18,7 +18,7 @@ log_api = Redprint('log')
 
 
 # 日志浏览（人员，时间），分页展示
-@log_api.route('/', methods=['GET'], strict_slashes=False)
+@log_api.route('', methods=['GET'])
 @route_meta(auth='查询所有日志', module='日志')
 @group_required
 def get_logs():
