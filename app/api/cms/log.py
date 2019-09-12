@@ -18,7 +18,7 @@ log_api = Redprint('log')
 
 
 # 日志浏览（人员，时间），分页展示
-@log_api.route('/', methods=['GET'], strict_slashes=False)
+@log_api.route('', methods=['GET'])
 @route_meta(auth='查询所有日志', module='日志')
 @group_required
 def get_logs():
@@ -32,10 +32,12 @@ def get_logs():
     total_nums = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
     if not logs:
-        raise NotFound(msg='没有找到相关日志')
+        logs = []
     return jsonify({
-        "total_nums": total_nums,
-        "collection": logs
+        "page": start,
+        "count": count,
+        "total": total_nums,
+        "items": logs
     })
 
 
@@ -57,10 +59,12 @@ def get_user_logs():
     total_nums = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
     if not logs:
-        raise NotFound(msg='没有找到相关日志')
+        logs = []
     return jsonify({
-        "total_nums": total_nums,
-        "collection": logs
+        "page": start,
+        "count": count,
+        "total": total_nums,
+        "items": logs
     })
 
 

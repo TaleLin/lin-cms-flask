@@ -62,7 +62,7 @@ def login():
     })
 
 
-@user_api.route('/', methods=['PUT'])
+@user_api.route('', methods=['PUT'])
 @route_meta(auth='用户更新信息', module='用户', mount=False)
 @login_required
 def update():
