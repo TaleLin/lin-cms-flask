@@ -60,11 +60,13 @@ def get_admin_users():
     # 有分组的时候就加入分组条件
     # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
     total_nums = get_total_nums(manager.user_model, is_soft=True, **condition)
+    total_page = total_nums / count
     return jsonify({
         "page": start,
         "count": count,
         'item': user_and_group,
-        'total': total_nums
+        'total': total_nums,
+        "total_page": total_page
     })
 
 
@@ -153,12 +155,14 @@ def get_admin_groups():
         group._fields.append('auths')
 
     total_nums = get_total_nums(manager.group_model)
+    total_page = total_nums / count
 
     return jsonify({
         "page": start,
         "count": count,
         'item': groups,
-        'total': total_nums
+        'total': total_nums,
+        "total_page": total_page
     })
 
 
