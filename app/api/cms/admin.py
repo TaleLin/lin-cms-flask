@@ -63,7 +63,7 @@ def get_admin_users():
     return jsonify({
         "page": start,
         "count": count,
-        'item': user_and_group,
+        'items': user_and_group,
         'total': total_nums
     })
 
@@ -157,7 +157,7 @@ def get_admin_groups():
     return jsonify({
         "page": start,
         "count": count,
-        'item': groups,
+        'items': groups,
         'total': total_nums
     })
 
