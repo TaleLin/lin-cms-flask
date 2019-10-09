@@ -74,6 +74,7 @@ def update():
             raise ParameterException(msg='邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
+        user.nickname = form.email.data
     return Success(msg='操作成功')
 
 
