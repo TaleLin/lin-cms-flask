@@ -123,10 +123,14 @@ class EventsForm(Form):
     events = FieldList(StringField(validators=[DataRequired(message='请输入events字段')]))
 
 
-# 更新用户邮箱
+# 更新用户邮箱和昵称
 class UpdateInfoForm(Form):
     email = StringField('电子邮件', validators=[
         Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
+        Optional()
+    ])
+    nickname = StringField(validators=[
+        length(min=2, max=10, message='昵称长度必须在2~10之间'),
         Optional()
     ])
 
@@ -137,10 +141,6 @@ class UpdateUserInfoForm(Form):
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
     email = StringField('电子邮件', validators=[
         Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
-        Optional()
-    ])
-    nickname = StringField(validators=[
-        length(min=2, max=10, message='昵称长度必须在2~10之间'),
         Optional()
     ])
 
