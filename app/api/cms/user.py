@@ -29,7 +29,7 @@ user_api = Redprint('user')
 @admin_required
 def register():
     form = RegisterForm().validate_for_api()
-    user = manager.find_user(nickname=form.nickname.data)
+    user = manager.find_user(username=form.username.data)
     if user:
         raise RepeatException(msg='用户名重复，请重新输入')
     if form.email.data and form.email.data.strip() != "":
@@ -47,12 +47,12 @@ def register():
 @route_meta(auth='登陆', module='用户', mount=False)
 def login():
     form = LoginForm().validate_for_api()
-    user = manager.user_model.verify(form.nickname.data, form.password.data)
+    user = manager.user_model.verify(form.username.data, form.password.data)
     # 此处不能用装饰器记录日志
     Log.create_log(
-        message=f'{user.nickname}登陆成功获取了令牌',
-        user_id=user.id, user_name=user.nickname,
-        status_code=200, method='post',path='/cms/user/login',
+        message=f'{user.username}登陆成功获取了令牌',
+        user_id=user.id, user_name=user.username,
+        status_code=200, method='post', path='/cms/user/login',
         authority='无', commit=True
     )
     access_token, refresh_token = get_tokens(user)
@@ -79,7 +79,7 @@ def update():
 
 @user_api.route('/change_password', methods=['PUT'])
 @route_meta(auth='修改密码', module='用户', mount=False)
-@Logger(template='{user.nickname}修改了自己的密码')  # 记录日志
+@Logger(template='{user.username}修改了自己的密码')  # 记录日志
 @login_required
 def change_password():
     form = ChangePasswordForm().validate_for_api()
@@ -151,7 +151,7 @@ def _register_user(form: RegisterForm):
     with db.auto_commit():
         # 注意：此处使用挂载到manager上的user_model，不可使用默认的User
         user = manager.user_model()
-        user.nickname = form.nickname.data
+        user.username = form.username.data
         if form.email.data and form.email.data.strip() != "":
             user.email = form.email.data
         user.password = form.password.data
