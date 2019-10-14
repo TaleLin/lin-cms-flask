@@ -1,4 +1,4 @@
-from flask.app import Response, jsonify
+from flask import Response, jsonify
 
 
 class LinResponse(Response):

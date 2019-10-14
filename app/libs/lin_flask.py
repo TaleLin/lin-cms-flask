@@ -1,4 +1,4 @@
-from flask.app import Flask, jsonify
+from flask import Flask, jsonify
 from app.libs.lin_response import LinResponse
 
 

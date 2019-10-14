@@ -52,13 +52,13 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 QQ 群号：643205479
 
-<img class="QR-img" width="258" height="300" src="http://imglf3.nosdn0.126.net/img/Qk5LWkJVWkF3Nmdyc2xGcUtScEJLOVV1clErY1dJa0FsQ3E1aDZQWlZHZ2dCbSt4WXA1V3dRPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+<img class="QR-img" width="258" height="300" src="http://i1.sleeve.7yue.pro/qq-group.jpeg ">
 
 ### 微信公众号
 
 微信搜索：林间有风
 
-<img class="QR-img" src="http://imglf6.nosdn0.126.net/img/YUdIR2E3ME5weEdlNThuRmI4TFh3UWhiNmladWVoaTlXUXpicEFPa1F6czFNYkdmcWRIbGRRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg">
+<img class="QR-img" src="http://i1.sleeve.7yue.pro/wechat-account.jpeg">
 
 ### Lin CMS 的特点
 

@@ -5,7 +5,7 @@
 import json
 import time
 
-from app.libs.LinFlask import LinFlask
+from app.libs.lin_flask import LinFlask
 from flask import request, g
 from flask_cors import CORS
 from lin import Lin
