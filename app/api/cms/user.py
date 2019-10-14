@@ -17,6 +17,7 @@ from lin.log import Logger
 from lin.redprint import Redprint
 
 from app.libs.error_code import RefreshException
+from app.libs.utils import json_res
 from app.validators.forms import LoginForm, RegisterForm, ChangePasswordForm, UpdateInfoForm, \
     AvatarUpdateForm
 
@@ -34,9 +35,9 @@ def register():
         raise RepeatException(msg='用户名重复，请重新输入')
     if form.email.data and form.email.data.strip() != "":
         user = manager.user_model.query.filter(and_(
-                manager.user_model.email.isnot(None),
-                manager.user_model.email == form.email.data
-            )).first()
+            manager.user_model.email.isnot(None),
+            manager.user_model.email == form.email.data
+        )).first()
         if user:
             raise RepeatException(msg='注册邮箱重复，请重新输入')
     _register_user(form)
@@ -56,10 +57,7 @@ def login():
         authority='无', commit=True
     )
     access_token, refresh_token = get_tokens(user)
-    return jsonify({
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    })
+    return json_res(access_token=access_token, refresh_token=refresh_token)
 
 
 @user_api.route('', methods=['PUT'])
@@ -104,7 +102,6 @@ def get_information():
 @user_api.route('/refresh', methods=['GET'])
 @route_meta(auth='刷新令牌', module='用户', mount=False)
 def refresh():
-
     try:
         verify_jwt_refresh_token_in_request()
     except Exception:
@@ -114,10 +111,7 @@ def refresh():
     if identity:
         access_token = create_access_token(identity=identity)
         refresh_token = create_refresh_token(identity=identity)
-        return jsonify({
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        })
+        return json_res(access_token=access_token, refresh_token=refresh_token)
 
     return NotFound(msg='refresh_token未被识别')
 

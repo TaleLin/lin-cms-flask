@@ -2,6 +2,7 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import math
 
 from flask import jsonify, request
 from lin import db
@@ -12,6 +13,7 @@ from lin.redprint import Redprint
 from lin.util import paginate
 from sqlalchemy import text
 
+from app.libs.utils import json_res
 from app.validators.forms import LogFindForm
 
 log_api = Redprint('log')
@@ -31,16 +33,10 @@ def get_logs():
         logs = logs.filter(Log.time.between(form.start.data, form.end.data))
     total_nums = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
-    total_page = total_nums / count
+    total_page = math.ceil(total_nums / count)
     if not logs:
         logs = []
-    return jsonify({
-        "page": start,
-        "count": count,
-        "total": total_nums,
-        "items": logs,
-        "total_page": total_page
-    })
+    return json_res(page=start, count=count, total_nums=total_nums, items=logs, total_page=total_page)
 
 
 # 日志搜素（人员，时间）（内容）， 分页展示
@@ -60,16 +56,10 @@ def get_user_logs():
         logs = logs.filter(Log._time.between(form.start.data, form.end.data))
     total_nums = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
-    total_page = total_nums / count
+    total_page = math.ceil(total_nums / count)
     if not logs:
         logs = []
-    return jsonify({
-        "page": start,
-        "count": count,
-        "total": total_nums,
-        "items": logs,
-        "total_page": total_page
-    })
+    return json_res(page=start, count=count, total=total_nums, items=logs, total_page=total_page)
 
 
 @log_api.route('/users', methods=['GET'])

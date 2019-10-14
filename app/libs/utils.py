@@ -5,7 +5,7 @@
 
 import time
 import re
-from flask import request, current_app
+from flask import request, current_app, jsonify
 
 from lin.exception import ParameterException
 
@@ -30,3 +30,11 @@ def camel2line(camel: str):
     p = re.compile(r'([a-z]|\d)([A-Z])')
     line = re.sub(p, r'\1_\2', camel).lower()
     return line
+
+
+def json_res(**kwargs):
+    '''
+    将所有传入的关键字参数转变为dict后序列化为json格式的response
+    count, items, page, total_nums, total_page ...
+    '''
+    return jsonify(kwargs)
