@@ -66,7 +66,7 @@ def login():
 def update():
     form = UpdateInfoForm().validate_for_api()
     user = get_current_user()
-    if user.email != form.email.data:
+    if form.email.data and  user.email != form.email.data:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
             raise ParameterException(msg='邮箱已被注册，请重新输入邮箱')
