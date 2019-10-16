@@ -52,7 +52,7 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 QQ 群号：643205479
 
-<img class="QR-img" width="258" height="300" src="http://i1.sleeve.7yue.pro/qq-group.jpeg ">
+<img class="QR-img" width="258" height="300" src="http://i1.sleeve.7yue.pro/qq-group.jpeg">
 
 ### 微信公众号
 
