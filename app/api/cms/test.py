@@ -10,7 +10,7 @@ from lin.core import route_meta
 test_api = Redprint('test')
 
 
-@test_api.route('/', methods=['GET'], strict_slashes=False)
+@test_api.route('', methods=['GET'])
 def slogan():
     return """<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: 
     pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: 

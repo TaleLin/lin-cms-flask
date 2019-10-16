@@ -17,6 +17,7 @@ from lin.log import Logger
 from lin.redprint import Redprint
 
 from app.libs.error_code import RefreshException
+from app.libs.utils import json_res
 from app.validators.forms import LoginForm, RegisterForm, ChangePasswordForm, UpdateInfoForm, \
     AvatarUpdateForm
 
@@ -29,14 +30,14 @@ user_api = Redprint('user')
 @admin_required
 def register():
     form = RegisterForm().validate_for_api()
-    user = manager.find_user(nickname=form.nickname.data)
+    user = manager.find_user(username=form.username.data)
     if user:
         raise RepeatException(msg='用户名重复，请重新输入')
     if form.email.data and form.email.data.strip() != "":
         user = manager.user_model.query.filter(and_(
-                manager.user_model.email.isnot(None),
-                manager.user_model.email == form.email.data
-            )).first()
+            manager.user_model.email.isnot(None),
+            manager.user_model.email == form.email.data
+        )).first()
         if user:
             raise RepeatException(msg='注册邮箱重复，请重新输入')
     _register_user(form)
@@ -47,39 +48,37 @@ def register():
 @route_meta(auth='登陆', module='用户', mount=False)
 def login():
     form = LoginForm().validate_for_api()
-    user = manager.user_model.verify(form.nickname.data, form.password.data)
+    user = manager.user_model.verify(form.username.data, form.password.data)
     # 此处不能用装饰器记录日志
     Log.create_log(
-        message=f'{user.nickname}登陆成功获取了令牌',
-        user_id=user.id, user_name=user.nickname,
-        status_code=200, method='post',path='/cms/user/login',
+        message=f'{user.username}登陆成功获取了令牌',
+        user_id=user.id, user_name=user.username,
+        status_code=200, method='post', path='/cms/user/login',
         authority='无', commit=True
     )
     access_token, refresh_token = get_tokens(user)
-    return jsonify({
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    })
+    return json_res(access_token=access_token, refresh_token=refresh_token)
 
 
-@user_api.route('/', methods=['PUT'])
+@user_api.route('', methods=['PUT'])
 @route_meta(auth='用户更新信息', module='用户', mount=False)
 @login_required
 def update():
     form = UpdateInfoForm().validate_for_api()
     user = get_current_user()
-    if user.email != form.email.data:
+    if form.email.data and user.email != form.email.data:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
             raise ParameterException(msg='邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
+        user.nickname = form.nickname.data
     return Success(msg='操作成功')
 
 
 @user_api.route('/change_password', methods=['PUT'])
 @route_meta(auth='修改密码', module='用户', mount=False)
-@Logger(template='{user.nickname}修改了自己的密码')  # 记录日志
+@Logger(template='{user.username}修改了自己的密码')  # 记录日志
 @login_required
 def change_password():
     form = ChangePasswordForm().validate_for_api()
@@ -103,7 +102,6 @@ def get_information():
 @user_api.route('/refresh', methods=['GET'])
 @route_meta(auth='刷新令牌', module='用户', mount=False)
 def refresh():
-
     try:
         verify_jwt_refresh_token_in_request()
     except Exception:
@@ -113,10 +111,7 @@ def refresh():
     if identity:
         access_token = create_access_token(identity=identity)
         refresh_token = create_refresh_token(identity=identity)
-        return jsonify({
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        })
+        return json_res(access_token=access_token, refresh_token=refresh_token)
 
     return NotFound(msg='refresh_token未被识别')
 
@@ -151,7 +146,7 @@ def _register_user(form: RegisterForm):
     with db.auto_commit():
         # 注意：此处使用挂载到manager上的user_model，不可使用默认的User
         user = manager.user_model()
-        user.nickname = form.nickname.data
+        user.username = form.username.data
         if form.email.data and form.email.data.strip() != "":
             user.email = form.email.data
         user.password = form.password.data

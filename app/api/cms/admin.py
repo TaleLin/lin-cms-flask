@@ -4,6 +4,7 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import math
 from itertools import groupby
 from operator import itemgetter
 
@@ -17,7 +18,7 @@ from lin.jwt import admin_required
 from lin.log import Logger
 from lin.redprint import Redprint
 
-from app.libs.utils import paginate
+from app.libs.utils import paginate, json_res
 from app.validators.forms import NewGroup, DispatchAuth, DispatchAuths, RemoveAuths, UpdateGroup, ResetPasswordForm, \
     UpdateUserInfoForm
 
@@ -60,10 +61,8 @@ def get_admin_users():
     # 有分组的时候就加入分组条件
     # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
     total_nums = get_total_nums(manager.user_model, is_soft=True, **condition)
-    return jsonify({
-        "collection": user_and_group,
-        'total_nums': total_nums
-    })
+    total_page = math.ceil(total_nums / count)
+    return json_res(count=count, items=user_and_group, page=start, total_nums=total_nums, total_page=total_page)
 
 
 @admin_api.route('/password/<int:uid>', methods=['PUT'])
@@ -151,11 +150,9 @@ def get_admin_groups():
         group._fields.append('auths')
 
     total_nums = get_total_nums(manager.group_model)
+    total_page = math.ceil(total_nums / count)
 
-    return jsonify({
-        "collection": groups,
-        'total_nums': total_nums
-    })
+    return json_res(count=count, items=groups, page=start, total_nums=total_nums, total_page=total_page)
 
 
 @admin_api.route('/group/all', methods=['GET'])
