@@ -35,6 +35,6 @@ def camel2line(camel: str):
 def json_res(**kwargs):
     '''
     将所有传入的关键字参数转变为dict后序列化为json格式的response
-    count, items, page, total_nums, total_page ...
+    count, items, page, total, total_page ...
     '''
     return jsonify(kwargs)

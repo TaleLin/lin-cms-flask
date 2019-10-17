@@ -60,9 +60,9 @@ def get_admin_users():
         user_and_group.append(user)
     # 有分组的时候就加入分组条件
     # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
-    total_nums = get_total_nums(manager.user_model, is_soft=True, **condition)
-    total_page = math.ceil(total_nums / count)
-    return json_res(count=count, items=user_and_group, page=start, total_nums=total_nums, total_page=total_page)
+    total = get_total_nums(manager.user_model, is_soft=True, **condition)
+    total_page = math.ceil(total / count)
+    return json_res(count=count, items=user_and_group, page=start, total=total, total_page=total_page)
 
 
 @admin_api.route('/password/<int:uid>', methods=['PUT'])
@@ -149,10 +149,10 @@ def get_admin_groups():
         setattr(group, 'auths', res)
         group._fields.append('auths')
 
-    total_nums = get_total_nums(manager.group_model)
-    total_page = math.ceil(total_nums / count)
+    total = get_total_nums(manager.group_model)
+    total_page = math.ceil(total / count)
 
-    return json_res(count=count, items=groups, page=start, total_nums=total_nums, total_page=total_page)
+    return json_res(count=count, items=groups, page=start, total=total, total_page=total_page)
 
 
 @admin_api.route('/group/all', methods=['GET'])
