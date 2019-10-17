@@ -31,12 +31,12 @@ def get_logs():
         logs = logs.filter(Log.user_name == form.name.data)
     if form.start.data and form.end.data:
         logs = logs.filter(Log.time.between(form.start.data, form.end.data))
-    total_nums = logs.count()
+    total = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
-    total_page = math.ceil(total_nums / count)
+    total_page = math.ceil(total / count)
     if not logs:
         logs = []
-    return json_res(page=start, count=count, total_nums=total_nums, items=logs, total_page=total_page)
+    return json_res(page=start, count=count, total=total, items=logs, total_page=total_page)
 
 
 # 日志搜素（人员，时间）（内容）， 分页展示
@@ -54,12 +54,12 @@ def get_user_logs():
         logs = logs.filter(Log.user_name == form.name.data)
     if form.start.data and form.end.data:
         logs = logs.filter(Log._time.between(form.start.data, form.end.data))
-    total_nums = logs.count()
+    total = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
-    total_page = math.ceil(total_nums / count)
+    total_page = math.ceil(total / count)
     if not logs:
         logs = []
-    return json_res(page=start, count=count, total=total_nums, items=logs, total_page=total_page)
+    return json_res(page=start, count=count, total=total, items=logs, total_page=total_page)
 
 
 @log_api.route('/users', methods=['GET'])
