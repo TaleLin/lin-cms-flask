@@ -4,17 +4,16 @@
 """
 import math
 
+from app.libs.utils import get_page_from_query, json_res
+from app.validators.forms import LogFindForm
 from flask import jsonify, request
 from lin import db
-from lin.core import route_meta, Log
+from lin.core import Log, route_meta
 from lin.exception import NotFound, ParameterException
 from lin.jwt import group_required
 from lin.redprint import Redprint
 from lin.util import paginate
 from sqlalchemy import text
-
-from app.libs.utils import json_res
-from app.validators.forms import LogFindForm
 
 log_api = Redprint('log')
 
@@ -34,9 +33,10 @@ def get_logs():
     total = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
     total_page = math.ceil(total / count)
+    page = get_page_from_query()
     if not logs:
         logs = []
-    return json_res(page=start, count=count, total=total, items=logs, total_page=total_page)
+    return json_res(page=page, count=count, total=total, items=logs, total_page=total_page)
 
 
 # 日志搜素（人员，时间）（内容）， 分页展示
@@ -57,9 +57,10 @@ def get_user_logs():
     total = logs.count()
     logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
     total_page = math.ceil(total / count)
+    page = get_page_from_query()
     if not logs:
         logs = []
-    return json_res(page=start, count=count, total=total, items=logs, total_page=total_page)
+    return json_res(page=page, count=count, total=total, items=logs, total_page=total_page)
 
 
 @log_api.route('/users', methods=['GET'])

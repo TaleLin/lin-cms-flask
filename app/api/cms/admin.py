@@ -8,19 +8,20 @@ import math
 from itertools import groupby
 from operator import itemgetter
 
+from app.libs.utils import get_page_from_query, json_res, paginate
+from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
+                                  RemoveAuths, ResetPasswordForm, UpdateGroup,
+                                  UpdateUserInfoForm)
 from flask import jsonify, request
 from lin import db
-from lin.core import get_ep_infos, route_meta, manager, find_user, find_auth_module
+from lin.core import (find_auth_module, find_user, get_ep_infos, manager,
+                      route_meta)
 from lin.db import get_total_nums
-from lin.enums import UserAdmin, UserActive
-from lin.exception import Success, NotFound, ParameterException, Forbidden
+from lin.enums import UserActive, UserAdmin
+from lin.exception import Forbidden, NotFound, ParameterException, Success
 from lin.jwt import admin_required
 from lin.log import Logger
 from lin.redprint import Redprint
-
-from app.libs.utils import paginate, json_res
-from app.validators.forms import NewGroup, DispatchAuth, DispatchAuths, RemoveAuths, UpdateGroup, ResetPasswordForm, \
-    UpdateUserInfoForm
 
 admin_api = Redprint('admin')
 
@@ -58,11 +59,12 @@ def get_admin_users():
         user._fields.append('group_name')
         user.hide('update_time')
         user_and_group.append(user)
-    # 有分组的时候就加入分组条件
-    # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
+        # 有分组的时候就加入分组条件
+        # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
     total = get_total_nums(manager.user_model, is_soft=True, **condition)
     total_page = math.ceil(total / count)
-    return json_res(count=count, items=user_and_group, page=start, total=total, total_page=total_page)
+    page = get_page_from_query()
+    return json_res(count=count, items=user_and_group, page=page, total=total, total_page=total_page)
 
 
 @admin_api.route('/password/<int:uid>', methods=['PUT'])
@@ -74,6 +76,7 @@ def change_user_password(uid):
     user = find_user(id=uid)
     if user is None:
         raise NotFound(msg='用户不存在')
+
     with db.auto_commit():
         user.reset_password(form.new_password.data)
 
@@ -151,8 +154,9 @@ def get_admin_groups():
 
     total = get_total_nums(manager.group_model)
     total_page = math.ceil(total / count)
+    page = get_page_from_query()
 
-    return json_res(count=count, items=groups, page=start, total=total, total_page=total_page)
+    return json_res(count=count, items=groups, page=page, total=total, total_page=total_page)
 
 
 @admin_api.route('/group/all', methods=['GET'])
@@ -322,8 +326,8 @@ def _change_status(uid, active_or_disable='active'):
 #     form = DispatchAuths().validate_for_api()
 #     # 查询分组所拥有的权限
 #     haved_auths = db.session.query(manager.auth_model) \
-#         .filter(manager.auth_model.group_id == form.group_id.data) \
-#         .all()
+    #         .filter(manager.auth_model.group_id == form.group_id.data) \
+    #         .all()
 #     will_add_auths, will_remove_auths = _diff_auths(form.auths.data, haved_auths)
 #
 #     with db.auto_commit():
@@ -332,9 +336,9 @@ def _change_status(uid, active_or_disable='active'):
 #             manager.auth_model.create(group_id=form.group_id.data, auth=meta.auth, module=meta.module)
 #
 #         db.session.query(manager.auth_model) \
-#             .filter(manager.auth_model.auth.in_(will_remove_auths),
+    #             .filter(manager.auth_model.auth.in_(will_remove_auths),
 #                     manager.auth_model.group_id == form.group_id.data) \
-#             .delete(synchronize_session=False)
+    #             .delete(synchronize_session=False)
 #     return Success(msg='更新权限成功')
 #
 #
@@ -361,7 +365,7 @@ def _change_status(uid, active_or_disable='active'):
 # @admin_required
 # def get_apis_with_group():
 #     apis = db.session.query(manager.auth_model.id, manager.auth_model.auth, manager.auth_model.module) \
-#         .filter_by().all()
+    #         .filter_by().all()
 #     apis = [{'id': api[0], 'auth': api[1], 'module': api[2]} for api in apis]
 #     res = _split_modules(apis)
 #     return jsonify(res)
