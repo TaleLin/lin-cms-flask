@@ -1,6 +1,7 @@
 .idea
 .vscode
 Pipfile.lock
+Pipfile
 __pycache__
 */__pycache__/
 *.pytest_cache/
