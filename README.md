@@ -1,13 +1,13 @@
 <!-- # Lin-CMS-Flask -->
 
 <h1 align="center">
-  <a href="http://doc.cms.7yue.pro/">
-  <img src="http://doc.cms.7yue.pro/left-logo.png" width="250"/></a>
+  <a href="http://doc.cms.talelin.com/">
+  <img src="http://doc.cms.talelin.com/left-logo.png" width="250"/></a>
   <br>
   Lin-CMS-Flask
 </h1>
 
-<h4 align="center">一个简单易用的CMS后端项目 | <a href="http://doc.cms.7yue.pro/" target="_blank">Lin-CMS-Flask</a></h4>
+<h4 align="center">一个简单易用的CMS后端项目 | <a href="http://doc.cms.talelin.com/" target="_blank">Lin-CMS-Flask</a></h4>
 
 <p align="center">
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
@@ -42,7 +42,7 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 ### 文档地址
 
-[http://doc.cms.7yue.pro/](http://doc.cms.7yue.pro/)
+[http://doc.cms.talelin.com/](http://doc.cms.talelin.com/)
 
 ### 线上 demo
 
