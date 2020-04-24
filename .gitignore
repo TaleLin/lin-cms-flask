@@ -1,5 +1,6 @@
 .idea
 .vscode
+.env
 Pipfile.lock
 Pipfile
 __pycache__
