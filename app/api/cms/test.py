@@ -2,10 +2,10 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from lin.redprint import Redprint
+from app.lin.redprint import Redprint
 from flask import jsonify
-from lin.jwt import group_required
-from lin.core import route_meta
+from app.lin.jwt import group_required
+from app.lin.core import route_meta
 
 test_api = Redprint('test')
 

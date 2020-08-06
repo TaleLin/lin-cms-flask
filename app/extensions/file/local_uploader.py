@@ -3,8 +3,8 @@ import os
 from flask import current_app
 from werkzeug.utils import secure_filename
 
-from lin.core import File
-from lin.file import Uploader
+from app.lin.core import File
+from app.lin.file import Uploader
 
 
 class LocalUploader(Uploader):

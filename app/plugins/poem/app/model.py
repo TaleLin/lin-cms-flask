@@ -1,7 +1,7 @@
-from lin import db
-from lin.core import lin_config
-from lin.exception import NotFound
-from lin.interface import InfoCrud as Base
+from app.lin import db
+from app.lin.core import lin_config
+from app.lin.exception import NotFound
+from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer, Text, text
 
 

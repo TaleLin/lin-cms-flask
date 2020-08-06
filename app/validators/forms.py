@@ -2,12 +2,12 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from lin import manager
+from app.lin import manager
 from wtforms import DateTimeField, PasswordField, FieldList, IntegerField, StringField
 from wtforms.validators import DataRequired, Regexp, EqualTo, length, Optional, NumberRange
 import time
 
-from lin.forms import Form
+from app.lin.forms import Form
 
 
 # 注册校验

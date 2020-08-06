@@ -1,12 +1,12 @@
 from flask import jsonify, request
 import os
-from lin.exception import Success, ParameterException, Failed
+from app.lin.exception import Success, ParameterException, Failed
 from .oss import upload_image_bytes
 from .model import Image
 from .enums import LocalOrCloud
-from lin.db import db
-from lin.redprint import Redprint
-from lin.core import lin_config
+from app.lin.db import db
+from app.lin.redprint import Redprint
+from app.lin.core import lin_config
 
 api = Redprint('oss')
 
