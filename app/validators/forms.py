@@ -20,8 +20,8 @@ class RegisterForm(Form):
     username = StringField(validators=[DataRequired(message='用户名不可为空'),
                                        length(min=2, max=10, message='用户名长度必须在2~10之间')])
 
-    group_id = IntegerField('分组id',
-                            validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
+    # group_id = IntegerField('分组id', validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
+    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
     email = StringField('电子邮件', validators=[
         Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()

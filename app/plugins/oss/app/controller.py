@@ -1,6 +1,6 @@
 from flask import jsonify, request
 import os
-from app.lin.exception import Success, ParameterException, Failed
+from app.lin.exception import Success, ParameterError, Fail
 from .oss import upload_image_bytes
 from .model import Image
 from .enums import LocalOrCloud
@@ -15,12 +15,12 @@ api = Redprint('oss')
 def upload():
     image = request.files.get('image', None)
     if not image:
-        raise ParameterException(msg='没有找到图片')
+        raise ParameterError(msg='没有找到图片')
     if image and allowed_file(image.filename):
         path = os.path.join(lin_config.get_config('oss.upload_folder'), image.filename)
         image.save(path)
     else:
-        raise ParameterException(msg='图片类型不允许或图片key不合法')
+        raise ParameterError(msg='图片类型不允许或图片key不合法')
     return Success()
 
 
@@ -28,7 +28,7 @@ def upload():
 def upload_to_ali():
     image = request.files.get('image', None)
     if not image:
-        raise ParameterException(msg='没有找到图片')
+        raise ParameterError(msg='没有找到图片')
     if image and allowed_file(image.filename):
         url = upload_image_bytes(image.filename, image)
         if url:
@@ -48,7 +48,7 @@ def upload_to_ali():
                 else:
                     res['id'] = exist.id
             return jsonify(res)
-    return Failed(msg='上传图片失败，请检查图片路径')
+    return Fail(msg='上传图片失败，请检查图片路径')
 
 
 @api.route('/upload_multiple', methods=['POST'])
@@ -57,7 +57,7 @@ def upload_multiple_to_ali():
     for item in request.files:
         img = request.files.get(item, None)
         if not img:
-            raise ParameterException(msg='没接收到图片，请检查图片路径')
+            raise ParameterError(msg='没接收到图片，请检查图片路径')
         if img and allowed_file(img.filename):
             url = upload_image_bytes(img.filename, img)
             if url:

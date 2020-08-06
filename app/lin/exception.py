@@ -31,8 +31,8 @@ class APIException(HTTPException):
 
     def get_body(self, environ=None):
         body = dict(
-            msg=self.msg,
-            error_code=self.error_code,
+            message=self.msg,
+            code=self.error_code,
             request=request.method + '  ' + self.get_url_no_param()
         )
         text = json.dumps(body)
@@ -50,83 +50,119 @@ class APIException(HTTPException):
 
 class Success(APIException):
     code = 201
-    msg = '成功'
+    msg = 'OK'
     error_code = 0
 
 
-class Failed(APIException):
+class Created(APIException):
+    code = 201
+    msg = 'Created'
+    error_code = 1
+
+
+class Updated(APIException):
+    code = 201
+    msg = 'Updated'
+    error_code = 2
+
+
+class Deleted(APIException):
+    code = 201
+    msg = 'Deleted'
+    error_code = 3
+
+
+class Fail(APIException):
     code = 400
-    msg = '失败'
-    error_code = 9999
+    msg = 'Failed'
+    error_code = 10200
 
 
-class AuthFailed(APIException):
+class UnAuthorization(APIException):
     code = 401
-    msg = '认证失败'
+    msg = 'Authorization Failed'
     error_code = 10000
+
+
+class UnAuthentication(APIException):
+    code = 401
+    msg = 'Authentication Failed'
+    error_code = 10010
 
 
 class NotFound(APIException):
     code = 404
-    msg = '资源不存在'
-    error_code = 10020
+    msg = 'Not Found'
+    error_code = 10021
 
 
-class ParameterException(APIException):
+class ParameterError(APIException):
     code = 400
-    msg = '参数错误'
+    msg = 'Parameters Error'
     error_code = 10030
 
 
-class InvalidTokenException(APIException):
+class TokenInvalid(APIException):
     code = 401
-    msg = '令牌失效'
+    msg = 'Token Invalid'
     error_code = 10040
 
 
-class ExpiredTokenException(APIException):
+class TokenExpired(APIException):
     code = 422
-    msg = '令牌过期'
+    msg = 'Token Expired'
     error_code = 10050
 
 
-class UnknownException(APIException):
+class InternalServerError(APIException):
     code = 500
-    msg = '服务器未知错误'
-    error_code = 999
+    msg = 'Internal Server Error'
+    error_code = 9999
 
 
-class RepeatException(APIException):
+class Duplicated(APIException):
     code = 400
-    msg = '字段重复'
+    msg = 'Duplicated'
     error_code = 10060
 
 
 class Forbidden(APIException):
     code = 401
-    msg = '不可操作'
+    msg = 'Forbidden'
     error_code = 10070
 
 
-class RefreshException(APIException):
+class RefreshFailed(APIException):
     code = 401
-    msg = 'refresh token 获取失败'
+    msg = 'Get Refresh Token Failed'
     error_code = 10100
 
 
-class FileTooLargeException(APIException):
+class FileTooLarge(APIException):
     code = 413
-    msg = '文件体积过大'
+    msg = 'File Too Large'
     error_code = 10110
 
 
-class FileTooManyException(APIException):
+class FileTooMany(APIException):
     code = 413
-    msg = '文件数量过多'
+    msg = 'File Too Many'
     error_code = 10120
 
 
-class FileExtensionException(APIException):
+class FileExtensionError(APIException):
     code = 401
-    msg = '文件扩展名不符合规范'
+    msg = 'FIle Extension Not Allowed'
     error_code = 10130
+
+
+class MethodNotAllowed(APIException):
+    code = 401
+    msg = 'Method Not Allowed'
+    error_code = 10080
+
+
+class RequestLimit(APIException):
+    code = 401
+    msg = 'Too Many Requests'
+    error_code = 10140

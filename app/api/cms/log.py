@@ -9,7 +9,7 @@ from app.validators.forms import LogFindForm
 from flask import jsonify, request
 from app.lin import db
 from app.lin.core import Log, route_meta
-from app.lin.exception import NotFound, ParameterException
+from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.lin.util import paginate
@@ -47,7 +47,7 @@ def get_user_logs():
     form = LogFindForm().validate_for_api()
     keyword = request.args.get('keyword', default=None, type=str)
     if keyword is None or '':
-        raise ParameterException(msg='搜索关键字不可为空')
+        raise ParameterError(msg='搜索关键字不可为空')
     start, count = paginate()
     logs = Log.query.filter(Log.message.like(f'%{keyword}%'))
     if form.name.data:

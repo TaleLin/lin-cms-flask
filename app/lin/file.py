@@ -13,8 +13,8 @@ import os
 from flask import current_app
 from werkzeug.datastructures import FileStorage
 
-from .exception import FileTooLargeException, \
-    FileTooManyException, FileExtensionException, ParameterException
+from .exception import FileTooLarge, \
+    FileTooMany, FileExtensionError, ParameterError
 
 
 class Uploader(object):
@@ -118,7 +118,7 @@ class Uploader(object):
         验证文件是否合法
         """
         if not self._file_storage:
-            raise ParameterException(msg='未找到符合条件的文件资源')
+            raise ParameterError(msg='未找到符合条件的文件资源')
         self.__allowed_file()
         self.__allowed_file_size()
 
@@ -149,13 +149,13 @@ class Uploader(object):
             for single in self._file_storage:
                 if '.' not in single.filename or \
                         single.filename.lower().rsplit('.', 1)[1] not in self._include:
-                    raise FileExtensionException()
+                    raise FileExtensionError()
             return True
         elif self._exclude and not self._include:
             for single in self._file_storage:
                 if '.' not in single.filename or \
                         single.filename.lower().rsplit('.', 1)[1] in self._exclude:
-                    raise FileExtensionException()
+                    raise FileExtensionError()
             return True
 
     def __allowed_file_size(self):
@@ -165,17 +165,17 @@ class Uploader(object):
         file_count = len(self._file_storage)
         if file_count > 1:
             if file_count > self._nums:
-                raise FileTooManyException()
+                raise FileTooMany()
             total_size = 0
             for single in self._file_storage:
                 if self._get_size(single) > self._single_limit:
-                    raise FileTooLargeException(
+                    raise FileTooLarge(
                         single.filename + '大小不能超过' + str(self._single_limit) + '字节'
                     )
                 total_size += self._get_size(single)
             if total_size > self._total_limit:
-                raise FileTooLargeException()
+                raise FileTooLarge()
         else:
             file_size = self._get_size(self._file_storage[0])
             if file_size > self._single_limit:
-                raise FileTooLargeException()
+                raise FileTooLarge()

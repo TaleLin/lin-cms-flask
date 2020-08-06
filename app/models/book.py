@@ -2,7 +2,7 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.lin.exception import NotFound, ParameterException
+from app.lin.exception import NotFound, ParameterError
 from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer
 
@@ -26,8 +26,6 @@ class Book(Base):
     @classmethod
     def get_all(cls):
         books = cls.query.filter_by(delete_time=None).all()
-        if not books:
-            raise NotFound(msg='没有找到相关书籍')
         return books
 
     @classmethod
@@ -41,7 +39,7 @@ class Book(Base):
     def new_book(cls, form):
         book = Book.query.filter_by(title=form.title.data, delete_time=None).first()
         if book is not None:
-            raise ParameterException(msg='图书已存在')
+            raise ParameterError(msg='图书已存在')
 
         Book.create(
             title=form.title.data,

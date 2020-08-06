@@ -55,5 +55,6 @@ def update_book(bid):
 @route_meta(auth='删除图书', module='图书')
 @group_required
 def delete_book(bid):
+    print(Book.get_detail(bid))
     Book.remove_book(bid)
     return Success(msg='删除图书成功')
