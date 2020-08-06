@@ -17,7 +17,7 @@ import os
 import importlib.util
 from flask import request, current_app
 
-from .exception import ParameterException
+from .exception import ParameterError
 
 
 def get_timestamp(fmt='%Y-%m-%d %H:%M:%S'):
@@ -97,7 +97,7 @@ def paginate():
     count = 15 if count >= 15 else count
     start = start * count
     if start < 0 or count < 0:
-        raise ParameterException()
+        raise ParameterError()
     return start, count
 
 

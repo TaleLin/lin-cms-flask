@@ -18,7 +18,7 @@ from app.lin.core import (find_auth_module, find_user, get_ep_infos, manager,
                       route_meta)
 from app.lin.db import get_total_nums
 from app.lin.enums import UserActive, UserAdmin
-from app.lin.exception import Forbidden, NotFound, ParameterException, Success
+from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
@@ -26,11 +26,13 @@ from app.lin.redprint import Redprint
 admin_api = Redprint('admin')
 
 
-@admin_api.route('/authority', methods=['GET'])
+@admin_api.route('/permission', methods=['GET'])
 @route_meta(auth='查询所有可分配的权限', module='管理员', mount=False)
 @admin_required
 def authority():
-    return jsonify(get_ep_infos())
+    return {"版本升级中，功能暂未开放": {}}
+#    TODO feat 3.x
+#    return  jsonify(get_ep_infos())
 
 
 @admin_api.route('/users', methods=['GET'])
@@ -67,7 +69,7 @@ def get_admin_users():
     return json_res(count=count, items=user_and_group, page=page, total=total, total_page=total_page)
 
 
-@admin_api.route('/password/<int:uid>', methods=['PUT'])
+@admin_api.route('/user/<int:uid>/password', methods=['PUT'])
 @route_meta(auth='修改用户密码', module='管理员', mount=False)
 @admin_required
 def change_user_password(uid):
@@ -83,7 +85,7 @@ def change_user_password(uid):
     return Success(msg='密码修改成功')
 
 
-@admin_api.route('/<int:uid>', methods=['DELETE'])
+@admin_api.route('/user/<int:uid>', methods=['DELETE'])
 @route_meta(auth='删除用户', module='管理员', mount=False)
 @Logger(template='管理员删除了一个用户')  # 记录日志
 @admin_required
@@ -97,7 +99,7 @@ def delete_user(uid):
     return Success(msg='操作成功')
 
 
-@admin_api.route('/<int:uid>', methods=['PUT'])
+@admin_api.route('/user/<int:uid>', methods=['PUT'])
 @route_meta(auth='管理员更新用户信息', module='管理员', mount=False)
 @admin_required
 def update_user(uid):
@@ -109,30 +111,14 @@ def update_user(uid):
     if user.email != form.email.data:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
-            raise ParameterException(msg='邮箱已被注册，请重新输入邮箱')
+            raise ParameterError(msg='邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
         user.group_id = form.group_id.data
     return Success(msg='操作成功')
 
 
-@admin_api.route('/disable/<int:uid>', methods=['PUT'])
-@route_meta(auth='禁用用户', module='管理员', mount=False)
-@admin_required
-def trans2disable(uid):
-    _change_status(uid, 'active')
-    return Success(msg='操作成功')
-
-
-@admin_api.route('/active/<int:uid>', methods=['PUT'])
-@route_meta(auth='激活用户', module='管理员', mount=False)
-@admin_required
-def trans2active(uid):
-    _change_status(uid, 'disable')
-    return Success(msg='操作成功')
-
-
-@admin_api.route('/groups', methods=['GET'])
+@admin_api.route('/group', methods=['GET'])
 @route_meta(auth='查询所有权限组及其权限', module='管理员', mount=False)
 @admin_required
 def get_admin_groups():
@@ -235,7 +221,7 @@ def delete_group(gid):
     return Success(msg='删除分组成功')
 
 
-@admin_api.route('/dispatch', methods=['POST'])
+@admin_api.route('/permission/dispatch', methods=['POST'])
 @route_meta(auth='分配单个权限', module='管理员', mount=False)
 @admin_required
 def dispatch_auth():
@@ -253,7 +239,7 @@ def dispatch_auth():
     return Success(msg='添加权限成功')
 
 
-@admin_api.route('/dispatch/patch', methods=['POST'])
+@admin_api.route('/permission/dispatch/batch', methods=['POST'])
 @route_meta(auth='分配多个权限', module='管理员', mount=False)
 @admin_required
 def dispatch_auths():
@@ -271,7 +257,7 @@ def dispatch_auths():
     return Success(msg='添加权限成功')
 
 
-@admin_api.route('/remove', methods=['POST'])
+@admin_api.route('/permission/remove', methods=['POST'])
 @route_meta(auth='删除多个权限', module='管理员', mount=False)
 @admin_required
 def remove_auths():

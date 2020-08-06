@@ -18,7 +18,7 @@ def test_create():
         })
         json_data = rv.get_json()
         print(json_data)
-        assert json_data['msg'] == '新建图书成功'
+        assert json_data['message'] == '新建图书成功'
         assert rv.status_code == 201
 
 
@@ -32,7 +32,7 @@ def test_update():
         })
         json_data = rv.get_json()
         print(json_data)
-        assert json_data['msg'] == '更新图书成功'
+        assert json_data['message'] == '更新图书成功'
         assert rv.status_code == 201
 
 
@@ -43,7 +43,7 @@ def test_delete():
         })
         json_data = rv.get_json()
         print(json_data)
-        assert json_data['msg'] == '删除图书成功'
+        assert json_data['message'] == '删除图书成功'
         assert rv.status_code == 201
 
 

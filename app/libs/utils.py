@@ -7,7 +7,7 @@ import re
 import time
 
 from flask import current_app, jsonify, request
-from app.lin.exception import ParameterException
+from app.lin.exception import ParameterError
 
 
 def get_timestamp(fmt='%Y-%m-%d %H:%M:%S'):
@@ -31,7 +31,7 @@ def paginate():
     count = 15 if _count >= 15 else _count
     start = get_page_from_query() * count
     if start < 0 or count < 0:
-        raise ParameterException()
+        raise ParameterError()
     return start, count
 
 

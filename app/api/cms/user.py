@@ -11,7 +11,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_curren
     create_refresh_token, verify_jwt_refresh_token_in_request
 from app.lin.core import manager, route_meta, Log
 from app.lin.db import db
-from app.lin.exception import NotFound, Success, Failed, RepeatException, ParameterException
+from app.lin.exception import NotFound, Success, Fail, Duplicated, ParameterError
 from app.lin.jwt import login_required, admin_required, get_tokens
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
@@ -30,22 +30,25 @@ user_api = Redprint('user')
 @admin_required
 def register():
     form = RegisterForm().validate_for_api()
+    # TODO feat 3.x
+    if len(form.group_ids) > 1:
+        return Fail(msg='暂不支持多用户组')
     user = manager.find_user(username=form.username.data)
     if user:
-        raise RepeatException(msg='用户名重复，请重新输入')
+        raise Duplicated(msg='用户名重复，请重新输入')
     if form.email.data and form.email.data.strip() != "":
         user = manager.user_model.query.filter(and_(
             manager.user_model.email.isnot(None),
             manager.user_model.email == form.email.data
         )).first()
         if user:
-            raise RepeatException(msg='注册邮箱重复，请重新输入')
+            raise Duplicated(msg='注册邮箱重复，请重新输入')
     _register_user(form)
     return Success(msg='用户创建成功')
 
 
 @user_api.route('/login', methods=['POST'])
-@route_meta(auth='登陆', module='用户', mount=False)
+@route_meta(auth='登录', module='用户', mount=False)
 def login():
     form = LoginForm().validate_for_api()
     user = manager.user_model.verify(form.username.data, form.password.data)
@@ -69,7 +72,7 @@ def update():
     if form.email.data and user.email != form.email.data:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
-            raise ParameterException(msg='邮箱已被注册，请重新输入邮箱')
+            raise ParameterError(msg='邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
         user.nickname = form.nickname.data
@@ -88,7 +91,7 @@ def change_password():
         db.session.commit()
         return Success(msg='密码修改成功')
     else:
-        return Failed(msg='修改密码失败')
+        return Fail(msg='修改密码失败')
 
 
 @user_api.route('/information', methods=['GET'])
@@ -116,7 +119,7 @@ def refresh():
     return NotFound(msg='refresh_token未被识别')
 
 
-@user_api.route('/auths', methods=['GET'])
+@user_api.route('/permissions', methods=['GET'])
 @route_meta(auth='查询自己拥有的权限', module='用户', mount=False)
 @login_required
 def get_allowed_apis():
@@ -132,16 +135,6 @@ def get_allowed_apis():
     return jsonify(user)
 
 
-@user_api.route('/avatar', methods=['PUT'])
-@login_required
-def set_avatar():
-    form = AvatarUpdateForm().validate_for_api()
-    user = get_current_user()
-    with db.auto_commit():
-        user._avatar = form.avatar.data
-    return Success(msg='更新头像成功')
-
-
 def _register_user(form: RegisterForm):
     with db.auto_commit():
         # 注意：此处使用挂载到manager上的user_model，不可使用默认的User
@@ -150,5 +143,7 @@ def _register_user(form: RegisterForm):
         if form.email.data and form.email.data.strip() != "":
             user.email = form.email.data
         user.password = form.password.data
-        user.group_id = form.group_id.data
+        # TODO feat 3.x
+        # user.group_id = form.group_id.data
+        user.group_id = form.group_ids[0].data
         db.session.add(user)

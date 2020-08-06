@@ -12,7 +12,7 @@ from flask import request
 from wtforms import Form as WTForm, IntegerField
 from wtforms.validators import StopValidation
 
-from .exception import ParameterException
+from .exception import ParameterError
 
 
 class Form(WTForm):
@@ -24,7 +24,7 @@ class Form(WTForm):
     def validate_for_api(self):
         valid = super(Form, self).validate()
         if not valid:
-            raise ParameterException(msg=self.errors)
+            raise ParameterError(msg=self.errors)
         return self
 
 

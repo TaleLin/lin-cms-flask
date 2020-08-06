@@ -18,10 +18,10 @@ from werkzeug.local import LocalProxy
 from .logger import LinLog
 from .db import db
 from .jwt import jwt
-from .exception import APIException, UnknownException, AuthFailed
+from .exception import APIException, InternalServerError, UnAuthentication
 from .interface import UserInterface, GroupInterface, AuthInterface,\
     LogInterface, EventInterface, FileInterface
-from .exception import NotFound, ParameterException
+from .exception import NotFound, ParameterError
 from .config import Config
 
 __version__ = '0.1.2'
@@ -201,7 +201,7 @@ class Lin(object):
                 if not app.config['DEBUG']:
                     import traceback
                     app.logger.error(traceback.format_exc())
-                    return UnknownException()
+                    return InternalServerError()
                 else:
                     raise e
 
@@ -296,9 +296,9 @@ class User(UserInterface, db.Model):
         if user is None or user.delete_time is not None:
             raise NotFound(msg='用户不存在')
         if not user.check_password(password):
-            raise ParameterException(msg='密码错误，请输入正确密码')
+            raise ParameterError(msg='密码错误，请输入正确密码')
         if not user.is_active:
-            raise AuthFailed(msg='您目前处于未激活状态，请联系超级管理员')
+            raise UnAuthentication(msg='您目前处于未激活状态，请联系超级管理员')
         return user
 
     def reset_password(self, new_password):
