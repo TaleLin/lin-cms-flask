@@ -3,8 +3,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from lin.core import User
-from lin.db import db
+from app.lin.core import User
+from app.lin.db import db
 
 from app.app import create_app
 

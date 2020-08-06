@@ -7,7 +7,7 @@ import re
 import time
 
 from flask import current_app, jsonify, request
-from lin.exception import ParameterException
+from app.lin.exception import ParameterException
 
 
 def get_timestamp(fmt='%Y-%m-%d %H:%M:%S'):

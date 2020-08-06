@@ -5,10 +5,10 @@
 import json
 import time
 
-from app.libs.lin_flask import LinFlask
+from flask import Flask
 from flask import request, g
 from flask_cors import CORS
-from lin import Lin
+from app.lin import Lin
 
 
 def register_blueprints(app):
@@ -23,7 +23,7 @@ def apply_cors(app):
 
 
 def create_tables(app):
-    from lin.db import db
+    from app.lin.db import db
     with app.app_context():
         db.create_all()
 
@@ -64,7 +64,7 @@ def register_after_request(app):
 
 
 def create_app(register_all=True, environment='production'):
-    app = LinFlask(__name__, static_folder='./assets')
+    app = Flask(__name__, static_folder='./assets')
     app.config['ENV'] = environment
     env = app.config.get('ENV')
     if env == 'production':

@@ -7,12 +7,12 @@ import math
 from app.libs.utils import get_page_from_query, json_res
 from app.validators.forms import LogFindForm
 from flask import jsonify, request
-from lin import db
-from lin.core import Log, route_meta
-from lin.exception import NotFound, ParameterException
-from lin.jwt import group_required
-from lin.redprint import Redprint
-from lin.util import paginate
+from app.lin import db
+from app.lin.core import Log, route_meta
+from app.lin.exception import NotFound, ParameterException
+from app.lin.jwt import group_required
+from app.lin.redprint import Redprint
+from app.lin.util import paginate
 from sqlalchemy import text
 
 log_api = Redprint('log')

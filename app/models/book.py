@@ -2,8 +2,8 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from lin.exception import NotFound, ParameterException
-from lin.interface import InfoCrud as Base
+from app.lin.exception import NotFound, ParameterException
+from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer
 
 from app.libs.error_code import BookNotFound

@@ -13,15 +13,15 @@ from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
                                   RemoveAuths, ResetPasswordForm, UpdateGroup,
                                   UpdateUserInfoForm)
 from flask import jsonify, request
-from lin import db
-from lin.core import (find_auth_module, find_user, get_ep_infos, manager,
+from app.lin import db
+from app.lin.core import (find_auth_module, find_user, get_ep_infos, manager,
                       route_meta)
-from lin.db import get_total_nums
-from lin.enums import UserActive, UserAdmin
-from lin.exception import Forbidden, NotFound, ParameterException, Success
-from lin.jwt import admin_required
-from lin.log import Logger
-from lin.redprint import Redprint
+from app.lin.db import get_total_nums
+from app.lin.enums import UserActive, UserAdmin
+from app.lin.exception import Forbidden, NotFound, ParameterException, Success
+from app.lin.jwt import admin_required
+from app.lin.log import Logger
+from app.lin.redprint import Redprint
 
 admin_api = Redprint('admin')
 

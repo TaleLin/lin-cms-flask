@@ -3,7 +3,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from lin.exception import APIException
+from app.lin.exception import APIException
 
 
 class BookNotFound(APIException):

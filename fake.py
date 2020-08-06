@@ -5,7 +5,7 @@
 
 from app.app import create_app
 from app.models.book import Book
-from lin.db import db
+from app.lin.db import db
 
 app = create_app()
 with app.app_context():

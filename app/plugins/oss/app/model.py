@@ -1,4 +1,4 @@
-from lin.interface import BaseCrud
+from app.lin.interface import BaseCrud
 from sqlalchemy import Column, Integer, String, FetchedValue
 
 
