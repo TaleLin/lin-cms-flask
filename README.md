@@ -43,7 +43,7 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 ### 线上 demo
 
-[http://face.cms.7yue.pro/](http://face.cms.7yue.pro/)
+[http://face.cms.talelin.com/](http://face.cms.talelin.com/)
 
 ### QQ 交流群
 
@@ -119,7 +119,7 @@ git clone https://github.com/TaleLin/lin-cms-flask.git starter
 ```
 
 > 此处我们以 `starter` 作为工程名，当然你也可以以任意你喜爱的名字作为工程名。
-> 如果你想以某个版本，如`0.0.1`版，作为起始项目，那么请在 github 上的版本页下载相应> 的版本即可。
+> 如果你想以某个版本，如`0.0.1`版，作为起始项目，那么请在 github 上的版本页下载相应的版本即可。
 
 ### 安装依赖包
 
@@ -133,7 +133,7 @@ cd starter && pip install -r requirements.txt
 
 ### 数据库配置
 
-## 默认使用Sqlite3
+#### 默认使用Sqlite3
 Lin 默认启用Sqlite3数据库，`app/config/secure.py`中默认配置了它
 ```py
 # 数据库配置示例
@@ -141,14 +141,14 @@ Lin 默认启用Sqlite3数据库，`app/config/secure.py`中默认配置了它
 ```
 这将在项目的最外层目录生成名为`lincms.db`的Sqlite3数据库文件。
 
-## 使用MySQL
+#### 使用MySQL
 Lin 需要你自己在 MySQL 中新建一个数据库，名字由你自己决定。例如，新建一个名为 lin-cms 的数据库。接着，我们需要在工程中进行一项简单的配置。使用编辑器打开 Lin 工程的`app/config/secure.py`，找到如下配置项：
 
 ```py
 # 数据库配置示例
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 ```
-> 我们默认的依赖中不包含Python的Mysql库，您需要根据自己需要自行安装，如`pymysql`或`cymysql`等客户端。
+我们默认的依赖中不包含Python的Mysql库，您需要根据自己需要自行安装，如`pymysql`或`cymysql`等客户端。
 
 请在`SQLALCHEMY_DATABASE_URI`这项中配置 MySQL 数据库的用户名、密码、ip、端口号与数据库名。**请务必根据自己的实际情况修改此配置项**。
 

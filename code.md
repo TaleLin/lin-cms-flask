@@ -1,39 +1,20 @@
-# code
-
-## 核心库内置已使用状态码
-
-0 成功
-
-999 服务器未知错误
-
-9999 失败
-
-10000 认证失败
-
-10007 其他框架内置错误
-
-10020 资源不存在
-
-10030 参数错误
-
-10040 令牌失效
-
-10050 令牌过期
-
-10060 字段重复
-
-10070 禁止操作
-
-10100 refresh token 获取失败
-
-10110 文件体积过大
-
-10120 文件数量过多
-
-10130 文件扩展名不符合规范
-
-20000 werkzeug 中的HTTP EXCEPTION，error_code统一为1007，前端应读取msg
-
-## 项目使用的状态码
-
-80010 图书未找到
+0, OK, 成功
+1, Created, 创建成功
+2, Updated, 更新成功
+3, Deleted, 删除成功
+10200, Failed, 失败
+10000, Authorization Failed, 认证失败
+10010, Authentication Failed, 授权失败
+10020, Not Found, 资源不存在
+10030, Parameters Error, 参数错误
+10040, Token Invalid, 令牌失效
+10050, Token Expired, 令牌过期
+10060, Duplicated, 字段重复
+9999, Internal Server Error, 服务器未知错误
+10070, Forbidden, 禁止操作
+10080, Method Not Allowed, 请求方法不允许
+10100, Get Refresh Token Failed, 刷新令牌获取失败
+10110, File Too Large, 文件体积过大
+10120, File Too Many, 文件数量过多
+10130, File Extension Not Allowed, 文件扩展名不符合规范
+10140, Too Many Requests, 请求过于频繁，请稍后重试
