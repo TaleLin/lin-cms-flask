@@ -35,10 +35,7 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 ## 最新版本
 
-核心库：0.2.0b3
-
-示例工程：0.2.1
-
+升级重构中，权限功能、多用户组功能暂时不可用
 
 ### 文档地址
 
@@ -111,8 +108,6 @@ Lin 的服务端框架是基于 Python Flask 的，所以如果你比较熟悉 F
 
 ### Server 端必备环境
 
-- 安装`MySQL`（version： 5.6+）
-
 - 安装`Python`环境(version： 3.6+)
 
 ### 获取工程项目
@@ -128,45 +123,48 @@ git clone https://github.com/TaleLin/lin-cms-flask.git starter
 
 ### 安装依赖包
 
-我们强烈建议使用 Python 的虚拟环境来安装依赖包，推荐使用 Pipenv 来创建虚拟环境。关于`Pipenv`的更多使用请参考[Pipenv 官网](https://pipenv.readthedocs.io/en/latest/)。接下来，继续在命令行中输入：
-
-```bash
-cd starter && pipenv install --dev
-```
-
-执行此命令前，请确保系统中已成功安装了 pipenv。这将为 Lin 创建一个虚拟环境并安装所有依赖包。如果你不想使用虚拟环境，那么键入以下命令：
+> **Tips:** 我们不再推荐使用Pipenv,您可以自行选择是否启用虚拟环境
+    
+调用环境中的 pip 来安装依赖包:
 
 ```bash
 cd starter && pip install -r requirements.txt
 ```
 
-这将调用系统环境中的 pip 来安装依赖包。
-
 ### 数据库配置
 
+## 默认使用Sqlite3
+Lin 默认启用Sqlite3数据库，`app/config/secure.py`中默认配置了它
+```py
+# 数据库配置示例
+    SQLALCHEMY_DATABASE_URI = 'sqlite://../lincms.db'
+```
+这将在项目的最外层目录生成名为`lincms.db`的Sqlite3数据库文件。
+
+## 使用MySQL
 Lin 需要你自己在 MySQL 中新建一个数据库，名字由你自己决定。例如，新建一个名为 lin-cms 的数据库。接着，我们需要在工程中进行一项简单的配置。使用编辑器打开 Lin 工程的`app/config/secure.py`，找到如下配置项：
 
 ```py
 # 数据库配置示例
-SQLALCHEMY_DATABASE_URI = 'mysql+cymysql://root:123456@localhost:3306/lin-cms'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 ```
+> 我们默认的依赖中不包含Python的Mysql库，您需要根据自己需要自行安装，如`pymysql`或`cymysql`等客户端。
 
 请在`SQLALCHEMY_DATABASE_URI`这项中配置 MySQL 数据库的用户名、密码、ip、端口号与数据库名。**请务必根据自己的实际情况修改此配置项**。
 
 > 你所使用的数据库账号必须具有创建数据表的权限，否则 Lin 将无法为你自动创建数据表
 
 ### 运行
+如果你是第一次运行，请执行`add_root.py`,添加超级管理员root,默认密码123456
+
+```bash
+python add_root.py
+```
 
 一切就绪后，再次从命令行中使用 Python 命令运行项目根目录下的`starter.py`：
 
 ```bash
 python starter.py
-```
-
-如果你是以 pipenv 创建的虚拟环境，那么请先通过下面命令进入虚拟环境，再运行上面的命令。
-
-```bash
-pipenv shell
 ```
 
 如果一切顺利，你将在命令行中看到项目成功运行的信息。如果你没有修改代码，Lin 将默认在本地启动一个端口号为 5000 的端口用来监听请求。此时，我们访问`http://localhost:5000`，将看到一组字符：
@@ -176,6 +174,5 @@ pipenv shell
 这证明你已经成功的将 Lin 运行起来了，Congratulations！
 
 ## 下个版本开发计划
-- [ ] 支持权限分级
+- [ ] 权限与多用户组
 - [ ] 重构核心库
-
