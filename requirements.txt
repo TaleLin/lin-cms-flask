@@ -2,5 +2,5 @@ Flask
 Flask-Cors
 Flask-JWT-Extended
 Flask-SQLAlchemy
-Flask-WTF
+WTForms
 oss2
