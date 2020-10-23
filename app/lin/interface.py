@@ -1,3 +1,4 @@
+# coding: utf-8
 """
     Some model interfaces of Lin
     ~~~~~~~~~
@@ -7,14 +8,15 @@
     :copyright: © 2018 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import os
-from datetime import datetime
-
-from flask import current_app
-from sqlalchemy import Column, Integer, String, FetchedValue, SmallInteger, DateTime
-from werkzeug.security import generate_password_hash, check_password_hash
-
+from sqlalchemy import FetchedValue
 from .enums import UserAdmin, UserActive
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from flask import current_app
+import os
+
+from sqlalchemy import Integer, SmallInteger, Column, DateTime, Index, String, func, text
+
 from .db import MixinJSONSerializer, db
 from .util import camel2line
 
@@ -47,7 +49,8 @@ class BaseCrud(db.Model, MixinJSONSerializer):
     def get(cls, start=None, count=None, one=True, **kwargs):
         if one:
             return cls.query.filter().filter_by(**kwargs).first()
-        return cls.query.filter().filter_by(**kwargs).offset(start).limit(count).all()
+        return cls.query.filter().filter_by(
+            **kwargs).offset(start).limit(count).all()
 
     # 增
     @classmethod
@@ -74,9 +77,10 @@ class BaseCrud(db.Model, MixinJSONSerializer):
 # 提供软删除，及创建时间，更新时间信息的crud model
 class InfoCrud(db.Model, MixinJSONSerializer):
     __abstract__ = True
-    _create_time = Column('create_time', DateTime, default=datetime.now)
-    _update_time = Column('update_time', DateTime, default=datetime.now, onupdate=datetime.now)
-    delete_time = Column(DateTime)
+    create_time = Column(DateTime(timezone=True), server_default=func.now())
+    update_time = Column(DateTime(timezone=True),
+                         server_default=func.now(), onupdate=func.now())
+    delete_time = Column(DateTime(timezone=True))
 
     def __init__(self):
         name: str = self.__class__.__name__
@@ -85,24 +89,6 @@ class InfoCrud(db.Model, MixinJSONSerializer):
 
     def _set_fields(self):
         self._exclude = ['delete_time']
-
-    @property
-    def create_time(self):
-        if self._create_time is None:
-            return None
-        return int(round(self._create_time.timestamp() * 1000))
-
-    @property
-    def update_time(self):
-        if self._update_time is None:
-            return None
-        return int(round(self._update_time.timestamp() * 1000))
-
-    # @property
-    # def delete_time(self):
-    #     if self._delete_time is None:
-    #         return None
-    #     return int(round(self._delete_time.timestamp() * 1000))
 
     def set_attrs(self, attrs_dict):
         for key, value in attrs_dict.items():
@@ -113,7 +99,7 @@ class InfoCrud(db.Model, MixinJSONSerializer):
     def delete(self, commit=False):
         self.delete_time = datetime.now()
         db.session.add(self)
-        # 记得提交会话
+        # 提交会话
         if commit:
             db.session.commit()
 
@@ -131,7 +117,8 @@ class InfoCrud(db.Model, MixinJSONSerializer):
             kwargs['delete_time'] = None
         if one:
             return cls.query.filter().filter_by(**kwargs).first()
-        return cls.query.filter().filter_by(**kwargs).offset(start).limit(count).all()
+        return cls.query.filter().filter_by(
+            **kwargs).offset(start).limit(count).all()
 
     # 增
     @classmethod
@@ -159,6 +146,8 @@ class InfoCrud(db.Model, MixinJSONSerializer):
         if kwargs.get('commit') is True:
             db.session.commit()
         return self
+
+# 调试兼容
 
 
 class UserInterface(InfoCrud):
@@ -190,7 +179,7 @@ class UserInterface(InfoCrud):
     @property
     def avatar(self):
         site_domain = current_app.config.get('SITE_DOMAIN') if current_app.config.get(
-                'SITE_DOMAIN') else "http://127.0.0.1:5000"
+            'SITE_DOMAIN') else "http://127.0.0.1:5000"
         if self._avatar is not None:
             return site_domain + os.path.join(current_app.static_url_path, self._avatar)
 

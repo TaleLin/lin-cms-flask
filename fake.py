@@ -4,7 +4,7 @@
 """
 
 from app.app import create_app
-from app.models.book import Book
+from app.models.v1.book import Book
 from app.lin.db import db
 
 app = create_app()

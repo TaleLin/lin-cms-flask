@@ -2,7 +2,6 @@
 .vscode
 *.pytest_cache/
 *.pyc
-*.cpython-36.pyc
 app/assets/*
 logs
 
