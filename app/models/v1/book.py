@@ -2,10 +2,10 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+
 from app.lin.exception import NotFound, ParameterError
 from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer
-
 from app.libs.error_code import BookNotFound
 
 
@@ -30,14 +30,16 @@ class Book(Base):
 
     @classmethod
     def search_by_keywords(cls, q):
-        books = cls.query.filter(Book.title.like('%' + q + '%'), Book.delete_time == None).all()
+        books = cls.query.filter(Book.title.like(
+            '%' + q + '%'), Book.delete_time == None).all()
         if not books:
             raise BookNotFound()
         return books
 
     @classmethod
     def new_book(cls, form):
-        book = Book.query.filter_by(title=form.title.data, delete_time=None).first()
+        book = Book.query.filter_by(
+            title=form.title.data, delete_time=None).first()
         if book is not None:
             raise ParameterError(msg='图书已存在')
 

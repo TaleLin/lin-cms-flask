@@ -9,7 +9,7 @@ from app.lin import route_meta, group_required, login_required
 from app.lin.exception import Success
 from app.lin.redprint import Redprint
 
-from app.models.book import Book
+from app.models.v1.book import Book
 from app.validators.forms import BookSearchForm, CreateOrUpdateBookForm
 
 book_api = Redprint('book')

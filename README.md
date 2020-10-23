@@ -13,7 +13,7 @@
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
   <img src="https://img.shields.io/badge/flask-%3D%3D1.0.2-yellow.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/flask-%3D%3D1.0.2-yellow.svg" style="max-width:100%;"></a>
   <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--cms-%3D%3D0.1.1-orange.svg" alt="lin-cms version" data-canonical-src="https://img.shields.io/badge/lin--cms-%3D%3D0.1.1-orange.svge" style="max-width:100%;"></a>
-  <a href="http://doc.cms.7yue.pro/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
+  <a href="http://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
 </p>
 
 <blockquote align="center">
@@ -49,13 +49,13 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 QQ 群号：643205479
 
-<img class="QR-img" width="258" height="300" src="http://i1.sleeve.7yue.pro/qq-group.jpeg">
+<img class="QR-img" width="258" height="300" src="http://i1.sleeve.talelin.com/qq-group.jpeg">
 
 ### 微信公众号
 
 微信搜索：林间有风
 
-<img class="QR-img" src="http://i1.sleeve.7yue.pro/wechat-account.jpeg">
+<img class="QR-img" src="http://i1.sleeve.talelin.com/wechat-account.jpeg">
 
 ### Lin CMS 的特点
 
