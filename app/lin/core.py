@@ -23,6 +23,7 @@ from .interface import UserInterface, GroupInterface, AuthInterface,\
     LogInterface, EventInterface, FileInterface
 from .exception import NotFound, ParameterError
 from .config import Config
+from app.models.cms.permission import Permission
 
 __version__ = '0.1.2'
 
@@ -57,9 +58,11 @@ def route_meta(auth, module='common', mount=True):
     def wrapper(func):
         if mount:
             name = func.__name__ + str(func.__hash__())
-            existed = route_meta_infos.get(name, None) and route_meta_infos.get(name).module == module
+            existed = route_meta_infos.get(
+                name, None) and route_meta_infos.get(name).module == module
             if existed:
-                raise Exception("func's name cant't be repeat in a same module")
+                raise Exception(
+                    "func's name cant't be repeat in a same module")
             else:
                 route_meta_infos.setdefault(name, Meta(auth, module))
         return func
@@ -77,17 +80,14 @@ def find_group(**kwargs):
 
 def get_ep_infos():
     """ 返回权限管理中的所有视图函数的信息，包含它所属module """
+    info_list = manager.permission_model.query.filter().all()
     infos = {}
-    for ep, meta in manager.ep_meta.items():
-        mod = infos.get(meta.module, None)
-        if mod:
-            sub = mod.get(meta.auth, None)
-            if sub:
-                sub.append(ep)
-            else:
-                mod[meta.auth] = [ep]
+    for permission in info_list:
+        module = infos.get(permission.module, None)
+        if module:
+            module.append(permission)
         else:
-            infos.setdefault(meta.module, {meta.auth: [ep]})
+            infos.setdefault(permission.module, [permission])
 
     return infos
 
@@ -120,6 +120,7 @@ class Lin(object):
                  group_model=None,  # group model, default None
                  user_model=None,  # user model, default None
                  auth_model=None,  # authority model, default None
+                 permission_model=None,  # permission model, default None
                  create_all=False,  # 是否创建所有数据库表, default false
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
@@ -129,13 +130,15 @@ class Lin(object):
         self.app = app
         self.manager = None
         if app is not None:
-            self.init_app(app, group_model, user_model, auth_model, create_all, mount, handle, json_encoder, logger)
+            self.init_app(app, group_model, user_model, auth_model,
+                          permission_model, create_all, mount, handle, json_encoder, logger)
 
     def init_app(self,
                  app: Flask,
                  group_model=None,
                  user_model=None,
                  auth_model=None,
+                 permission_model=None,
                  create_all=False,
                  mount=True,
                  handle=True,
@@ -161,7 +164,9 @@ class Lin(object):
         self.manager = Manager(app.config.get('PLUGIN_PATH'),
                                group_model,
                                user_model,
-                               auth_model)
+                               auth_model,
+                               permission_model,
+                               )
         self.app.extensions['manager'] = self.manager
         db.init_app(app)
         create_all and self._enable_create_all(app)
@@ -169,6 +174,20 @@ class Lin(object):
         mount and self.mount(app)
         handle and self.handle_error(app)
         logger and LinLog(app)
+        self.init_permissions(app)
+
+    def init_permissions(self, app):
+        with app.app_context():
+            with db.auto_commit():
+                # TODO 这里先把表清空
+                manager.permission_model.query.filter().delete()
+                # TODO 取出数据库Permission中的n表中记录，比对当前代码中的权限记录，增删数据库中permission表和group_permission表中记录
+                for ep, meta in self.manager.ep_meta.items():
+                    permission = self.manager.permission_model()
+                    permission.module = meta.module
+                    permission.name = meta.auth
+                    permission.mount = True
+                    db.session.add(permission)
 
     def mount(self, app):
         # 加载默认插件路由
@@ -183,7 +202,8 @@ class Lin(object):
                     controller.register(bp)
         app.register_blueprint(bp, url_prefix=app.config.get('BP_URL_PREFIX'))
         for ep, func in app.view_functions.items():
-            info = route_meta_infos.get(func.__name__ + str(func.__hash__()), None)
+            info = route_meta_infos.get(
+                func.__name__ + str(func.__hash__()), None)
             if info:
                 self.manager.ep_meta.setdefault(ep, info)
 
@@ -219,7 +239,7 @@ class Manager(object):
     # 路由函数的meta信息的容器
     ep_meta = {}
 
-    def __init__(self, plugin_path, group_model=None, user_model=None, auth_model=None):
+    def __init__(self, plugin_path, group_model=None, user_model=None, auth_model=None, permission_model=None):
         if not group_model:
             self.group_model = Group
         else:
@@ -234,6 +254,11 @@ class Manager(object):
             self.auth_model = Auth
         else:
             self.auth_model = auth_model
+
+        if not permission_model:
+            self.permission_model = Permission
+        else:
+            self.permission_model = permission_model
 
         from .loader import Loader
         self.loader: Loader = Loader(plugin_path)

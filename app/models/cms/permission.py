@@ -1,5 +1,15 @@
-from app.lin.interface import InfoCrud
+'''
+Author: your name
+Date: 2020-08-10 22:58:20
+LastEditTime: 2020-10-30 15:25:34
+LastEditors: your name
+Description: In User Settings Edit
+FilePath: /lin-cms-flask/app/models/cms/permission.py
+'''
 from app.lin.db import db
+from app.lin.interface import InfoCrud
+from sqlalchemy import (
+    Column, DateTime, Index, Integer, SmallInteger, String, func, text)
 
 
 class Permission(InfoCrud):

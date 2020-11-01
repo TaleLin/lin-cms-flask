@@ -15,7 +15,7 @@ from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
 from flask import jsonify, request
 from app.lin import db
 from app.lin.core import (find_auth_module, find_user, get_ep_infos, manager,
-                      route_meta)
+                          route_meta)
 from app.lin.db import get_total_nums
 from app.lin.enums import UserActive, UserAdmin
 from app.lin.exception import Forbidden, NotFound, ParameterError, Success
@@ -30,9 +30,7 @@ admin_api = Redprint('admin')
 @route_meta(auth='查询所有可分配的权限', module='管理员', mount=False)
 @admin_required
 def authority():
-    return {"版本升级中，功能暂未开放": {}}
-#    TODO feat 3.x
-#    return  jsonify(get_ep_infos())
+    return jsonify(get_ep_infos())
 
 
 @admin_api.route('/users', methods=['GET'])
@@ -182,13 +180,15 @@ def create_group():
     if exists:
         raise Forbidden(msg='分组已存在，不可创建同名分组')
     with db.auto_commit():
-        group = manager.group_model.create(name=form.name.data, info=form.info.data)
+        group = manager.group_model.create(
+            name=form.name.data, info=form.info.data)
         db.session.flush()
 
         for auth in form.auths.data:
             meta = find_auth_module(auth)
             if meta:
-                manager.auth_model.create(auth=meta.auth, module=meta.module, group_id=group.id)
+                manager.auth_model.create(
+                    auth=meta.auth, module=meta.module, group_id=group.id)
 
     return Success(msg='新建分组成功')
 
@@ -216,7 +216,8 @@ def delete_group(gid):
     if manager.user_model.get(group_id=gid):
         raise Forbidden(msg='分组下存在用户，不可删除')
     # 删除group拥有的权限
-    manager.auth_model.query.filter(manager.auth_model.group_id == gid).delete()
+    manager.auth_model.query.filter(
+        manager.auth_model.group_id == gid).delete()
     exist.delete(commit=True)
     return Success(msg='删除分组成功')
 
@@ -226,7 +227,8 @@ def delete_group(gid):
 @admin_required
 def dispatch_auth():
     form = DispatchAuth().validate_for_api()
-    one = manager.auth_model.get(group_id=form.group_id.data, auth=form.auth.data)
+    one = manager.auth_model.get(
+        group_id=form.group_id.data, auth=form.auth.data)
     if one:
         raise Forbidden(msg='已有权限，不可重复添加')
     meta = find_auth_module(form.auth.data)
@@ -246,7 +248,8 @@ def dispatch_auths():
     form = DispatchAuths().validate_for_api()
     with db.auto_commit():
         for auth in form.auths.data:
-            one = manager.auth_model.get(group_id=form.group_id.data, auth=auth)
+            one = manager.auth_model.get(
+                group_id=form.group_id.data, auth=auth)
             if not one:
                 meta = find_auth_module(auth)
                 manager.auth_model.create(
