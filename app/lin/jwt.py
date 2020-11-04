@@ -11,13 +11,15 @@
 from functools import wraps
 
 from flask import request
-from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_current_user,\
-    create_access_token, create_refresh_token
+from flask_jwt_extended import (JWTManager, create_access_token,
+                                create_refresh_token, get_current_user,
+                                verify_jwt_in_request)
 
-from .exception import UnAuthentication, TokenInvalid, TokenExpired, NotFound
+from .exception import NotFound, TokenExpired, TokenInvalid, UnAuthentication
 
+SCOPE = "LinCMS"
 jwt = JWTManager()
-identity = dict(uid=0, scope='lin')
+identity = dict(uid=0, scope=SCOPE)
 
 
 def admin_required(fn):
@@ -70,7 +72,7 @@ def login_required(fn):
 @jwt.user_loader_callback_loader
 def user_loader_callback(identity):
     from .core import find_user
-    if identity['scope'] != 'lin':
+    if identity['scope'] != SCOPE:
         raise UnAuthentication()
     if 'remote_addr' in identity.keys() and identity['remote_addr'] != request.remote_addr:
         raise UnAuthentication()
@@ -102,43 +104,8 @@ def add_claims_to_access_token(identity):
     return {
         'uid': identity['uid'],
         'scope': identity['scope'],
-        'remote_addr': identity['remote_addr'] if
-        'remote_addr' in identity.keys() else None
+        'remote_addr': identity['remote_addr'] if 'remote_addr' in identity.keys() else None
     }
-
-
-def get_tokens(user, verify_remote_addr=False):
-    identity['uid'] = user.id
-    if verify_remote_addr:
-        identity['remote_addr'] = request.remote_addr
-    access_token = create_access_token(identity=identity)
-    refresh_token = create_refresh_token(identity=identity)
-    return access_token, refresh_token
-
-
-def get_access_token(user, scope=None, fresh=False, expires_delta=None, verify_remote_addr=False):
-    identity['uid'] = user.id
-    identity['scope'] = scope
-    if verify_remote_addr:
-        identity['remote_addr'] = request.remote_addr
-    access_token = create_access_token(
-        identity=identity,
-        fresh=fresh,
-        expires_delta=expires_delta,
-    )
-    return access_token
-
-
-def get_refresh_token(user, scope=None, expires_delta=None, verify_remote_addr=False):
-    identity['uid'] = user.id
-    identity['scope'] = scope
-    if verify_remote_addr:
-        identity['remote_addr'] = request.remote_addr
-    refresh_token = create_refresh_token(
-        identity=identity,
-        expires_delta=expires_delta
-    )
-    return refresh_token
 
 
 def verify_access_token():
@@ -152,8 +119,8 @@ def verify_refresh_token():
 def __verify_token(request_type):
     from flask import request
     from flask_jwt_extended.config import config
-    from flask_jwt_extended.view_decorators import _decode_jwt_from_cookies as decode
     from flask_jwt_extended.utils import verify_token_claims
+    from flask_jwt_extended.view_decorators import _decode_jwt_from_cookies as decode
     try:
         from flask import _app_ctx_stack as ctx_stack
     except ImportError:
@@ -168,3 +135,37 @@ def __verify_token(request_type):
 def _check_is_active(current_user):
     if not current_user.is_active:
         raise UnAuthentication(msg='您目前处于未激活状态，请联系超级管理员')
+
+
+def get_tokens(user, verify_remote_addr=False):
+    identity['uid'] = user.id
+    if verify_remote_addr:
+        identity['remote_addr'] = request.remote_addr
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
+    return access_token, refresh_token
+
+
+# def get_access_token(user, scope=None, fresh=False, expires_delta=None, verify_remote_addr=False):
+#     identity['uid'] = user.id
+#     identity['scope'] = scope
+#     if verify_remote_addr:
+#         identity['remote_addr'] = request.remote_addr
+#     access_token = create_access_token(
+#         identity=identity,
+#         fresh=fresh,
+#         expires_delta=expires_delta,
+#     )
+#     return access_token
+
+
+# def get_refresh_token(user, scope=None, expires_delta=None, verify_remote_addr=False):
+#     identity['uid'] = user.id
+#     identity['scope'] = scope
+#     if verify_remote_addr:
+#         identity['remote_addr'] = request.remote_addr
+#     refresh_token = create_refresh_token(
+#         identity=identity,
+#         expires_delta=expires_delta
+#     )
+#     return refresh_token

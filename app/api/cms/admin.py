@@ -1,18 +1,14 @@
 """
     admin apis
     ~~~~~~~~~
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 import math
 from itertools import groupby
 from operator import itemgetter
 
-from app.libs.utils import get_page_from_query, json_res, paginate
-from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
-                                  RemoveAuths, ResetPasswordForm, UpdateGroup,
-                                  UpdateUserInfoForm)
-from flask import jsonify, request
+from app.libs.utils import get_page_from_query, paginate
 from app.lin import db
 from app.lin.core import (find_auth_module, find_user, get_ep_infos, manager,
                           route_meta)
@@ -22,6 +18,10 @@ from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
+from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
+                                  RemoveAuths, ResetPasswordForm, UpdateGroup,
+                                  UpdateUserInfoForm)
+from flask import request
 
 admin_api = Redprint('admin')
 
@@ -30,7 +30,7 @@ admin_api = Redprint('admin')
 @route_meta(auth='查询所有可分配的权限', module='管理员', mount=False)
 @admin_required
 def authority():
-    return jsonify(get_ep_infos())
+    return get_ep_infos()
 
 
 @admin_api.route('/users', methods=['GET'])
@@ -64,7 +64,13 @@ def get_admin_users():
     total = get_total_nums(manager.user_model, is_soft=True, **condition)
     total_page = math.ceil(total / count)
     page = get_page_from_query()
-    return json_res(count=count, items=user_and_group, page=page, total=total, total_page=total_page)
+    return {
+        "count": count,
+        "items": user_and_group,
+        "page": page,
+        "total": total,
+        "total_page": total_page
+    }
 
 
 @admin_api.route('/user/<int:uid>/password', methods=['PUT'])
@@ -140,7 +146,13 @@ def get_admin_groups():
     total_page = math.ceil(total / count)
     page = get_page_from_query()
 
-    return json_res(count=count, items=groups, page=page, total=total, total_page=total_page)
+    return {
+        "count": count,
+        "items": groups,
+        "page": page,
+        "total": total,
+        "total_page": total_page
+    }
 
 
 @admin_api.route('/group/all', methods=['GET'])
@@ -150,7 +162,7 @@ def get_all_group():
     groups = manager.group_model.get(one=False)
     if groups is None:
         raise NotFound(msg='不存在任何权限组')
-    return jsonify(groups)
+    return groups
 
 
 @admin_api.route('/group/<int:gid>', methods=['GET'])
@@ -167,7 +179,7 @@ def get_group(gid):
     res = _split_modules(auths)
     setattr(group, 'auths', res)
     group._fields.append('auths')
-    return jsonify(group)
+    return group
 
 
 @admin_api.route('/group', methods=['POST'])
@@ -303,58 +315,3 @@ def _change_status(uid, active_or_disable='active'):
 
     with db.auto_commit():
         user.active = active_or_not
-
-# --------------------------------------------------
-# --------------------Abandon-----------------------
-# --------------------------------------------------
-# --------------------------------------------------
-# @admin_api.route('/auth', methods=['PUT'])
-# @route_meta(auth='更新权限', module='管理员', mount=False)
-# @admin_required
-# def update_auths():
-#     form = DispatchAuths().validate_for_api()
-#     # 查询分组所拥有的权限
-#     haved_auths = db.session.query(manager.auth_model) \
-    #         .filter(manager.auth_model.group_id == form.group_id.data) \
-    #         .all()
-#     will_add_auths, will_remove_auths = _diff_auths(form.auths.data, haved_auths)
-#
-#     with db.auto_commit():
-#         for auth in will_add_auths:
-#             meta = find_auth_module(auth)
-#             manager.auth_model.create(group_id=form.group_id.data, auth=meta.auth, module=meta.module)
-#
-#         db.session.query(manager.auth_model) \
-    #             .filter(manager.auth_model.auth.in_(will_remove_auths),
-#                     manager.auth_model.group_id == form.group_id.data) \
-    #             .delete(synchronize_session=False)
-#     return Success(msg='更新权限成功')
-#
-#
-# def _diff_auths(request_auths, haved_auths):
-#     # 待删除权限，在发送来的权限中不存在拥有的权限即删除
-#     will_remove_auths = []
-#     for haved_auth in haved_auths:
-#         tmp_auth = haved_auth.auth
-#         if tmp_auth not in request_auths:
-#             will_remove_auths.append(tmp_auth)
-#
-#     # 找新增的权限
-#     # 在已有的权限中不存在发送的权限
-#     will_add_auths = []
-#     haved_tmps = [haved_auth.auth for haved_auth in haved_auths]
-#     for request_auth in request_auths:
-#         if request_auth not in haved_tmps:
-#             will_add_auths.append(request_auth)
-#
-#     return will_add_auths, will_remove_auths
-
-# 废除
-# @admin_api.route('/api_groups', methods=['GET'])
-# @admin_required
-# def get_apis_with_group():
-#     apis = db.session.query(manager.auth_model.id, manager.auth_model.auth, manager.auth_model.module) \
-    #         .filter_by().all()
-#     apis = [{'id': api[0], 'auth': api[1], 'module': api[2]} for api in apis]
-#     res = _split_modules(apis)
-#     return jsonify(res)

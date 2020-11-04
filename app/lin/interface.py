@@ -307,3 +307,13 @@ class FileInterface(InfoCrud):
 # service暂时不用
 class ServiceInterface(object):
     pass
+
+# 提供自动序列化功能
+
+
+class ViewModel:
+    def keys(self):
+        return self.__dict__.keys()
+
+    def __getitem__(self, key):
+        return getattr(self, key)

@@ -9,21 +9,40 @@
 """
 from collections import namedtuple
 from datetime import datetime, date
+import json
 
-from flask import Flask, current_app, request, Blueprint
+from flask import Flask as _Flask, g, jsonify,  current_app, request, Blueprint
 from flask.json import JSONEncoder as _JSONEncoder
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
 
 from .logger import LinLog
-from .db import db
+from .db import MixinJSONSerializer, db
 from .jwt import jwt
 from .exception import APIException, InternalServerError, UnAuthentication
 from .interface import UserInterface, GroupInterface, AuthInterface,\
-    LogInterface, EventInterface, FileInterface
+    LogInterface, EventInterface, FileInterface, ViewModel
 from .exception import NotFound, ParameterError
 from .config import Config
 from app.models.cms.permission import Permission
+from flask.wrappers import Response
+
+
+class Flask(_Flask):
+
+    def make_lin_response(self, rv):
+        """
+        将视图函数返回的值转换为flask内置支持的类型
+        """
+        if isinstance(rv, (dict, MixinJSONSerializer, ViewModel)):
+            rv = jsonify(rv)
+        elif isinstance(rv, (list, set)):
+            rv = json.dumps(rv, cls=JSONEncoder)
+        elif isinstance(rv, (tuple)):
+            if len(rv) == 0 or len(rv) > 0 and not isinstance(rv[0], Response):
+                rv = json.dumps(rv, cls=JSONEncoder)
+        return super(Flask, self).make_response(rv)
+
 
 __version__ = '0.1.2'
 
@@ -125,13 +144,14 @@ class Lin(object):
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
                  json_encoder=True,  # 是否使用自定义的json_encoder , default True
+                 lin_response=True,  # 是否启用自动序列化，default True, 需要启用json_encoder才能生效
                  logger=True,   # 是否使用自定义系统日志，default True
                  ):
         self.app = app
         self.manager = None
         if app is not None:
             self.init_app(app, group_model, user_model, auth_model,
-                          permission_model, create_all, mount, handle, json_encoder, logger)
+                          permission_model, create_all, mount, handle, json_encoder, lin_response, logger)
 
     def init_app(self,
                  app: Flask,
@@ -143,6 +163,7 @@ class Lin(object):
                  mount=True,
                  handle=True,
                  json_encoder=True,
+                 lin_response=True,
                  logger=True
                  ):
         # default config
@@ -159,6 +180,7 @@ class Lin(object):
             "EXCLUDE": set([])
         })
         json_encoder and self._enable_json_encoder(app)
+        json_encoder and lin_response and self._enable_lin_response(app)
         self.app = app
         # 初始化 manager
         self.manager = Manager(app.config.get('PLUGIN_PATH'),
@@ -227,6 +249,9 @@ class Lin(object):
 
     def _enable_json_encoder(self, app):
         app.json_encoder = JSONEncoder
+
+    def _enable_lin_response(self, app):
+        app.make_response = app.make_lin_response
 
     def _enable_create_all(self, app):
         with app.app_context():

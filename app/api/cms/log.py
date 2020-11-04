@@ -1,20 +1,20 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import math
 
-from app.libs.utils import get_page_from_query, json_res
-from app.validators.forms import LogFindForm
-from flask import jsonify, request
+
+import math
+from app.libs.utils import get_page_from_query
 from app.lin import db
 from app.lin.core import Log, route_meta
 from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.lin.util import paginate
+from app.validators.forms import LogFindForm
+from flask import jsonify, request
 from sqlalchemy import text
-
 log_api = Redprint('log')
 
 
@@ -36,7 +36,13 @@ def get_logs():
     page = get_page_from_query()
     if not logs:
         logs = []
-    return json_res(page=page, count=count, total=total, items=logs, total_page=total_page)
+    return {
+        "page": page,
+        "count": count,
+        "total": total,
+        "items": logs,
+        "total_page": total_page
+    }
 
 
 # 日志搜素（人员，时间）（内容）， 分页展示
@@ -60,7 +66,13 @@ def get_user_logs():
     page = get_page_from_query()
     if not logs:
         logs = []
-    return json_res(page=page, count=count, total=total, items=logs, total_page=total_page)
+    return {
+        "page": page,
+        "count": count,
+        "total": total,
+        "items": logs,
+        "total_page": total_page
+    }
 
 
 @log_api.route('/users', methods=['GET'])

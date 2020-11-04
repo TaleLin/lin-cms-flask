@@ -1,12 +1,12 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 
+
 import re
 import time
-
-from flask import current_app, jsonify, request
+from flask import current_app, request
 from app.lin.exception import ParameterError
 
 
@@ -16,7 +16,8 @@ def get_timestamp(fmt='%Y-%m-%d %H:%M:%S'):
 
 def get_count_from_query():
     count_default = current_app.config.get('COUNT_DEFAULT')
-    count = int(request.args.get('count', count_default if count_default else 1))
+    count = int(request.args.get(
+        'count', count_default if count_default else 1))
     return count
 
 
@@ -39,11 +40,3 @@ def camel2line(camel: str):
     p = re.compile(r'([a-z]|\d)([A-Z])')
     line = re.sub(p, r'\1_\2', camel).lower()
     return line
-
-
-def json_res(**kwargs):
-    '''
-    将所有传入的关键字参数转变为dict后序列化为json格式的response
-    count, items, page, total, total_page ...
-    '''
-    return jsonify(kwargs)
