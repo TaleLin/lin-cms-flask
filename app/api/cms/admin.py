@@ -193,14 +193,15 @@ def create_group():
         raise Forbidden(msg='分组已存在，不可创建同名分组')
     with db.auto_commit():
         group = manager.group_model.create(
-            name=form.name.data, info=form.info.data)
+            name=form.name.data,
+            info=form.info.data,
+        )
         db.session.flush()
-
-        for auth in form.auths.data:
-            meta = find_auth_module(auth)
-            if meta:
-                manager.auth_model.create(
-                    auth=meta.auth, module=meta.module, group_id=group.id)
+        for permission_id in form.permission_ids.data:
+            manager.group_permission_model.create(
+                group_id=group.id,
+                permission_id=permission_id
+            )
 
     return Success(msg='新建分组成功')
 

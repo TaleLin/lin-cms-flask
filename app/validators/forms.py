@@ -14,16 +14,20 @@ from app.lin.forms import Form
 class RegisterForm(Form):
     password = PasswordField('新密码', validators=[
         DataRequired(message='新密码不可为空'),
-        Regexp(r'^[A-Za-z0-9_*&$#@]{6,22}$', message='密码长度必须在6~22位之间，包含字符、数字和 _ '),
+        Regexp(r'^[A-Za-z0-9_*&$#@]{6,22}$',
+               message='密码长度必须在6~22位之间，包含字符、数字和 _ '),
         EqualTo('confirm_password', message='两次输入的密码不一致，请输入相同的密码')])
-    confirm_password = PasswordField('确认新密码', validators=[DataRequired(message='请确认密码')])
+    confirm_password = PasswordField(
+        '确认新密码', validators=[DataRequired(message='请确认密码')])
     username = StringField(validators=[DataRequired(message='用户名不可为空'),
                                        length(min=2, max=10, message='用户名长度必须在2~10之间')])
 
     # group_id = IntegerField('分组id', validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
+    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
+        message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
     email = StringField('电子邮件', validators=[
-        Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
+        Regexp(
+            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()
     ])
 
@@ -43,15 +47,18 @@ class LoginForm(Form):
 class ResetPasswordForm(Form):
     new_password = PasswordField('新密码', validators=[
         DataRequired(message='新密码不可为空'),
-        Regexp(r'^[A-Za-z0-9_*&$#@]{6,22}$', message='密码长度必须在6~22位之间，包含字符、数字和 _ '),
+        Regexp(r'^[A-Za-z0-9_*&$#@]{6,22}$',
+               message='密码长度必须在6~22位之间，包含字符、数字和 _ '),
         EqualTo('confirm_password', message='两次输入的密码不一致，请输入相同的密码')
     ])
-    confirm_password = PasswordField('确认新密码', validators=[DataRequired(message='请确认密码')])
+    confirm_password = PasswordField(
+        '确认新密码', validators=[DataRequired(message='请确认密码')])
 
 
 # 更改密码校验
 class ChangePasswordForm(ResetPasswordForm):
-    old_password = PasswordField('原密码', validators=[DataRequired(message='不可为空')])
+    old_password = PasswordField(
+        '原密码', validators=[DataRequired(message='不可为空')])
 
 
 # 管理员创建分组
@@ -61,7 +68,7 @@ class NewGroup(Form):
     # 非必须
     info = StringField(validators=[Optional()])
     # 必填，分组的权限
-    auths = FieldList(StringField(validators=[DataRequired(message='请输入auths字段')]))
+    permission_ids = FieldList(IntegerField(validators=[DataRequired()]))
 
 
 # 管理员更新分组
@@ -76,7 +83,8 @@ class DispatchAuths(Form):
     # 为用户分配的权限
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    auths = FieldList(StringField(validators=[DataRequired(message='请输入auths字段')]))
+    auths = FieldList(StringField(
+        validators=[DataRequired(message='请输入auths字段')]))
 
 
 class DispatchAuth(Form):
@@ -91,7 +99,8 @@ class DispatchAuth(Form):
 class RemoveAuths(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    auths = FieldList(StringField(validators=[DataRequired(message='请输入auths字段')]))
+    auths = FieldList(StringField(
+        validators=[DataRequired(message='请输入auths字段')]))
 
 
 # 日志查找范围校验
@@ -120,13 +129,15 @@ class LogFindForm(Form):
 class EventsForm(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    events = FieldList(StringField(validators=[DataRequired(message='请输入events字段')]))
+    events = FieldList(StringField(
+        validators=[DataRequired(message='请输入events字段')]))
 
 
 # 更新用户邮箱和昵称
 class UpdateInfoForm(Form):
     email = StringField('电子邮件', validators=[
-        Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
+        Regexp(
+            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()
     ])
     nickname = StringField(validators=[
@@ -140,7 +151,8 @@ class UpdateUserInfoForm(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
     email = StringField('电子邮件', validators=[
-        Regexp(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
+        Regexp(
+            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()
     ])
 
@@ -152,7 +164,8 @@ class AvatarUpdateForm(Form):
 
 
 class BookSearchForm(Form):
-    q = StringField(validators=[DataRequired(message='必须传入搜索关键字')])  # 前端的请求参数中必须携带`q`
+    q = StringField(validators=[DataRequired(
+        message='必须传入搜索关键字')])  # 前端的请求参数中必须携带`q`
 
 
 class CreateOrUpdateBookForm(Form):

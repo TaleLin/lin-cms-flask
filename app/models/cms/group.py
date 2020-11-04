@@ -2,6 +2,8 @@ from sqlalchemy import func
 
 from app.lin.db import db
 from app.lin.interface import InfoCrud
+from sqlalchemy import (
+    Column, DateTime, Index, Integer, SmallInteger, String, func, text)
 
 
 class Group(InfoCrud):

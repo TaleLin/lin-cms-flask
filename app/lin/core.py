@@ -7,25 +7,28 @@
     :copyright: © 2018 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from collections import namedtuple
-from datetime import datetime, date
 import json
+from collections import namedtuple
+from datetime import date, datetime
 
-from flask import Flask as _Flask, g, jsonify,  current_app, request, Blueprint
+from app.models.cms import Group, GroupPermission, Permission
+from app.models.cms.group_permission import GroupPermission
+from flask import Blueprint
+from flask import Flask as _Flask
+from flask import current_app, g, jsonify, request
 from flask.json import JSONEncoder as _JSONEncoder
+from flask.wrappers import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
 
-from .logger import LinLog
-from .db import MixinJSONSerializer, db
-from .jwt import jwt
-from .exception import APIException, InternalServerError, UnAuthentication
-from .interface import UserInterface, GroupInterface, AuthInterface,\
-    LogInterface, EventInterface, FileInterface, ViewModel
-from .exception import NotFound, ParameterError
 from .config import Config
-from app.models.cms.permission import Permission
-from flask.wrappers import Response
+from .db import MixinJSONSerializer, db
+from .exception import (APIException, InternalServerError, NotFound,
+                        ParameterError, UnAuthentication)
+from .interface import (AuthInterface, EventInterface, FileInterface,
+                        LogInterface, UserInterface, ViewModel)
+from .jwt import jwt
+from .logger import LinLog
 
 
 class Flask(_Flask):
@@ -140,7 +143,8 @@ class Lin(object):
                  user_model=None,  # user model, default None
                  auth_model=None,  # authority model, default None
                  permission_model=None,  # permission model, default None
-                 create_all=False,  # 是否创建所有数据库表, default false
+                 group_permission_model=None,  # group permission 多对多关联模型
+                 create_all=True,  # 是否创建所有数据库表, default false
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
                  json_encoder=True,  # 是否使用自定义的json_encoder , default True
@@ -150,8 +154,8 @@ class Lin(object):
         self.app = app
         self.manager = None
         if app is not None:
-            self.init_app(app, group_model, user_model, auth_model,
-                          permission_model, create_all, mount, handle, json_encoder, lin_response, logger)
+            self.init_app(app, group_model, user_model, auth_model, permission_model,
+                          group_permission_model, create_all, mount, handle, json_encoder, lin_response, logger)
 
     def init_app(self,
                  app: Flask,
@@ -159,6 +163,7 @@ class Lin(object):
                  user_model=None,
                  auth_model=None,
                  permission_model=None,
+                 group_permission_model=None,
                  create_all=False,
                  mount=True,
                  handle=True,
@@ -188,6 +193,7 @@ class Lin(object):
                                user_model,
                                auth_model,
                                permission_model,
+                               group_permission_model,
                                )
         self.app.extensions['manager'] = self.manager
         db.init_app(app)
@@ -264,7 +270,7 @@ class Manager(object):
     # 路由函数的meta信息的容器
     ep_meta = {}
 
-    def __init__(self, plugin_path, group_model=None, user_model=None, auth_model=None, permission_model=None):
+    def __init__(self, plugin_path, group_model=None, user_model=None, auth_model=None, permission_model=None, group_permission_model=None):
         if not group_model:
             self.group_model = Group
         else:
@@ -284,6 +290,11 @@ class Manager(object):
             self.permission_model = Permission
         else:
             self.permission_model = permission_model
+
+        if not group_permission_model:
+            self.group_permission_model = GroupPermission
+        else:
+            self.group_permission_model = group_permission_model
 
         from .loader import Loader
         self.loader: Loader = Loader(plugin_path)
@@ -363,10 +374,6 @@ class User(UserInterface, db.Model):
             self.password = new_password
             return True
         return False
-
-
-class Group(GroupInterface):
-    pass
 
 
 class Auth(AuthInterface):
