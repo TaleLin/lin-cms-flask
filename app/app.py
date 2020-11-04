@@ -2,18 +2,20 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+
+
 import json
 import time
 
-from flask import Flask
-from flask import request, g
 from flask_cors import CORS
+
 from app.lin import Lin
+from app.lin.core import Flask, g, request
 
 
 def register_blueprints(app):
-    from app.api.v1 import create_v1
     from app.api.cms import create_cms
+    from app.api.v1 import create_v1
     app.register_blueprint(create_v1(), url_prefix='/v1')
     app.register_blueprint(create_cms(), url_prefix='/cms')
 
@@ -65,6 +67,7 @@ def register_after_request(app):
 
 def create_app(register_all=True, environment='production'):
     app = Flask(__name__, static_folder='./assets')
+    app.config['JSON_AS_ASCII'] = False
     app.config['ENV'] = environment
     env = app.config.get('ENV')
     if env == 'production':
