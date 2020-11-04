@@ -230,18 +230,6 @@ class AuthInterface(BaseCrud):
     module = Column(String(50), comment='权限的模块')
 
 
-class GroupInterface(BaseCrud):
-    __tablename__ = 'lin_group'
-
-    id = Column(Integer, primary_key=True)
-    # : name of group
-    # : 权限组名称
-    name = Column(String(60), comment='权限组名称')
-    # a description of a group
-    # 权限组描述
-    info = Column(String(255), comment='权限组描述')
-
-
 class LogInterface(BaseCrud):
     __tablename__ = 'lin_log'
 

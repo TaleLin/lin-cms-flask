@@ -1,5 +1,7 @@
 from app.lin.interface import BaseCrud
 from app.lin.db import db
+from sqlalchemy import (
+    Column, DateTime, Index, Integer, SmallInteger, String, func, text)
 
 
 class GroupPermission(BaseCrud):

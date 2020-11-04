@@ -24,12 +24,6 @@ def apply_cors(app):
     CORS(app)
 
 
-def create_tables(app):
-    from app.lin.db import db
-    with app.app_context():
-        db.create_all()
-
-
 def register_before_request(app):
     @app.before_request
     def request_cost_time():
@@ -84,6 +78,5 @@ def create_app(register_all=True, environment='production'):
         register_after_request(app)
         apply_cors(app)
         # 创建所有表格
-        create_tables(app)
 
     return app
