@@ -30,25 +30,18 @@ user_api = Redprint('user')
 @admin_required
 def register():
     form = RegisterForm().validate_for_api()
-    # TODO feat 3.x
-    if len(form.group_ids) > 1:
-        return Fail(msg='暂不支持多用户组')
-    user = manager.find_user(username=form.username.data)
-    if user:
-        raise Duplicated(msg='用户名重复，请重新输入')
-    if form.email.data and form.email.data.strip() != "":
-        user = manager.user_model.query.filter(and_(
-            manager.user_model.email.isnot(None),
-            manager.user_model.email == form.email.data
-        )).first()
-        if user:
-            raise Duplicated(msg='注册邮箱重复，请重新输入')
+    # TODO model更新后开放注释
+    # if manager.user_model.count_by_username(form.username.data) > 0:
+    #     raise Duplicated(msg='用户名重复，请重新输入')
+    # if form.email.data and form.email.data.strip() != "":
+    #     if manager.user_model.count_by_email(form.email.data) > 0:
+    #         raise Duplicated(msg='注册邮箱重复，请重新输入')
     _register_user(form)
     return Success(msg='用户创建成功')
 
 
-@user_api.route('/login', methods=['POST'])
-@route_meta(auth='登录', module='用户', mount=False)
+@ user_api.route('/login', methods=['POST'])
+@ route_meta(auth='登录', module='用户', mount=False)
 def login():
     form = LoginForm().validate_for_api()
     user = manager.user_model.verify(form.username.data, form.password.data)
@@ -66,9 +59,9 @@ def login():
     }
 
 
-@user_api.route('', methods=['PUT'])
-@route_meta(auth='用户更新信息', module='用户', mount=False)
-@login_required
+@ user_api.route('', methods=['PUT'])
+@ route_meta(auth='用户更新信息', module='用户', mount=False)
+@ login_required
 def update():
     form = UpdateInfoForm().validate_for_api()
     user = get_current_user()
@@ -82,10 +75,10 @@ def update():
     return Success(msg='操作成功')
 
 
-@user_api.route('/change_password', methods=['PUT'])
-@route_meta(auth='修改密码', module='用户', mount=False)
-@Logger(template='{user.username}修改了自己的密码')  # 记录日志
-@login_required
+@ user_api.route('/change_password', methods=['PUT'])
+@ route_meta(auth='修改密码', module='用户', mount=False)
+@ Logger(template='{user.username}修改了自己的密码')  # 记录日志
+@ login_required
 def change_password():
     form = ChangePasswordForm().validate_for_api()
     user = get_current_user()
@@ -97,16 +90,16 @@ def change_password():
         return Fail(msg='修改密码失败')
 
 
-@user_api.route('/information', methods=['GET'])
-@route_meta(auth='查询自己信息', module='用户', mount=False)
-@login_required
+@ user_api.route('/information', methods=['GET'])
+@ route_meta(auth='查询自己信息', module='用户', mount=False)
+@ login_required
 def get_information():
     current_user = get_current_user()
     return jsonify(current_user)
 
 
-@user_api.route('/refresh', methods=['GET'])
-@route_meta(auth='刷新令牌', module='用户', mount=False)
+@ user_api.route('/refresh', methods=['GET'])
+@ route_meta(auth='刷新令牌', module='用户', mount=False)
 def refresh():
     try:
         verify_jwt_refresh_token_in_request()
@@ -125,9 +118,9 @@ def refresh():
     return NotFound(msg='refresh_token未被识别')
 
 
-@user_api.route('/permissions', methods=['GET'])
-@route_meta(auth='查询自己拥有的权限', module='用户', mount=False)
-@login_required
+@ user_api.route('/permissions', methods=['GET'])
+@ route_meta(auth='查询自己拥有的权限', module='用户', mount=False)
+@ login_required
 def get_allowed_apis():
     user = get_current_user()
     auths = db.session.query(
@@ -143,13 +136,16 @@ def get_allowed_apis():
 
 def _register_user(form: RegisterForm):
     with db.auto_commit():
-        # 注意：此处使用挂载到manager上的user_model，不可使用默认的User
         user = manager.user_model()
         user.username = form.username.data
         if form.email.data and form.email.data.strip() != "":
             user.email = form.email.data
         user.password = form.password.data
-        # TODO feat 3.x
-        # user.group_id = form.group_id.data
-        user.group_id = form.group_ids[0].data
         db.session.add(user)
+        db.session.flush()
+        group_ids = form.group_ids.data
+        for group_id in group_ids:
+            user_group = manager.user_group_model()
+            user_group.user_id = user.id
+            user_group.group_id = group_id
+            db.session.add(user_group)

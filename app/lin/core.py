@@ -11,8 +11,7 @@ import json
 from collections import namedtuple
 from datetime import date, datetime
 
-from app.models.cms import Group, GroupPermission, Permission
-from app.models.cms.group_permission import GroupPermission
+from app.models.cms import Group, GroupPermission, Permission, UserGroup
 from flask import Blueprint
 from flask import Flask as _Flask
 from flask import current_app, g, jsonify, request
@@ -144,6 +143,7 @@ class Lin(object):
                  auth_model=None,  # authority model, default None
                  permission_model=None,  # permission model, default None
                  group_permission_model=None,  # group permission 多对多关联模型
+                 user_group_model=None,  # user group 多对多关联模型
                  create_all=True,  # 是否创建所有数据库表, default false
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
@@ -154,8 +154,19 @@ class Lin(object):
         self.app = app
         self.manager = None
         if app is not None:
-            self.init_app(app, group_model, user_model, auth_model, permission_model,
-                          group_permission_model, create_all, mount, handle, json_encoder, lin_response, logger)
+            self.init_app(app,
+                          group_model,
+                          user_model,
+                          auth_model,
+                          permission_model,
+                          group_permission_model,
+                          user_group_model,
+                          create_all,
+                          mount,
+                          handle,
+                          json_encoder,
+                          lin_response,
+                          logger)
 
     def init_app(self,
                  app: Flask,
@@ -164,6 +175,7 @@ class Lin(object):
                  auth_model=None,
                  permission_model=None,
                  group_permission_model=None,
+                 user_group_model=None,
                  create_all=False,
                  mount=True,
                  handle=True,
@@ -194,6 +206,7 @@ class Lin(object):
                                auth_model,
                                permission_model,
                                group_permission_model,
+                               user_group_model
                                )
         self.app.extensions['manager'] = self.manager
         db.init_app(app)
@@ -270,7 +283,15 @@ class Manager(object):
     # 路由函数的meta信息的容器
     ep_meta = {}
 
-    def __init__(self, plugin_path, group_model=None, user_model=None, auth_model=None, permission_model=None, group_permission_model=None):
+    def __init__(self,
+                 plugin_path,
+                 group_model=None,
+                 user_model=None,
+                 auth_model=None,
+                 permission_model=None,
+                 group_permission_model=None,
+                 user_group_model=None
+                 ):
         if not group_model:
             self.group_model = Group
         else:
@@ -295,6 +316,11 @@ class Manager(object):
             self.group_permission_model = GroupPermission
         else:
             self.group_permission_model = group_permission_model
+
+        if not user_group_model:
+            self.user_group_model = UserGroup
+        else:
+            self.user_group_model = user_group_model
 
         from .loader import Loader
         self.loader: Loader = Loader(plugin_path)

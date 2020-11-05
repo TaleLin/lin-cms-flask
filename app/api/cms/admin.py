@@ -39,34 +39,19 @@ def authority():
 def get_admin_users():
     start, count = paginate()
     group_id = request.args.get('group_id')
-    condition = {
-        'admin': UserAdmin.COMMON.value,
-        'group_id': group_id
-    } if group_id else {
-        'admin': UserAdmin.COMMON.value
-    }
-
-    users = db.session.query(
-        manager.user_model, manager.group_model.name
-    ).filter_by(soft=True, **condition).join(
-        manager.group_model,
-        manager.user_model.group_id == manager.group_model.id
-    ).offset(start).limit(count).all()
-
-    user_and_group = []
-    for user, group_name in users:
-        setattr(user, 'group_name', group_name)
-        user._fields.append('group_name')
-        user.hide('update_time')
-        user_and_group.append(user)
-        # 有分组的时候就加入分组条件
-        # total_nums = get_total_nums(manager.user_model, is_soft=True, admin=UserAdmin.COMMON.value)
-    total = get_total_nums(manager.user_model, is_soft=True, **condition)
+    group_condition = {'group_id': group_id} if group_id else {}
+    user_condition = {'admin': UserAdmin.COMMON.value}
+    user_group_list = manager.user_group_model.query.filter_by(
+        **group_condition).offset(start).limit(count).all()
+    groups = manager.group_model.query.filter_by(
+        soft=True, **group_condition).all()
+    # 统计符合条件的用户数量 TODO
+    total = get_total_nums(manager.user_model, is_soft=True, **group_condition)
     total_page = math.ceil(total / count)
     page = get_page_from_query()
     return {
         "count": count,
-        "items": user_and_group,
+        "items": user_group_list,
         "page": page,
         "total": total,
         "total_page": total_page
