@@ -2,12 +2,14 @@
     :copyright: © 2019 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.lin import manager
-from wtforms import DateTimeField, PasswordField, FieldList, IntegerField, StringField
-from wtforms.validators import DataRequired, Regexp, EqualTo, length, Optional, NumberRange
 import time
 
+from app.lin import manager
 from app.lin.forms import Form
+from wtforms import (DateTimeField, FieldList, IntegerField, PasswordField,
+                     StringField)
+from wtforms.validators import (DataRequired, EqualTo, NumberRange, Optional,
+                                Regexp, length)
 
 
 # 注册校验
@@ -22,18 +24,14 @@ class RegisterForm(Form):
     username = StringField(validators=[DataRequired(message='用户名不可为空'),
                                        length(min=2, max=10, message='用户名长度必须在2~10之间')])
 
-    # group_id = IntegerField('分组id', validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
     group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
         message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
-    email = StringField('电子邮件', validators=[
-        Regexp(
-            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
-        Optional()
-    ])
+    newvariable329 = r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$'
+    email = StringField('电子邮件', validators=[Regexp(
+        newvariable329, message='电子邮箱不符合规范，请输入正确的邮箱'), Optional()])
 
     def validate_group_id(self, value):
-        exists = manager.group_model.get(id=value.data)
-        if not exists:
+        if manager.group_model.count_by_id(id=value.data) > 0:
             raise ValueError('分组不存在')
 
 
@@ -68,7 +66,13 @@ class NewGroup(Form):
     # 非必须
     info = StringField(validators=[Optional()])
     # 必填，分组的权限
-    permission_ids = FieldList(IntegerField(validators=[DataRequired()]))
+    permission_ids = FieldList(IntegerField('权限id', validators=[DataRequired(
+        message='请输入权限id'), NumberRange(message='权限id必须大于0', min=1)]))
+
+    def validate_permission_id(self, value):
+        exists = manager.permission_model.get(id=value.data)
+        if not exists:
+            raise ValueError('权限不存在')
 
 
 # 管理员更新分组

@@ -1,6 +1,8 @@
 from app.lin.interface import InfoCrud
 from app.lin.db import db
 from sqlalchemy import func
+from sqlalchemy import (
+    Column, DateTime, Index, Integer, SmallInteger, String, func, text)
 
 
 class User(InfoCrud):
@@ -32,6 +34,13 @@ class User(InfoCrud):
     def count_by_username(cls, username) -> int:
         result = db.session.query(func.count(cls.id)).filter(
             cls.username == username, cls.delete_time == None)
+        count = result.scalar()
+        return count
+
+    @classmethod
+    def count_by_email(cls, email) -> int:
+        result = db.session.query(func.count(cls.id)).filter(
+            cls.email == email, cls.delete_time == None)
         count = result.scalar()
         return count
 
