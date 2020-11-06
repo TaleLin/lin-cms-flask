@@ -5,6 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 import math
+from functools import reduce
 from itertools import groupby
 from operator import itemgetter
 
@@ -18,10 +19,12 @@ from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
+from app.models.cms import user_group
 from app.validators.forms import (DispatchAuth, DispatchAuths, NewGroup,
                                   RemoveAuths, ResetPasswordForm, UpdateGroup,
                                   UpdateUserInfoForm)
 from flask import request
+from sqlalchemy import func
 
 admin_api = Redprint('admin')
 
@@ -39,19 +42,57 @@ def authority():
 def get_admin_users():
     start, count = paginate()
     group_id = request.args.get('group_id')
-    group_condition = {'group_id': group_id} if group_id else {}
-    user_condition = {'admin': UserAdmin.COMMON.value}
-    user_group_list = manager.user_group_model.query.filter_by(
-        **group_condition).offset(start).limit(count).all()
-    groups = manager.group_model.query.filter_by(
-        soft=True, **group_condition).all()
-    # 统计符合条件的用户数量 TODO
-    total = get_total_nums(manager.user_model, is_soft=True, **group_condition)
+    # 根据筛选条件和分页，获取 用户id 与 用户组id 的一对多 数据
+    _user_groups_list = db.session.query(
+        manager.user_group_model.user_id.label('user_id'), func.group_concat(manager.user_group_model.group_id).label('group_ids'))
+    if group_id:
+        _user_groups_list = _user_groups_list.filter(
+            manager.user_group_model.group_id == group_id)
+    user_groups_list = _user_groups_list.group_by(
+        manager.user_group_model.user_id).offset(start).limit(count).all()
+
+    # 获取 符合条件的 用户id 数量
+    _total = db.session.query(func.count(
+        func.distinct(manager.user_group_model.user_id)))
+    if group_id:
+        _total = _total.filter(manager.user_group_model.group_id == group_id)
+    total = _total.scalar()
+
+    # 获取本次需要返回的用户的数据
+    user_ids = [x.user_id for x in user_groups_list]
+    users = manager.user_model.query.filter(
+        manager.user_model.id.in_(user_ids)).all()
+    user_dict = dict()
+    for user in users:
+        user.groups = list()
+        user._fields.append('groups')
+        user_dict[user.id] = user
+
+    # 使用用户组来过滤，则不需要补全用户组信息
+    if not group_id:
+        # 拿到本次请求返回用户的所有 用户组 id List
+        group_ids = [int(i) for i in set().union(
+            *(x.group_ids.split(',') for x in user_groups_list))]
+        # 获取本次需要返回的用户组的数据
+        groups = manager.group_model.query.filter(
+            manager.group_model.id.in_(group_ids)).all()
+        group_dict = dict()
+        for group in groups:
+            group_dict[group.id] = group
+        items = []
+
+        # 根据 用户与用户组 一对多的关系， 补全用户的用户组详细信息
+        for user_id, group_ids in user_groups_list:
+            group_id_list = [int(gid) for gid in group_ids.split(',')]
+            groups = [group_dict[group_id] for group_id in group_id_list]
+            user_dict[user_id].groups = groups
+            items.append(user_dict[user_id])
+
     total_page = math.ceil(total / count)
     page = get_page_from_query()
     return {
         "count": count,
-        "items": user_group_list,
+        "items": users,
         "page": page,
         "total": total,
         "total_page": total_page
