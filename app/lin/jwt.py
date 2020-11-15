@@ -4,7 +4,7 @@
 
     jwt implement for Lin.
 
-    :copyright: © 2018 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -17,7 +17,7 @@ from flask_jwt_extended import (JWTManager, create_access_token,
 
 from .exception import NotFound, TokenExpired, TokenInvalid, UnAuthentication
 
-SCOPE = "LinCMS"
+SCOPE = "lin"
 jwt = JWTManager()
 identity = dict(uid=0, scope=SCOPE)
 

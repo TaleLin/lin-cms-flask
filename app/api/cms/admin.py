@@ -223,12 +223,13 @@ def create_group():
             info=form.info.data,
         )
         db.session.flush()
+        group_permission_list = list()
         for permission_id in form.permission_ids.data:
-            manager.group_permission_model.create(
-                group_id=group.id,
-                permission_id=permission_id
-            )
-
+            gp = manager.group_permission_model()
+            gp.group_id = group.id
+            gp.permission_id = permission_id
+            group_permission_list.append(gp)
+        manager.group_permission_model.insert_batch(group_permission_list)
     return Success(msg='新建分组成功')
 
 
