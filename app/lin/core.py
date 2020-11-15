@@ -123,6 +123,7 @@ def is_user_allowed(group_id):
     ep = request.endpoint
     # 根据 endpoint 查找 authority
     meta = manager.ep_meta.get(ep)
+    # endpoint -> permission -> permission_id -> group_id_list 取交集 group_id_list <- current_user_id
     return manager.verity_user_in_group(group_id, meta.auth, meta.module)
 
 
