@@ -24,7 +24,8 @@ class Group(InfoCrud):
         '''
         根据用户Id，通过User-Group关联表，获取所属用户组对象列表
         '''
-        from . import User
+        # TODO 更新用户Model后替换
+        from app.lin.core import User
         from .user_group import UserGroup
 
         query = db.session.query(UserGroup.group_id).join(
@@ -39,7 +40,9 @@ class Group(InfoCrud):
         '''
         根据用户ID，通过User-Group关联表，获取所属用户组的Id列表
         '''
-        from . import User
+        # TODO 更新用户Model后替换
+        # from .user import User
+        from app.lin.core import User
         from .user_group import UserGroup
         query = db.session.query(UserGroup.group_id).join(
             User,
