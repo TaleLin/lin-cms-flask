@@ -44,12 +44,12 @@ def group_required(fn):
         _check_is_active(current_user)
         # not admin
         if not current_user.is_admin:
-            group_id = current_user.group_id
-            if group_id is None:
+            from .core import find_group_ids_by_user_id
+            group_ids = find_group_ids_by_user_id(current_user.id)
+            if group_ids is None:
                 raise UnAuthentication(msg='您还不属于任何权限组，请联系超级管理员获得权限')
             from .core import is_user_allowed
-            it = is_user_allowed(group_id)
-            if not it:
+            if not is_user_allowed(group_ids):
                 raise UnAuthentication(msg='权限不够，请联系超级管理员获得权限')
             else:
                 return fn(*args, **kwargs)

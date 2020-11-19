@@ -99,6 +99,10 @@ def find_group(**kwargs):
     return manager.find_group(**kwargs)
 
 
+def find_group_ids_by_user_id(user_id):
+    return manager.group_model.select_ids_by_user_id(user_id)
+
+
 def get_ep_infos():
     """ 返回权限管理中的所有视图函数的信息，包含它所属module """
     info_list = manager.permission_model.query.filter().all()
@@ -118,13 +122,14 @@ def find_info_by_ep(ep):
     return manager.ep_meta.get(ep)
 
 
-def is_user_allowed(group_id):
+def is_user_allowed(group_ids):
     """查看当前user有无权限访问该路由函数"""
     ep = request.endpoint
     # 根据 endpoint 查找 authority
     meta = manager.ep_meta.get(ep)
-    # endpoint -> permission -> permission_id -> group_id_list 取交集 group_id_list <- current_user_id
-    return manager.verity_user_in_group(group_id, meta.auth, meta.module)
+    # 判断 用户组拥有的权限是否包含endpoint标记的权限
+    return manager.permission_model.exist_by_group_ids_and_module_and_name(
+        group_ids, meta.module, meta.auth)
 
 
 def find_auth_module(auth):

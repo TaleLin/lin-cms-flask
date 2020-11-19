@@ -1,11 +1,3 @@
-'''
-Author: your name
-Date: 2020-08-10 22:58:20
-LastEditTime: 2020-10-30 15:25:34
-LastEditors: your name
-Description: In User Settings Edit
-FilePath: /lin-cms-flask/app/models/cms/permission.py
-'''
 from app.lin.db import db
 from app.lin.interface import InfoCrud
 from sqlalchemy import (
@@ -57,3 +49,16 @@ class Permission(InfoCrud):
             soft=True, module=module).filter(cls.id.in_(query))
         permissions = result.all()
         return permissions
+
+    @classmethod
+    def exist_by_group_ids_and_module_and_name(cls, group_ids: list, module, name) -> bool:
+        '''
+        传入用户组的 id 列表 和 权限模块名称 权限名称，根据 Group-Permission关联表 判断对应权限是否存在
+        '''
+        from .group_permission import GroupPermission
+        query = db.session.query(GroupPermission.permission_id).filter(
+            GroupPermission.group_id.in_(group_ids))
+        result = cls.query.filter_by(
+            soft=True, module=module, name=name, mount=True).filter(cls.id.in_(query))
+        permission = result.first()
+        return True if permission else False
