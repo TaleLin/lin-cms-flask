@@ -150,14 +150,14 @@ def update_user(uid):
 
 
 @admin_api.route('/group', methods=['GET'])
-@route_meta(auth='查询所有权限组及其权限', module='管理员', mount=False)
+@route_meta(auth='查询所有分组及其权限', module='管理员', mount=False)
 @admin_required
 def get_admin_groups():
     start, count = paginate()
     groups = manager.group_model.query.filter().offset(
         start).limit(count).all()
     if groups is None:
-        raise NotFound(msg='不存在任何权限组')
+        raise NotFound(msg='不存在任何分组')
 
     for group in groups:
         auths = db.session.query(
@@ -183,17 +183,17 @@ def get_admin_groups():
 
 
 @admin_api.route('/group/all', methods=['GET'])
-@route_meta(auth='查询所有权限组', module='管理员', mount=False)
+@route_meta(auth='查询所有分组', module='管理员', mount=False)
 @admin_required
 def get_all_group():
     groups = manager.group_model.get(one=False)
     if groups is None:
-        raise NotFound(msg='不存在任何权限组')
+        raise NotFound(msg='不存在任何分组')
     return groups
 
 
 @admin_api.route('/group/<int:gid>', methods=['GET'])
-@route_meta(auth='查询一个权限组及其权限', module='管理员', mount=False)
+@route_meta(auth='查询一个分组及其权限', module='管理员', mount=False)
 @admin_required
 def get_group(gid):
     group = manager.group_model.get(id=gid, one=True, soft=False)
@@ -210,8 +210,8 @@ def get_group(gid):
 
 
 @admin_api.route('/group', methods=['POST'])
-@route_meta(auth='新建权限组', module='管理员', mount=False)
-@Logger(template='管理员新建了一个权限组')  # 记录日志
+@route_meta(auth='新建分组', module='管理员', mount=False)
+@Logger(template='管理员新建了一个分组')  # 记录日志
 @admin_required
 def create_group():
     form = NewGroup().validate_for_api()
@@ -235,7 +235,7 @@ def create_group():
 
 
 @admin_api.route('/group/<int:gid>', methods=['PUT'])
-@route_meta(auth='更新一个权限组', module='管理员', mount=False)
+@route_meta(auth='更新一个分组', module='管理员', mount=False)
 @admin_required
 def update_group(gid):
     form = UpdateGroup().validate_for_api()
@@ -247,8 +247,8 @@ def update_group(gid):
 
 
 @admin_api.route('/group/<int:gid>', methods=['DELETE'])
-@route_meta(auth='删除一个权限组', module='管理员', mount=False)
-@Logger(template='管理员删除一个权限组')  # 记录日志
+@route_meta(auth='删除一个分组', module='管理员', mount=False)
+@Logger(template='管理员删除一个分组')  # 记录日志
 @admin_required
 def delete_group(gid):
     exist = manager.group_model.get(id=gid)
