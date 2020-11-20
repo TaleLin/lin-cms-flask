@@ -253,12 +253,16 @@ def delete_group(gid):
     exist = manager.group_model.get(id=gid)
     if not exist:
         raise NotFound(msg='分组不存在，删除失败')
-    if manager.user_model.get(group_id=gid):
+    if manager.user_model.select_page_by_group_id(gid, 1):
         raise Forbidden(msg='分组下存在用户，不可删除')
-    # 删除group拥有的权限
-    manager.auth_model.query.filter(
-        manager.auth_model.group_id == gid).delete()
-    exist.delete(commit=True)
+    permissions = manager.permission_model.select_by_group_id(gid)
+    permission_ids = [permission.id for permission in permissions]
+    with db.auto_commit():
+        # 删除group id 与 permission id 关联记录
+        manager.group_permission_model.delete_batch_by_group_id_and_permission_ids(
+            gid, permission_ids)
+        # 删除group
+        exist.delete()
     return Success(msg='删除分组成功')
 
 

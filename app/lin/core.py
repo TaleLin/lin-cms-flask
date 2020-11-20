@@ -407,6 +407,18 @@ class User(UserInterface, db.Model):
             return True
         return False
 
+    @classmethod
+    def select_page_by_group_id(cls, group_id, root_group_id) -> list:
+        '''
+        通过分组id分页获取用户数据, page 传哪呢
+        '''
+        query = db.session.query(manager.user_group_model.user_id).filter(
+            manager.user_group_model.group_id == group_id,
+            manager.user_group_model.group_id != root_group_id)
+        result = cls.query.filter_by(soft=True).filter(cls.id.in_(query))
+        users = result.all()
+        return users
+
 
 class Auth(AuthInterface):
     pass
