@@ -169,8 +169,8 @@ class UserInterface(InfoCrud):
     # : 预留字段，方便以后扩展
     email = Column(String(100), unique=True, comment='电子邮箱')
     # : which group the user belongs,nullable is true
-    # : 用户所属的权限组id
-    group_id = Column(Integer, comment='用户所属的权限组id')
+    # : 用户所属的分组id
+    group_id = Column(Integer, comment='用户所属的分组id')
     _password = Column('password', String(100), comment='密码')
 
     def _set_fields(self):
@@ -220,8 +220,8 @@ class AuthInterface(BaseCrud):
 
     id = Column(Integer, primary_key=True)
     # : belongs to which group
-    # : 所属权限组id
-    group_id = Column(Integer, nullable=False, comment='所属权限组id')
+    # : 所属分组id
+    group_id = Column(Integer, nullable=False, comment='所属分组id')
     # : authority field
     # : 权限字段
     auth = Column(String(60), comment='权限字段')
@@ -270,7 +270,7 @@ class EventInterface(BaseCrud):
     __tablename__ = 'lin_event'
     id = Column(Integer, primary_key=True)
     # : belongs to which group
-    group_id = Column(Integer, nullable=False, comment='所属权限组id')
+    group_id = Column(Integer, nullable=False, comment='所属分组id')
     # message type ['订单','修改密码']
     message_events = Column(String(250), comment='信息')
 

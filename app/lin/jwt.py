@@ -47,7 +47,7 @@ def group_required(fn):
             from .core import find_group_ids_by_user_id
             group_ids = find_group_ids_by_user_id(current_user.id)
             if group_ids is None:
-                raise UnAuthentication(msg='您还不属于任何权限组，请联系超级管理员获得权限')
+                raise UnAuthentication(msg='您还不属于任何分组，请联系超级管理员获得权限')
             from .core import is_user_allowed
             if not is_user_allowed(group_ids):
                 raise UnAuthentication(msg='权限不够，请联系超级管理员获得权限')
