@@ -123,9 +123,10 @@ def delete_user(uid):
     user = manager.user_model.get(id=uid)
     if user is None:
         raise NotFound(msg='用户不存在')
-    # user.delete(commit=True)
-    # 此处我们使用硬删除，一般情况下，推荐使用软删除即，上一行注释的代码
-    user.hard_delete(commit=True)
+    with db.auto_commit():
+        manager.user_group_model.query.filter_by(
+            user_id=uid).delete(synchronize_session=False)
+        user.hard_delete()
     return Success(msg='操作成功')
 
 
@@ -255,12 +256,10 @@ def delete_group(gid):
         raise NotFound(msg='分组不存在，删除失败')
     if manager.user_model.select_page_by_group_id(gid, 1):
         raise Forbidden(msg='分组下存在用户，不可删除')
-    permissions = manager.permission_model.select_by_group_id(gid)
-    permission_ids = [permission.id for permission in permissions]
     with db.auto_commit():
-        # 删除group id 与 permission id 关联记录
-        manager.group_permission_model.delete_batch_by_group_id_and_permission_ids(
-            gid, permission_ids)
+        # 删除group id 对应的关联记录
+        manager.group_permission_model.query.filter_by(
+            group_id=gid).delete(synchronize_session=False)
         # 删除group
         exist.delete()
     return Success(msg='删除分组成功')
