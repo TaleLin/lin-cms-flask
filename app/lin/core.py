@@ -146,7 +146,6 @@ class Lin(object):
                  app: Flask = None,  # flask app , default None
                  group_model=None,  # group model, default None
                  user_model=None,  # user model, default None
-                 auth_model=None,  # authority model, default None
                  permission_model=None,  # permission model, default None
                  group_permission_model=None,  # group permission 多对多关联模型
                  user_group_model=None,  # user group 多对多关联模型
@@ -163,7 +162,6 @@ class Lin(object):
             self.init_app(app,
                           group_model,
                           user_model,
-                          auth_model,
                           permission_model,
                           group_permission_model,
                           user_group_model,
@@ -178,7 +176,6 @@ class Lin(object):
                  app: Flask,
                  group_model=None,
                  user_model=None,
-                 auth_model=None,
                  permission_model=None,
                  group_permission_model=None,
                  user_group_model=None,
@@ -209,7 +206,6 @@ class Lin(object):
         self.manager = Manager(app.config.get('PLUGIN_PATH'),
                                group_model,
                                user_model,
-                               auth_model,
                                permission_model,
                                group_permission_model,
                                user_group_model
@@ -293,7 +289,6 @@ class Manager(object):
                  plugin_path,
                  group_model=None,
                  user_model=None,
-                 auth_model=None,
                  permission_model=None,
                  group_permission_model=None,
                  user_group_model=None
@@ -307,11 +302,6 @@ class Manager(object):
             self.user_model = User
         else:
             self.user_model = user_model
-
-        if not auth_model:
-            self.auth_model = Auth
-        else:
-            self.auth_model = auth_model
 
         if not permission_model:
             self.permission_model = Permission
@@ -339,9 +329,6 @@ class Manager(object):
 
     def find_group(self, **kwargs):
         return self.group_model.query.filter_by(**kwargs).first()
-
-    def verity_user_in_group(self, group_id, auth, module):
-        return self.auth_model.query.filter_by(group_id=group_id, auth=auth, module=module).first()
 
     @property
     def plugins(self):
