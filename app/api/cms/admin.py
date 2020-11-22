@@ -160,14 +160,9 @@ def get_admin_groups():
         raise NotFound(msg='不存在任何分组')
 
     for group in groups:
-        auths = db.session.query(
-            manager.auth_model.auth, manager.auth_model.module
-        ).filter_by(soft=False, group_id=group.id).all()
-
-        auths = [{'auth': auth[0], 'module': auth[1]} for auth in auths]
-        res = _split_modules(auths)
-        setattr(group, 'auths', res)
-        group._fields.append('auths')
+        permissions = manager.permission_model.select_by_group_id(group.id)
+        setattr(group, 'permissions', permissions)
+        group._fields.append('permissions')
 
     total = get_total_nums(manager.group_model)
     total_page = math.ceil(total / count)
@@ -199,13 +194,9 @@ def get_group(gid):
     group = manager.group_model.get(id=gid, one=True, soft=False)
     if group is None:
         raise NotFound(msg='分组不存在')
-    auths = db.session.query(
-        manager.auth_model.auth, manager.auth_model.module
-    ).filter_by(soft=False, group_id=group.id).all()
-    auths = [{'auth': auth[0], 'module': auth[1]} for auth in auths]
-    res = _split_modules(auths)
-    setattr(group, 'auths', res)
-    group._fields.append('auths')
+    permissions = manager.permission_model.select_by_group_id(gid)
+    setattr(group, 'permissions', permissions)
+    group._fields.append('permissions')
     return group
 
 
@@ -270,15 +261,13 @@ def delete_group(gid):
 @admin_required
 def dispatch_auth():
     form = DispatchAuth().validate_for_api()
-    one = manager.auth_model.get(
-        group_id=form.group_id.data, auth=form.auth.data)
+    one = manager.group_permission_model.get(
+        group_id=form.group_id.data, permission_id=form.permission_id.data)
     if one:
         raise Forbidden(msg='已有权限，不可重复添加')
-    meta = find_auth_module(form.auth.data)
-    manager.auth_model.create(
+    manager.group_permission_model.create(
         group_id=form.group_id.data,
-        auth=meta.auth,
-        module=meta.module,
+        permission=form.permission_id.data,
         commit=True
     )
     return Success(msg='添加权限成功')
@@ -290,15 +279,13 @@ def dispatch_auth():
 def dispatch_auths():
     form = DispatchAuths().validate_for_api()
     with db.auto_commit():
-        for auth in form.auths.data:
-            one = manager.auth_model.get(
-                group_id=form.group_id.data, auth=auth)
+        for permission_id in form.permission_ids.data:
+            one = manager.group_permission_model.get(
+                group_id=form.group_id.data, permission_id=permission_id)
             if not one:
-                meta = find_auth_module(auth)
-                manager.auth_model.create(
+                manager.group_permission_model.create(
                     group_id=form.group_id.data,
-                    auth=meta.auth,
-                    module=meta.module
+                    permission_id=permission_id,
                 )
     return Success(msg='添加权限成功')
 
@@ -310,39 +297,10 @@ def remove_auths():
     form = RemoveAuths().validate_for_api()
 
     with db.auto_commit():
-        db.session.query(manager.auth_model).filter(
-            manager.auth_model.auth.in_(form.auths.data),
-            manager.auth_model.group_id == form.group_id.data
+        db.session.query(manager.group_permission_model).filter(
+            manager.group_permission_model.permission_id.in_(
+                form.permission_ids.data),
+            manager.group_permission_model.group_id == form.group_id.data
         ).delete(synchronize_session=False)
 
     return Success(msg='删除权限成功')
-
-
-def _split_modules(auths):
-    auths.sort(key=itemgetter('module'))
-    tmps = groupby(auths, itemgetter('module'))
-    res = []
-    for key, group in tmps:
-        res.append({key: list(group)})
-    return res
-
-
-def _change_status(uid, active_or_disable='active'):
-    user = manager.user_model.get(id=uid)
-    if user is None:
-        raise NotFound(msg='用户不存在')
-
-    active_or_not = UserActive.NOT_ACTIVE.value \
-        if active_or_disable == 'active' \
-        else UserActive.ACTIVE.value
-
-    if active_or_disable == 'active':
-        if not user.is_active:
-            raise Forbidden(msg='当前用户已处于禁止状态')
-
-    elif active_or_disable == 'disable':
-        if user.is_active:
-            raise Forbidden(msg='当前用户已处于激活状态')
-
-    with db.auto_commit():
-        user.active = active_or_not
