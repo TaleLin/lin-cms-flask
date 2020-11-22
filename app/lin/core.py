@@ -221,37 +221,54 @@ class Lin(object):
 
     def init_permissions(self, app):
         with app.app_context():
+            permissions = manager.permission_model.get(one=False)
+            # 新增的权限记录
+            new_added_permissions = list()
+            deleted_ids = [permission.id for permission in permissions]
+            # mount-> unmount 的记录
+            unmounted_ids = list()
+            # unmount-> mount 的记录
+            mounted_ids = list()
+            # 用代码中记录的权限比对数据库中的权限
+            for ep, meta in self.manager.ep_meta.items():
+                name, module, mount = meta
+                # db_existed 判定 代码中的权限是否存在于权限表记录中
+                db_existed = False
+                for permission in permissions:
+                    if permission.name == name and permission.module == module:
+                        # 此条记录存在，不会被删除
+                        deleted_ids.remove(permission.id)
+                        # 此条记录存在，不需要添加到权限表
+                        db_existed = True
+                        # 判定mount的变动情况，将记录id添加到对应的列表中
+                        if permission.mount != mount:
+                            if mount:
+                                mounted_ids.append(permission.id)
+                            else:
+                                unmounted_ids.append(permission.id)
+                        break
+                # 遍历结束，代码中的记录不存在于已有的权限表中，则将其添加到新增权限记录列表
+                if not db_existed:
+                    permission = self.manager.permission_model()
+                    permission.name = name
+                    permission.module = module
+                    permission.mount = mount
+                    new_added_permissions.append(permission)
             with db.auto_commit():
-                # TODO permission数据库表中记录了，所有权限 的 id , name , module, mount
-                # 而 代码中的 权限可能改动，改动的情况有：
-                # 1. 几个权限 直接删掉权限了
-                # 2. 新增了几个权限
-                # 3. 把几个权限 mount = true， 改成了 mount = False
-                # 4. 把几个权限 mount = false， 改成了 mount = true
-                # 5. 同一个路由，权限改了名字（今晚商量下） 目前视为 删除了一个权限，增加了一个权限
-                # 将这些变动，同步到数据库
-                print("================数据库中的记录============")
-                permission_list_in_db = manager.permission_model.get(one=False)
-                for permission in permission_list_in_db:
-                    print(permission.id, permission.name,
-                          permission.module, permission.mount == 1)
-                print("================代码中的记录============")
-                permission_list_in_code = list()
-                for ep, meta in self.manager.ep_meta.items():
-                    permission = self.manager.permission_model()
-                    permission.module = meta.module
-                    permission.name = meta.auth
-                    permission.mount = meta.mount
-                    permission_list_in_code.append(permission)
-                    print(ep, meta.auth, meta.module, meta.mount)
-                print("====================================")
-                manager.permission_model.query.filter().delete()
-                for ep, meta in self.manager.ep_meta.items():
-                    permission = self.manager.permission_model()
-                    permission.module = meta.module
-                    permission.name = meta.auth
-                    permission.mount = meta.mount
-                    db.session.add(permission)
+                if new_added_permissions:
+                    db.session.add_all(new_added_permissions)
+                if unmounted_ids:
+                    manager.permission_model.query.filter(
+                        manager.permission_model.id.in_(unmounted_ids)).update({"mount": False}, synchronize_session=False)
+                if mounted_ids:
+                    manager.permission_model.query.filter(
+                        manager.permission_model.id.in_(mounted_ids)).update({"mount": True}, synchronize_session=False)
+                if deleted_ids:
+                    manager.permission_model.query.filter(manager.permission_model.id.in_(
+                        deleted_ids)).delete(synchronize_session=False)
+                    # 分组-权限关联表中的数据也要清理
+                    manager.group_permission_model.query.filter(manager.group_permission_model.permission_id.in_(
+                        deleted_ids)).delete(synchronize_session=False)
 
     def mount(self, app):
         # 加载默认插件路由
