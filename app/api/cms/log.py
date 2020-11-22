@@ -7,7 +7,7 @@
 import math
 from app.libs.utils import get_page_from_query
 from app.lin import db
-from app.lin.core import Log, route_meta
+from app.lin.core import Log, permission_meta
 from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
@@ -20,7 +20,7 @@ log_api = Redprint('log')
 
 # 日志浏览（人员，时间），分页展示
 @log_api.route('', methods=['GET'])
-@route_meta(auth='查询所有日志', module='日志')
+@permission_meta(auth='查询所有日志', module='日志')
 @group_required
 def get_logs():
     form = LogFindForm().validate_for_api()
@@ -47,7 +47,7 @@ def get_logs():
 
 # 日志搜素（人员，时间）（内容）， 分页展示
 @log_api.route('/search', methods=['GET'])
-@route_meta(auth='搜索日志', module='日志')
+@permission_meta(auth='搜索日志', module='日志')
 @group_required
 def get_user_logs():
     form = LogFindForm().validate_for_api()
@@ -76,7 +76,7 @@ def get_user_logs():
 
 
 @log_api.route('/users', methods=['GET'])
-@route_meta(auth='查询日志记录的用户', module='日志')
+@permission_meta(auth='查询日志记录的用户', module='日志')
 @group_required
 def get_users():
     start, count = paginate()

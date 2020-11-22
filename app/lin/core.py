@@ -49,14 +49,14 @@ class Flask(_Flask):
 __version__ = '0.1.2'
 
 # 路由函数的权限和模块信息(meta信息)
-Meta = namedtuple('meta', ['auth', 'module'])
+Meta = namedtuple('meta', ['auth', 'module', 'mount'])
 
 #       -> endpoint -> func
 # auth                      -> module
 #       -> endpoint -> func
 
 # 记录路由函数的权限和模块信息
-route_meta_infos = {}
+permission_meta_infos = {}
 
 # config for Lin plugins
 # we always access config by flask, but it dependents on the flask context
@@ -65,11 +65,11 @@ route_meta_infos = {}
 lin_config = Config()
 
 
-def route_meta(auth, module='common', mount=True):
+def permission_meta(auth, module='common', mount=True):
     """
     记录路由函数的信息
     记录路由函数访问的推送信息模板
-    注：只有使用了 route_meta 装饰器的函数才会被记录到权限管理的map中
+    注：只有使用了 permission_meta 装饰器的函数才会被记录到权限管理的map中
     :param auth: 权限
     :param module: 所属模块
     :param mount: 是否挂在到权限中（一些视图函数需要说明，或暂时决定不挂在到权限中，则设置为False）
@@ -77,15 +77,14 @@ def route_meta(auth, module='common', mount=True):
     """
 
     def wrapper(func):
-        if mount:
-            name = func.__name__ + str(func.__hash__())
-            existed = route_meta_infos.get(
-                name, None) and route_meta_infos.get(name).module == module
-            if existed:
-                raise Exception(
-                    "func's name cant't be repeat in a same module")
-            else:
-                route_meta_infos.setdefault(name, Meta(auth, module))
+        name = func.__name__ + str(func.__hash__())
+        existed = permission_meta_infos.get(
+            name, None) and permission_meta_infos.get(name).module == module
+        if existed:
+            raise Exception(
+                "func's name cant't be repeat in a same module")
+        else:
+            permission_meta_infos.setdefault(name, Meta(auth, module, mount))
         return func
 
     return wrapper
@@ -105,7 +104,7 @@ def find_group_ids_by_user_id(user_id):
 
 def get_ep_infos():
     """ 返回权限管理中的所有视图函数的信息，包含它所属module """
-    info_list = manager.permission_model.query.filter().all()
+    info_list = manager.permission_model.query.filter_by(mount=True).all()
     infos = {}
     for permission in info_list:
         module = infos.get(permission.module, None)
@@ -119,14 +118,15 @@ def get_ep_infos():
 
 def find_info_by_ep(ep):
     """ 通过请求的endpoint寻找路由函数的meta信息"""
-    return manager.ep_meta.get(ep)
+    info = manager.ep_meta.get(ep)
+    return info if info.mount else None
 
 
 def is_user_allowed(group_ids):
     """查看当前user有无权限访问该路由函数"""
     ep = request.endpoint
-    # 根据 endpoint 查找 authority
-    meta = manager.ep_meta.get(ep)
+    # 根据 endpoint 查找 authority, 一定存在
+    info = manager.ep_meta.get(ep)
     # 判断 用户组拥有的权限是否包含endpoint标记的权限
     return manager.permission_model.exist_by_group_ids_and_module_and_name(
         group_ids, meta.module, meta.auth)
@@ -222,14 +222,35 @@ class Lin(object):
     def init_permissions(self, app):
         with app.app_context():
             with db.auto_commit():
-                # TODO 这里先把表清空
-                manager.permission_model.query.filter().delete()
-                # TODO 取出数据库Permission中的n表中记录，比对当前代码中的权限记录，增删数据库中permission表和group_permission表中记录
+                # TODO permission数据库表中记录了，所有权限 的 id , name , module, mount
+                # 而 代码中的 权限可能改动，改动的情况有：
+                # 1. 几个权限 直接删掉权限了
+                # 2. 新增了几个权限
+                # 3. 把几个权限 mount = true， 改成了 mount = False
+                # 4. 把几个权限 mount = false， 改成了 mount = true
+                # 5. 同一个路由，权限改了名字（今晚商量下） 目前视为 删除了一个权限，增加了一个权限
+                # 将这些变动，同步到数据库
+                print("================数据库中的记录============")
+                permission_list_in_db = manager.permission_model.get(one=False)
+                for permission in permission_list_in_db:
+                    print(permission.id, permission.name,
+                          permission.module, permission.mount == 1)
+                print("================代码中的记录============")
+                permission_list_in_code = list()
                 for ep, meta in self.manager.ep_meta.items():
                     permission = self.manager.permission_model()
                     permission.module = meta.module
                     permission.name = meta.auth
-                    permission.mount = True
+                    permission.mount = meta.mount
+                    permission_list_in_code.append(permission)
+                    print(ep, meta.auth, meta.module, meta.mount)
+                print("====================================")
+                manager.permission_model.query.filter().delete()
+                for ep, meta in self.manager.ep_meta.items():
+                    permission = self.manager.permission_model()
+                    permission.module = meta.module
+                    permission.name = meta.auth
+                    permission.mount = meta.mount
                     db.session.add(permission)
 
     def mount(self, app):
@@ -245,7 +266,7 @@ class Lin(object):
                     controller.register(bp)
         app.register_blueprint(bp, url_prefix=app.config.get('BP_URL_PREFIX'))
         for ep, func in app.view_functions.items():
-            info = route_meta_infos.get(
+            info = permission_meta_infos.get(
                 func.__name__ + str(func.__hash__()), None)
             if info:
                 self.manager.ep_meta.setdefault(ep, info)
@@ -432,6 +453,8 @@ class Event(EventInterface):
 
 
 # file model
+
+
 class File(FileInterface):
 
     @staticmethod
