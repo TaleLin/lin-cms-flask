@@ -5,7 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin import group_required, login_required, route_meta
+from app.lin import group_required, login_required, permission_meta
 from app.lin.exception import Success
 from app.lin.interface import ViewModel
 from app.lin.jwt import login_required
@@ -70,7 +70,7 @@ def update_book(bid):
 
 
 @book_api.route('/<bid>', methods=['DELETE'])
-@route_meta(auth='删除图书', module='图书')
+@permission_meta(auth='删除图书', module='图书')
 @group_required
 def delete_book(bid):
     print(Book.get_detail(bid))

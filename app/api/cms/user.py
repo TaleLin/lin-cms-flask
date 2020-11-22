@@ -7,7 +7,7 @@
 from operator import and_
 
 from app.libs.error_code import RefreshException
-from app.lin.core import Log, manager, route_meta
+from app.lin.core import Log, manager, permission_meta
 from app.lin.db import db
 from app.lin.exception import (Duplicated, Fail, NotFound, ParameterError,
                                Success)
@@ -25,7 +25,7 @@ user_api = Redprint('user')
 
 
 @user_api.route('/register', methods=['POST'])
-@route_meta(auth='注册', module='用户', mount=False)
+@permission_meta(auth='注册', module='用户', mount=False)
 @Logger(template='管理员新建了一个用户')  # 记录日志
 @admin_required
 def register():
@@ -41,7 +41,7 @@ def register():
 
 
 @ user_api.route('/login', methods=['POST'])
-@ route_meta(auth='登录', module='用户', mount=False)
+@ permission_meta(auth='登录', module='用户', mount=False)
 def login():
     form = LoginForm().validate_for_api()
     user = manager.user_model.verify(form.username.data, form.password.data)
@@ -60,7 +60,7 @@ def login():
 
 
 @ user_api.route('', methods=['PUT'])
-@ route_meta(auth='用户更新信息', module='用户', mount=False)
+@ permission_meta(auth='用户更新信息', module='用户', mount=False)
 @ login_required
 def update():
     form = UpdateInfoForm().validate_for_api()
@@ -76,7 +76,7 @@ def update():
 
 
 @ user_api.route('/change_password', methods=['PUT'])
-@ route_meta(auth='修改密码', module='用户', mount=False)
+@ permission_meta(auth='修改密码', module='用户', mount=False)
 @ Logger(template='{user.username}修改了自己的密码')  # 记录日志
 @ login_required
 def change_password():
@@ -91,7 +91,7 @@ def change_password():
 
 
 @ user_api.route('/information', methods=['GET'])
-@ route_meta(auth='查询自己信息', module='用户', mount=False)
+@ permission_meta(auth='查询自己信息', module='用户', mount=False)
 @ login_required
 def get_information():
     current_user = get_current_user()
@@ -99,7 +99,7 @@ def get_information():
 
 
 @ user_api.route('/refresh', methods=['GET'])
-@ route_meta(auth='刷新令牌', module='用户', mount=False)
+@ permission_meta(auth='刷新令牌', module='用户', mount=False)
 def refresh():
     try:
         verify_jwt_refresh_token_in_request()
@@ -119,7 +119,7 @@ def refresh():
 
 
 @ user_api.route('/permissions', methods=['GET'])
-@ route_meta(auth='查询自己拥有的权限', module='用户', mount=False)
+@ permission_meta(auth='查询自己拥有的权限', module='用户', mount=False)
 @ login_required
 def get_allowed_apis():
     user = get_current_user()
