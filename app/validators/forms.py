@@ -87,24 +87,25 @@ class DispatchAuths(Form):
     # 为用户分配的权限
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    auths = FieldList(StringField(
-        validators=[DataRequired(message='请输入auths字段')]))
+
+    permission_ids = FieldList(StringField(
+        validators=[DataRequired(message='请输入permission_ids字段')]))
 
 
 class DispatchAuth(Form):
     # 为用户分配的权限
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    # 用户查询自己信息
-    auth = StringField(validators=[DataRequired(message='请输入auth字段')])
+    permission_id = StringField(
+        validators=[DataRequired(message='请输入permission_id字段')])
 
 
 # 批量删除权限
 class RemoveAuths(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    auths = FieldList(StringField(
-        validators=[DataRequired(message='请输入auths字段')]))
+    permission_ids = FieldList(StringField(
+        validators=[DataRequired(message='请输入permission_ids字段')]))
 
 
 # 日志查找范围校验

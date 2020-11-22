@@ -123,14 +123,11 @@ def refresh():
 @ login_required
 def get_allowed_apis():
     user = get_current_user()
-    auths = db.session.query(
-        manager.auth_model.auth, manager.auth_model.module
-    ).filter_by(soft=False, group_id=user.group_id).all()
-    auths = [{'auth': auth[0], 'module': auth[1]} for auth in auths]
-    from .admin import _split_modules
-    res = _split_modules(auths)
-    setattr(user, 'auths', res)
-    user._fields.append('auths')
+    groups = manager.group_model.select_by_user_id(user.id)
+    group_ids = [group.id for group in groups]
+    res = manager.permission_model.select_by_group_ids(group_ids)
+    setattr(user, 'permissions', res)
+    user._fields.append('permissions')
     return jsonify(user)
 
 
