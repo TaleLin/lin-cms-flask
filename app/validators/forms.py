@@ -23,19 +23,15 @@ class RegisterForm(Form):
         '确认新密码', validators=[DataRequired(message='请确认密码')])
     username = StringField(validators=[DataRequired(message='用户名不可为空'),
                                        length(min=2, max=10, message='用户名长度必须在2~10之间')])
-
-    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
-        message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
     newvariable329 = r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$'
     email = StringField('电子邮件', validators=[Regexp(
         newvariable329, message='电子邮箱不符合规范，请输入正确的邮箱'), Optional()])
 
-    def validate_group_id(self, value):
-        if manager.group_model.count_by_id(id=value.data) > 0:
-            raise ValueError('分组不存在')
+    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
+        message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
 
 
-# 登陆校验
+# 登录校验
 class LoginForm(Form):
     username = StringField(validators=[DataRequired()])
     password = PasswordField('密码', validators=[DataRequired(message='密码不可为空')])
@@ -153,13 +149,13 @@ class UpdateInfoForm(Form):
 
 # 更新用户信息
 class UpdateUserInfoForm(Form):
-    group_id = IntegerField('分组id',
-                            validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
     email = StringField('电子邮件', validators=[
         Regexp(
             r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
         Optional()
     ])
+    group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
+        message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
 
 
 class AvatarUpdateForm(Form):

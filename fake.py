@@ -40,3 +40,4 @@ with app.app_context():
         '''
         book2.image = 'https://img3.doubanio.com/lpic/s1106934.jpg'
         db.session.add(book2)
+        print("图书数据新增成功")

@@ -141,7 +141,21 @@ def update_user(uid):
             raise ParameterError(msg='邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
-        user.group_id = form.group_id.data
+        group_ids = form.group_ids.data
+        # 清空原来的所有关联关系
+        manager.user_group_model.query.filter_by(
+            user_id=user.id).delete(synchronize_session=False)
+        # 根据传入分组ids 新增关联记录
+        user_group_list = list()
+        # 如果没传分组数据，则将其设定为 id 2 的 guest 分组
+        if len(group_ids) == 0:
+            group_ids = [2]
+        for group_id in group_ids:
+            user_group = manager.user_group_model()
+            user_group.user_id = user.id
+            user_group.group_id = group_id
+            user_group_list.append(user_group)
+        db.session.add_all(user_group_list)
     return Success(msg='操作成功')
 
 
@@ -150,8 +164,8 @@ def update_user(uid):
 @admin_required
 def get_admin_groups():
     start, count = paginate()
-    groups = manager.group_model.query.filter().offset(
-        start).limit(count).all()
+    groups = manager.group_model.query.filter(
+        manager.group_model.level != 1).offset(start).limit(count).all()
     if groups is None:
         raise NotFound(msg='不存在任何分组')
 
@@ -160,7 +174,8 @@ def get_admin_groups():
         setattr(group, 'permissions', permissions)
         group._fields.append('permissions')
 
-    total = get_total_nums(manager.group_model)
+    # root分组隐藏不显示
+    total = get_total_nums(manager.group_model) - 1
     total_page = math.ceil(total / count)
     page = get_page_from_query()
 
@@ -177,7 +192,8 @@ def get_admin_groups():
 @permission_meta(auth='查询所有分组', module='管理员', mount=False)
 @admin_required
 def get_all_group():
-    groups = manager.group_model.get(one=False)
+    groups = manager.group_model.query.filter(
+        manager.group_model.level != 1).all()
     if groups is None:
         raise NotFound(msg='不存在任何分组')
     return groups
@@ -238,6 +254,8 @@ def update_group(gid):
 @Logger(template='管理员删除一个分组')  # 记录日志
 @admin_required
 def delete_group(gid):
+    if gid == 2:
+        raise Forbidden(msg='guest分组不可删除')
     exist = manager.group_model.get(id=gid)
     if not exist:
         raise NotFound(msg='分组不存在，删除失败')
