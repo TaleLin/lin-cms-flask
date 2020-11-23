@@ -42,7 +42,7 @@ class Log(InfoCrud):
                 cls.message.like(
                     '%{keyword}%'.format(keyword=conditions.get('keyword'))))
             del conditions['keyword']
-        # 搜索标准表内字段
+        # 搜索表内字段
         query = query.filter_by(**conditions).group_by(
             cls.create_time).order_by(cls.create_time.desc())
         logs = query.all()

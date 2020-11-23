@@ -141,6 +141,9 @@ def _register_user(form: RegisterForm):
         db.session.add(user)
         db.session.flush()
         group_ids = form.group_ids.data
+        # 如果没传分组数据，则将其设定为 id 2 的 guest 分组
+        if len(group_ids) == 0:
+            group_ids = [2]
         for group_id in group_ids:
             user_group = manager.user_group_model()
             user_group.user_id = user.id
