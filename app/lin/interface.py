@@ -215,68 +215,8 @@ class UserInterface(InfoCrud):
         raise Exception('must implement this method')
 
 
-class AuthInterface(BaseCrud):
-    __tablename__ = 'lin_auth'
-
-    id = Column(Integer, primary_key=True)
-    # : belongs to which group
-    # : 所属分组id
-    group_id = Column(Integer, nullable=False, comment='所属分组id')
-    # : authority field
-    # : 权限字段
-    auth = Column(String(60), comment='权限字段')
-    # : authority module, default common , which can sort authorities
-    # : 权限的模块
-    module = Column(String(50), comment='权限的模块')
-
-
-class LogInterface(BaseCrud):
-    __tablename__ = 'lin_log'
-
-    id = Column(Integer, primary_key=True)
-    # : log message
-    # : 日志信息
-    message = Column(String(450), comment='日志信息')
-    # : create time
-    # : 日志创建时间
-    _time = Column('time', DateTime, default=datetime.now, comment='日志创建时间')
-    # : user id
-    # : 用户id
-    user_id = Column(Integer, nullable=False, comment='用户id')
-    # user_name at that moment
-    # 用户当时的昵称
-    user_name = Column(String(20), comment='用户当时的昵称')
-    # : status_code check request is success or not
-    # : 请求的http返回码
-    status_code = Column(Integer, comment='请求的http返回码')
-    # request method
-    # 请求方法
-    method = Column(String(20), comment='请求方法')
-    # request path
-    # 请求路径
-    path = Column(String(50), comment='请求路径')
-    # which authority is accessed
-    # 访问哪个权限
-    authority = Column(String(100), comment='访问哪个权限')
-
-    @property
-    def time(self):
-        if self._time is None:
-            return None
-        return int(round(self._time.timestamp() * 1000))
-
-
-class EventInterface(BaseCrud):
-    __tablename__ = 'lin_event'
-    id = Column(Integer, primary_key=True)
-    # : belongs to which group
-    group_id = Column(Integer, nullable=False, comment='所属分组id')
-    # message type ['订单','修改密码']
-    message_events = Column(String(250), comment='信息')
-
-
-# 提供自动序列化功能
 class ViewModel:
+    # 提供自动序列化功能
     def keys(self):
         return self.__dict__.keys()
 

@@ -2,17 +2,20 @@
     log of Lin
     ~~~~~~~~~
 
-    log 模块，用户日志记录，只对管理员开放查询接口
+    log 模块，用户日志记录
 
-    :copyright: © 2018 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 
-from functools import wraps
 import re
+from functools import wraps
+
+from app.models.cms.log import Log
 from flask import Response, request
 from flask_jwt_extended import get_current_user
-from .core import find_info_by_ep, Log
+
+from .core import find_info_by_ep
 
 REG_XP = r'[{](.*?)[}]'
 OBJECTS = ['user', 'response', 'request']
@@ -47,7 +50,7 @@ class Logger(object):
 
     def write_log(self):
         info = find_info_by_ep(request.endpoint)
-        authority = info.auth if info is not None else ''
+        permission = info.auth if info is not None else ''
         status_code = getattr(self.response, 'status_code', None)
         if status_code is None:
             status_code = getattr(self.response, 'code', None)
@@ -55,7 +58,7 @@ class Logger(object):
             status_code = 0
         Log.create_log(message=self.message, user_id=self.user.id, user_name=self.user.username,
                        status_code=status_code, method=request.method,
-                       path=request.path, authority=authority, commit=True)
+                       path=request.path, permission=permission, commit=True)
 
     # 解析自定义模板
     def _parse_template(self):

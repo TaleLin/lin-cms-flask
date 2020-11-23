@@ -150,14 +150,16 @@ Lin 默认启用 Sqlite3 数据库，`app/config/secure.py`中默认配置了它
 
 Lin 需要您自己在 MySQL 中新建一个数据库，名字由您自己决定。例如，新建一个名为 `lincms` 的数据库。
 
-接着，我们需要在工程中进行一项简单的配置。使用编辑器打开 Lin 工程的`app/config/secure.py`，找到如下配置项：
+接着，我们需要在工程中进行一项简单的配置。使用编辑器打开 Lin 工程的`app/config/secure.py`，在`SQLALCHEMY_DATABASE_URI`这项中配置 MySQL 数据库的用户名、密码、ip、端口号与数据库名。
 
-然后，在`SQLALCHEMY_DATABASE_URI`这项中配置 MySQL 数据库的用户名、密码、ip、端口号与数据库名。**请务必根据自己的实际情况修改此配置项**。
+如下所示：
 
 ```py
 # 数据库配置示例
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 ```
+
+**请务必根据自己的实际情况修改此配置项**。
 
 > 您所使用的数据库账号必须具有创建数据表的权限，否则 Lin 将无法为您自动创建数据表
 
@@ -193,7 +195,7 @@ python starter.py
 
 ## 后续开发计划
 
-- [ ] 重构`User`、 `Log`模型
+- [ ] 重构`User`模型
 - [ ] 支持 七牛 文件上传支持
 - [ ] 新增 `websocket`模块
 - [ ] 重构核心库
