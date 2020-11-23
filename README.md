@@ -191,7 +191,7 @@ python starter.py
 
 ## 后续开发计划
 
-- [ ] 更新`User`、 `Log`、 `File`模型
+- [ ] 更新`User`、 `Log`模型
 - [ ] 新增 七牛 文件上传支持
 - [ ] 新增 `websocket`模块
 - [ ] 重构核心库

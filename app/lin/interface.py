@@ -8,16 +8,16 @@
     :copyright: © 2018 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from sqlalchemy import FetchedValue
-from .enums import UserAdmin, UserActive
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from flask import current_app
 import os
+from datetime import datetime
 
-from sqlalchemy import Integer, SmallInteger, Column, DateTime, Index, String, func, text
+from flask import current_app
+from sqlalchemy import (Column, DateTime, FetchedValue, Index, Integer,
+                        SmallInteger, String, func, text)
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import MixinJSONSerializer, db
+from .enums import UserActive, UserAdmin
 from .util import camel2line
 
 
@@ -275,30 +275,7 @@ class EventInterface(BaseCrud):
     message_events = Column(String(250), comment='信息')
 
 
-class FileInterface(InfoCrud):
-    __tablename__ = 'lin_file'
-    id = Column(Integer, primary_key=True)
-    path = Column(String(500), nullable=False, comment='路径')
-    _type = Column('type', SmallInteger, default=1, comment='1 local，其他表示其他地方')
-    name = Column(String(100), nullable=False, comment='名称')
-    extension = Column(String(50), nullable=False, comment='后缀')
-    size = Column(Integer, comment='大小')
-    md5 = Column(String(40), unique=True, comment='图片md5值，防止上传重复图片')
-
-    @property
-    def type(self):
-        if self._type is None:
-            return None
-        return self._type
-
-
-# service暂时不用
-class ServiceInterface(object):
-    pass
-
 # 提供自动序列化功能
-
-
 class ViewModel:
     def keys(self):
         return self.__dict__.keys()

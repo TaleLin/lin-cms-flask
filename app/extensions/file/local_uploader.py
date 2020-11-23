@@ -3,7 +3,7 @@ import os
 from flask import current_app
 from werkzeug.utils import secure_filename
 
-from app.lin.core import File
+from .file import File
 from app.lin.file import Uploader
 
 
@@ -17,7 +17,7 @@ class LocalUploader(Uploader):
         for single in self._file_storage:
             file_md5 = self._generate_md5(single.read())
             single.seek(0)
-            exists = File.query.filter_by(md5=file_md5).first()
+            exists = File.select_by_md5(file_md5)
             if exists:
                 ret.append({
                     "key": single.name,
@@ -26,7 +26,8 @@ class LocalUploader(Uploader):
                     "url": site_domain + os.path.join(current_app.static_url_path, exists.path)
                 })
             else:
-                absolute_path, relative_path, real_name = self._get_store_path(single.filename)
+                absolute_path, relative_path, real_name = self._get_store_path(
+                    single.filename)
                 secure_filename(single.filename)
                 single.save(absolute_path)
                 file = File.create_file(

@@ -1,7 +1,6 @@
 from app.lin.db import db
 from app.lin.interface import InfoCrud
-from sqlalchemy import (
-    Column, DateTime, Index, Integer, SmallInteger, String, func, text)
+from sqlalchemy import Column, Integer, SmallInteger, String, text
 
 
 class Permission(InfoCrud):
