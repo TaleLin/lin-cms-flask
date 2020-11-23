@@ -24,8 +24,7 @@ from .config import Config
 from .db import MixinJSONSerializer, db
 from .exception import (APIException, InternalServerError, NotFound,
                         ParameterError, UnAuthentication)
-from .interface import (AuthInterface, EventInterface,
-                        LogInterface, UserInterface, ViewModel)
+from .interface import UserInterface, ViewModel
 from .jwt import jwt
 from .logger import LinLog
 
@@ -126,7 +125,7 @@ def is_user_allowed(group_ids):
     """查看当前user有无权限访问该路由函数"""
     ep = request.endpoint
     # 根据 endpoint 查找 authority, 一定存在
-    info = manager.ep_meta.get(ep)
+    meta = manager.ep_meta.get(ep)
     # 判断 用户组拥有的权限是否包含endpoint标记的权限
     return manager.permission_model.exist_by_group_ids_and_module_and_name(
         group_ids, meta.module, meta.auth)
@@ -435,7 +434,7 @@ class User(UserInterface, db.Model):
     @classmethod
     def select_page_by_group_id(cls, group_id, root_group_id) -> list:
         '''
-        通过分组id分页获取用户数据, page 传哪呢
+        通过分组id分页获取用户数据
         '''
         query = db.session.query(manager.user_group_model.user_id).filter(
             manager.user_group_model.group_id == group_id,
@@ -443,33 +442,6 @@ class User(UserInterface, db.Model):
         result = cls.query.filter_by(soft=True).filter(cls.id.in_(query))
         users = result.all()
         return users
-
-
-class Auth(AuthInterface):
-    pass
-
-
-# log model
-class Log(LogInterface):
-
-    @staticmethod
-    def create_log(**kwargs):
-        log = Log()
-        for key in kwargs.keys():
-            if hasattr(log, key):
-                setattr(log, key, kwargs[key])
-        db.session.add(log)
-        if kwargs.get('commit') is True:
-            db.session.commit()
-        return log
-
-
-# event model
-class Event(EventInterface):
-    pass
-
-
-# file model
 
 
 class JSONEncoder(_JSONEncoder):

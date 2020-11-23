@@ -3,18 +3,20 @@
     :license: MIT, see LICENSE for more details.
 """
 
-
 import math
+
 from app.libs.utils import get_page_from_query
 from app.lin import db
-from app.lin.core import Log, permission_meta
+from app.lin.core import permission_meta
 from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.lin.util import paginate
+from app.models.cms.log import Log
 from app.validators.forms import LogFindForm
 from flask import request
 from sqlalchemy import text
+
 log_api = Redprint('log')
 
 
@@ -27,11 +29,13 @@ def get_logs():
     start, count = paginate()
     logs = db.session.query(Log).filter()
     if form.name.data:
-        logs = logs.filter(Log.user_name == form.name.data)
+        logs = logs.filter(Log.username == form.name.data)
     if form.start.data and form.end.data:
-        logs = logs.filter(Log.time.between(form.start.data, form.end.data))
+        logs = logs.filter(Log.create_time.between(
+            form.start.data, form.end.data))
     total = logs.count()
-    logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
+    logs = logs.order_by(text('create_time desc')).offset(
+        start).limit(count).all()
     total_page = math.ceil(total / count)
     page = get_page_from_query()
     if not logs:
@@ -57,11 +61,13 @@ def get_user_logs():
     start, count = paginate()
     logs = Log.query.filter(Log.message.like(f'%{keyword}%'))
     if form.name.data:
-        logs = logs.filter(Log.user_name == form.name.data)
+        logs = logs.filter(Log.username == form.name.data)
     if form.start.data and form.end.data:
-        logs = logs.filter(Log._time.between(form.start.data, form.end.data))
+        logs = logs.filter(Log.create_time.between(
+            form.start.data, form.end.data))
     total = logs.count()
-    logs = logs.order_by(text('time desc')).offset(start).limit(count).all()
+    logs = logs.order_by(text('create_time desc')).offset(
+        start).limit(count).all()
     total_page = math.ceil(total / count)
     page = get_page_from_query()
     if not logs:
@@ -80,8 +86,8 @@ def get_user_logs():
 @group_required
 def get_users():
     start, count = paginate()
-    user_names = db.session.query(Log.user_name).filter_by(
-        soft=False).group_by(text('user_name')).having(
-        text('count(user_name) > 0')).offset(start).limit(count).all()
-    users = [user_name[0] for user_name in user_names]
+    usernames = db.session.query(Log.username).filter_by(
+        soft=False).group_by(text('username')).having(
+        text('count(username) > 0')).offset(start).limit(count).all()
+    users = [username[0] for username in usernames]
     return users

@@ -1,20 +1,24 @@
 from app.lin.interface import InfoCrud
 from app.lin.db import db
 from sqlalchemy import func
-from datetime import datetime
+from sqlalchemy import Column, Integer, String
 
 
 class Log(InfoCrud):
     __tablename__ = 'lin_log'
 
     id = Column(Integer(), primary_key=True)
-    message = Column(String(450))
-    user_id = Column(Integer(), nullable=False)
-    username = Column(String(24))
-    status_code = Column(Integer())
-    method = Column(String(20))
-    path = Column(String(50))
-    permission = Column(String(100))
+    message = Column(String(450), comment='日志信息')
+    user_id = Column(Integer(), nullable=False, comment='用户id')
+    username = Column(String(24), comment='用户当时的昵称')
+    status_code = Column(Integer(), comment='请求的http返回码')
+    method = Column(String(20), comment='请求方法')
+    path = Column(String(50), comment='请求路径')
+    permission = Column(String(100), comment='访问哪个权限')
+
+    @property
+    def time(self):
+        return int(round(self.create_time.timestamp() * 1000))
 
     @classmethod
     def select_by_conditions(cls, **kwargs) -> list:
@@ -56,3 +60,14 @@ class Log(InfoCrud):
         # [(‘张三',),('李四',),...] -> ['张三','李四',...]
         usernames = [x[0] for x in result.all()]
         return usernames
+
+    @staticmethod
+    def create_log(**kwargs):
+        log = Log()
+        for key in kwargs.keys():
+            if hasattr(log, key):
+                setattr(log, key, kwargs[key])
+        db.session.add(log)
+        if kwargs.get('commit') is True:
+            db.session.commit()
+        return log
