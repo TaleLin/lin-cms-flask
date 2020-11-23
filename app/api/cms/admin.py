@@ -39,8 +39,9 @@ def get_admin_users():
     start, count = paginate()
     group_id = request.args.get('group_id')
     # 根据筛选条件和分页，获取 用户id 与 用户组id 的一对多 数据
-    _user_groups_list = db.session.query(
-        manager.user_group_model.user_id.label('user_id'), func.group_concat(manager.user_group_model.group_id).label('group_ids'))
+    # 过滤root 分组
+    _user_groups_list = db.session.query(manager.user_group_model.user_id.label('user_id'), func.group_concat(
+        manager.user_group_model.group_id).label('group_ids')).filter(manager.user_group_model.group_id != 1)
     if group_id:
         _user_groups_list = _user_groups_list.filter(
             manager.user_group_model.group_id == group_id)
@@ -48,8 +49,9 @@ def get_admin_users():
         manager.user_group_model.user_id).offset(start).limit(count).all()
 
     # 获取 符合条件的 用户id 数量
+    # 过滤root 分组
     _total = db.session.query(func.count(
-        func.distinct(manager.user_group_model.user_id)))
+        func.distinct(manager.user_group_model.user_id))).filter(manager.user_group_model.group_id != 1)
     if group_id:
         _total = _total.filter(manager.user_group_model.group_id == group_id)
     total = _total.scalar()

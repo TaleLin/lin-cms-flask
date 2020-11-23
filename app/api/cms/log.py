@@ -13,7 +13,7 @@ from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.lin.util import paginate
 from app.validators.forms import LogFindForm
-from flask import jsonify, request
+from flask import request
 from sqlalchemy import text
 log_api = Redprint('log')
 
@@ -84,4 +84,4 @@ def get_users():
         soft=False).group_by(text('user_name')).having(
         text('count(user_name) > 0')).offset(start).limit(count).all()
     users = [user_name[0] for user_name in user_names]
-    return jsonify(users)
+    return users

@@ -24,7 +24,7 @@ from .config import Config
 from .db import MixinJSONSerializer, db
 from .exception import (APIException, InternalServerError, NotFound,
                         ParameterError, UnAuthentication)
-from .interface import (AuthInterface, EventInterface, FileInterface,
+from .interface import (AuthInterface, EventInterface,
                         LogInterface, UserInterface, ViewModel)
 from .jwt import jwt
 from .logger import LinLog
@@ -470,20 +470,6 @@ class Event(EventInterface):
 
 
 # file model
-
-
-class File(FileInterface):
-
-    @staticmethod
-    def create_file(**kwargs):
-        file = File()
-        for key in kwargs.keys():
-            if hasattr(file, key):
-                setattr(file, key, kwargs[key])
-        db.session.add(file)
-        if kwargs.get('commit') is True:
-            db.session.commit()
-        return file
 
 
 class JSONEncoder(_JSONEncoder):

@@ -1,6 +1,7 @@
 from app.lin.interface import InfoCrud
 from app.lin.db import db
 from sqlalchemy import func
+from sqlalchemy import Column, Integer, Index, String, text
 
 
 class File(InfoCrud):
@@ -28,3 +29,14 @@ class File(InfoCrud):
             cls.delete_time == None, cls.md5 == md5)
         count = result.scalar()
         return count
+
+    @staticmethod
+    def create_file(**kwargs):
+        file = File()
+        for key in kwargs.keys():
+            if hasattr(file, key):
+                setattr(file, key, kwargs[key])
+        db.session.add(file)
+        if kwargs.get('commit') is True:
+            db.session.commit()
+        return file

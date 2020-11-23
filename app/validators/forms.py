@@ -30,8 +30,14 @@ class RegisterForm(Form):
     group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
         message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
 
+    def validate_group_ids(self, value):
+        for group_id in value.data:
+            if not manager.group_model.count_by_id(group_id):
+                raise ValueError('分组不存在')
 
 # 登录校验
+
+
 class LoginForm(Form):
     username = StringField(validators=[DataRequired()])
     password = PasswordField('密码', validators=[DataRequired(message='密码不可为空')])
@@ -128,40 +134,32 @@ class LogFindForm(Form):
 
 
 class EventsForm(Form):
-    group_id = IntegerField('分组id',
-                            validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
+    group_id = IntegerField('分组id', validators=[DataRequired(
+        message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
     events = FieldList(StringField(
         validators=[DataRequired(message='请输入events字段')]))
 
 
 # 更新用户邮箱和昵称
 class UpdateInfoForm(Form):
-    email = StringField('电子邮件', validators=[
-        Regexp(
-            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
-        Optional()
-    ])
-    nickname = StringField(validators=[
-        length(min=2, max=10, message='昵称长度必须在2~10之间'),
-        Optional()
-    ])
+    email = StringField('电子邮件', validators=[Regexp(
+        r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'), Optional()])
+    nickname = StringField(
+        validators=[length(min=2, max=10, message='昵称长度必须在2~10之间'), Optional()])
+    avatar = StringField('头像', validators=[Optional()])
 
 
 # 更新用户信息
 class UpdateUserInfoForm(Form):
-    email = StringField('电子邮件', validators=[
-        Regexp(
-            r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'),
-        Optional()
-    ])
+    email = StringField('电子邮件', validators=[Regexp(
+        r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$', message='电子邮箱不符合规范，请输入正确的邮箱'), Optional()])
     group_ids = FieldList(IntegerField('分组id', validators=[DataRequired(
         message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)]))
 
-
-class AvatarUpdateForm(Form):
-    avatar = StringField('头像', validators=[
-        DataRequired(message='请输入头像url')
-    ])
+    def validate_group_ids(self, value):
+        for group_id in value.data:
+            if not manager.group_model.count_by_id(group_id):
+                raise ValueError('分组不存在')
 
 
 class BookSearchForm(Form):

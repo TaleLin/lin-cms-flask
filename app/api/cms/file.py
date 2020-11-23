@@ -1,12 +1,11 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from flask import request, jsonify
+from app.extensions.file.local_uploader import LocalUploader
 from app.lin import login_required
 from app.lin.redprint import Redprint
-
-from app.extensions.file.local_uploader import LocalUploader
+from flask import request
 
 file_api = Redprint('file')
 
@@ -17,4 +16,4 @@ def post_file():
     files = request.files
     uploader = LocalUploader(files)
     ret = uploader.upload()
-    return jsonify(ret)
+    return ret
