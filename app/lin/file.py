@@ -118,7 +118,7 @@ class Uploader(object):
         验证文件是否合法
         """
         if not self._file_storage:
-            raise ParameterError(msg='未找到符合条件的文件资源')
+            raise ParameterError('未找到符合条件的文件资源')
         self.__allowed_file()
         self.__allowed_file_size()
 
@@ -170,7 +170,8 @@ class Uploader(object):
             for single in self._file_storage:
                 if self._get_size(single) > self._single_limit:
                     raise FileTooLarge(
-                        single.filename + '大小不能超过' + str(self._single_limit) + '字节'
+                        single.filename + '大小不能超过' +
+                        str(self._single_limit) + '字节'
                     )
                 total_size += self._get_size(single)
             if total_size > self._total_limit:

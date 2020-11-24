@@ -57,7 +57,7 @@ def get_user_logs():
     form = LogFindForm().validate_for_api()
     keyword = request.args.get('keyword', default=None, type=str)
     if keyword is None or '':
-        raise ParameterError(msg='搜索关键字不可为空')
+        raise ParameterError('搜索关键字不可为空')
     start, count = paginate()
     logs = Log.query.filter(Log.message.like(f'%{keyword}%'))
     if form.name.data:

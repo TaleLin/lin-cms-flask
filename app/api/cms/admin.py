@@ -105,12 +105,12 @@ def change_user_password(uid):
 
     user = find_user(id=uid)
     if user is None:
-        raise NotFound(msg='用户不存在')
+        raise NotFound('用户不存在')
 
     with db.auto_commit():
         user.reset_password(form.new_password.data)
 
-    return Success(msg='密码修改成功')
+    return Success('密码修改成功')
 
 
 @admin_api.route('/user/<int:uid>', methods=['DELETE'])
@@ -120,12 +120,12 @@ def change_user_password(uid):
 def delete_user(uid):
     user = manager.user_model.get(id=uid)
     if user is None:
-        raise NotFound(msg='用户不存在')
+        raise NotFound('用户不存在')
     with db.auto_commit():
         manager.user_group_model.query.filter_by(
             user_id=uid).delete(synchronize_session=False)
         user.hard_delete()
-    return Success(msg='操作成功')
+    return Success('操作成功')
 
 
 @admin_api.route('/user/<int:uid>', methods=['PUT'])
@@ -136,11 +136,11 @@ def update_user(uid):
 
     user = manager.user_model.get(id=uid)
     if user is None:
-        raise NotFound(msg='用户不存在')
+        raise NotFound('用户不存在')
     if user.email != form.email.data:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
-            raise ParameterError(msg='邮箱已被注册，请重新输入邮箱')
+            raise ParameterError('邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         user.email = form.email.data
         group_ids = form.group_ids.data
@@ -158,7 +158,7 @@ def update_user(uid):
             user_group.group_id = group_id
             user_group_list.append(user_group)
         db.session.add_all(user_group_list)
-    return Success(msg='操作成功')
+    return Success('操作成功')
 
 
 @admin_api.route('/group', methods=['GET'])
@@ -169,7 +169,7 @@ def get_admin_groups():
     groups = manager.group_model.query.filter(
         manager.group_model.level != 1).offset(start).limit(count).all()
     if groups is None:
-        raise NotFound(msg='不存在任何分组')
+        raise NotFound('不存在任何分组')
 
     for group in groups:
         permissions = manager.permission_model.select_by_group_id(group.id)
@@ -197,7 +197,7 @@ def get_all_group():
     groups = manager.group_model.query.filter(
         manager.group_model.level != 1).all()
     if groups is None:
-        raise NotFound(msg='不存在任何分组')
+        raise NotFound('不存在任何分组')
     return groups
 
 
@@ -207,7 +207,7 @@ def get_all_group():
 def get_group(gid):
     group = manager.group_model.get(id=gid, one=True, soft=False)
     if group is None:
-        raise NotFound(msg='分组不存在')
+        raise NotFound('分组不存在')
     permissions = manager.permission_model.select_by_group_id(gid)
     setattr(group, 'permissions', permissions)
     group._fields.append('permissions')
@@ -222,7 +222,7 @@ def create_group():
     form = NewGroup().validate_for_api()
     exists = manager.group_model.get(name=form.name.data)
     if exists:
-        raise Forbidden(msg='分组已存在，不可创建同名分组')
+        raise Forbidden('分组已存在，不可创建同名分组')
     with db.auto_commit():
         group = manager.group_model.create(
             name=form.name.data,
@@ -236,7 +236,7 @@ def create_group():
             gp.permission_id = permission_id
             group_permission_list.append(gp)
         manager.group_permission_model.insert_batch(group_permission_list)
-    return Success(msg='新建分组成功')
+    return Success('新建分组成功')
 
 
 @admin_api.route('/group/<int:gid>', methods=['PUT'])
@@ -246,9 +246,9 @@ def update_group(gid):
     form = UpdateGroup().validate_for_api()
     exists = manager.group_model.get(id=gid)
     if not exists:
-        raise NotFound(msg='分组不存在，更新失败')
+        raise NotFound('分组不存在，更新失败')
     exists.update(name=form.name.data, info=form.info.data, commit=True)
-    return Success(msg='更新分组成功')
+    return Success('更新分组成功')
 
 
 @admin_api.route('/group/<int:gid>', methods=['DELETE'])
@@ -257,19 +257,19 @@ def update_group(gid):
 @admin_required
 def delete_group(gid):
     if gid == 2:
-        raise Forbidden(msg='guest分组不可删除')
+        raise Forbidden('guest分组不可删除')
     exist = manager.group_model.get(id=gid)
     if not exist:
-        raise NotFound(msg='分组不存在，删除失败')
+        raise NotFound('分组不存在，删除失败')
     if manager.user_model.select_page_by_group_id(gid, 1):
-        raise Forbidden(msg='分组下存在用户，不可删除')
+        raise Forbidden('分组下存在用户，不可删除')
     with db.auto_commit():
         # 删除group id 对应的关联记录
         manager.group_permission_model.query.filter_by(
             group_id=gid).delete(synchronize_session=False)
         # 删除group
         exist.delete()
-    return Success(msg='删除分组成功')
+    return Success('删除分组成功')
 
 
 @admin_api.route('/permission/dispatch', methods=['POST'])
@@ -280,13 +280,13 @@ def dispatch_auth():
     one = manager.group_permission_model.get(
         group_id=form.group_id.data, permission_id=form.permission_id.data)
     if one:
-        raise Forbidden(msg='已有权限，不可重复添加')
+        raise Forbidden('已有权限，不可重复添加')
     manager.group_permission_model.create(
         group_id=form.group_id.data,
         permission=form.permission_id.data,
         commit=True
     )
-    return Success(msg='添加权限成功')
+    return Success('添加权限成功')
 
 
 @admin_api.route('/permission/dispatch/batch', methods=['POST'])
@@ -303,7 +303,7 @@ def dispatch_auths():
                     group_id=form.group_id.data,
                     permission_id=permission_id,
                 )
-    return Success(msg='添加权限成功')
+    return Success('添加权限成功')
 
 
 @admin_api.route('/permission/remove', methods=['POST'])
@@ -319,4 +319,4 @@ def remove_auths():
             manager.group_permission_model.group_id == form.group_id.data
         ).delete(synchronize_session=False)
 
-    return Success(msg='删除权限成功')
+    return Success('删除权限成功')
