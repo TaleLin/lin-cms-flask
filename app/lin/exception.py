@@ -14,6 +14,7 @@ class APIException(HTTPException, metaclass=MultipleMeta):
     code = 500
     message = '抱歉，服务器未知错误'
     error_code = 999
+    headers = {'Content-Type': 'application/json'}
 
     def __init__(self):
         super(APIException, self).__init__(None, None)
@@ -44,17 +45,19 @@ class APIException(HTTPException, metaclass=MultipleMeta):
             self.message = message
         if headers is not None:
             headers_merged = headers.copy()
-            headers_merged.update(headers)
+            headers_merged.update(self.headers)
             self.headers = headers_merged
 
         super(APIException, self).__init__(message, None)
 
-    def set_code(self, code):
+    def set_code(self, code: int):
         self.code = code
         return self
 
-    def set_headers(self, headers):
-        self.headers = headers
+    def add_headers(self, headers: dict):
+        headers_merged = headers.copy()
+        headers_merged.update(self.headers)
+        self.headers = headers_merged
         return self
 
     def get_body(self, environ=None):
@@ -73,7 +76,7 @@ class APIException(HTTPException, metaclass=MultipleMeta):
         return main_path[0]
 
     def get_headers(self, environ=None):
-        return [('Content-Type', 'application/json')]
+        return [(k, v)for k, v in self.headers.items()]
 
 
 class Success(APIException):
