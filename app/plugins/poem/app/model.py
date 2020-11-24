@@ -11,7 +11,8 @@ class Poem(Base):
     title = Column(String(50), nullable=False, comment='标题')
     author = Column(String(50), default='未名', comment='作者')
     dynasty = Column(String(50), default='未知', comment='朝代')
-    _content = Column('content', Text, nullable=False, comment='内容，以/来分割每一句，以|来分割宋词的上下片')
+    _content = Column('content', Text, nullable=False,
+                      comment='内容，以/来分割每一句，以|来分割宋词的上下片')
     image = Column(String(255), default='', comment='配图')
 
     @property
@@ -34,13 +35,13 @@ class Poem(Base):
         poems = query.limit(limit).all()
 
         if not poems:
-            raise NotFound(msg='没有找到相关诗词')
+            raise NotFound('没有找到相关诗词')
         return poems
 
     def search(self, q):
         poems = self.query.filter(Poem.title.like('%' + q + '%')).all()
         if not poems:
-            raise NotFound(msg='没有找到相关诗词')
+            raise NotFound('没有找到相关诗词')
         return poems
 
     @classmethod

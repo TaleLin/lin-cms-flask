@@ -32,12 +32,12 @@ def register():
     form = RegisterForm().validate_for_api()
     # TODO model更新后开放注释
     # if manager.user_model.count_by_username(form.username.data) > 0:
-    #     raise Duplicated(msg='用户名重复，请重新输入')
+    #     raise Duplicated('用户名重复，请重新输入')
     # if form.email.data and form.email.data.strip() != "":
     #     if manager.user_model.count_by_email(form.email.data) > 0:
-    #         raise Duplicated(msg='注册邮箱重复，请重新输入')
+    #         raise Duplicated('注册邮箱重复，请重新输入')
     _register_user(form)
-    return Success(msg='用户创建成功')
+    return Success('用户创建成功')
 
 
 @user_api.route('/login', methods=['POST'])
@@ -72,7 +72,7 @@ def update():
     if email and user.email != email:
         exists = manager.user_model.get(email=form.email.data)
         if exists:
-            raise ParameterError(msg='邮箱已被注册，请重新输入邮箱')
+            raise ParameterError('邮箱已被注册，请重新输入邮箱')
     with db.auto_commit():
         if email:
             user.email = form.email.data
@@ -80,7 +80,7 @@ def update():
             user.nickname = form.nickname.data
         if avatar:
             user._avatar = form.avatar.data
-    return Success(msg='操作成功')
+    return Success('操作成功')
 
 
 @user_api.route('/change_password', methods=['PUT'])
@@ -93,9 +93,9 @@ def change_password():
     ok = user.change_password(form.old_password.data, form.new_password.data)
     if ok:
         db.session.commit()
-        return Success(msg='密码修改成功')
+        return Success('密码修改成功')
     else:
-        return Fail(msg='修改密码失败')
+        return Fail('修改密码失败')
 
 
 @user_api.route('/information', methods=['GET'])
@@ -123,7 +123,7 @@ def refresh():
             "refresh_token": refresh_token
         }
 
-    return NotFound(msg='refresh_token未被识别')
+    return NotFound('refresh_token未被识别')
 
 
 @user_api.route('/permissions', methods=['GET'])

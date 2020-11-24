@@ -8,7 +8,7 @@
 10020, Not Found, 资源不存在
 10030, Parameters Error, 参数错误
 10040, Token Invalid, 令牌失效
-10050, Token Expired, 令牌过期
+10052, Token Expired, 令牌过期
 10060, Duplicated, 字段重复
 9999, Internal Server Error, 服务器未知错误
 10070, Forbidden, 禁止操作

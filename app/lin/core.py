@@ -411,11 +411,11 @@ class User(UserInterface, db.Model):
     def verify(cls, username, password):
         user = cls.query.filter_by(username=username).first()
         if user is None or user.delete_time is not None:
-            raise NotFound(msg='用户不存在')
+            raise NotFound('用户不存在')
         if not user.check_password(password):
-            raise ParameterError(msg='密码错误，请输入正确密码')
+            raise ParameterError('密码错误，请输入正确密码')
         if not user.is_active:
-            raise UnAuthentication(msg='您目前处于未激活状态，请联系超级管理员')
+            raise UnAuthentication('您目前处于未激活状态，请联系超级管理员')
         return user
 
     def reset_password(self, new_password):

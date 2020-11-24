@@ -20,7 +20,7 @@ class Book(Base):
     def get_detail(cls, bid):
         book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound(msg='没有找到相关书籍')
+            raise NotFound('没有找到相关书籍')
         return book
 
     @classmethod
@@ -41,7 +41,7 @@ class Book(Base):
         book = Book.query.filter_by(
             title=form.title.data, delete_time=None).first()
         if book is not None:
-            raise ParameterError(msg='图书已存在')
+            raise ParameterError('图书已存在')
 
         Book.create(
             title=form.title.data,
@@ -56,7 +56,7 @@ class Book(Base):
     def edit_book(cls, bid, form):
         book = Book.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound(msg='没有找到相关书籍')
+            raise NotFound('没有找到相关书籍')
 
         book.update(
             id=bid,
@@ -72,7 +72,7 @@ class Book(Base):
     def remove_book(cls, bid):
         book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound(msg='没有找到相关书籍')
+            raise NotFound('没有找到相关书籍')
         # 删除图书，软删除
         book.delete(commit=True)
         return True

@@ -59,14 +59,14 @@ def search():
 def create_book():
     form = CreateOrUpdateBookForm().validate_for_api()
     Book.new_book(form)
-    return Success(msg='新建图书成功')
+    return Success('新建图书成功')
 
 
 @book_api.route('/<bid>', methods=['PUT'])
 def update_book(bid):
     form = CreateOrUpdateBookForm().validate_for_api()
     Book.edit_book(bid, form)
-    return Success(msg='更新图书成功')
+    return Success('更新图书成功')
 
 
 @book_api.route('/<bid>', methods=['DELETE'])
@@ -75,4 +75,4 @@ def update_book(bid):
 def delete_book(bid):
     print(Book.get_detail(bid))
     Book.remove_book(bid)
-    return Success(msg='删除图书成功')
+    return Success('删除图书成功')
