@@ -2,8 +2,13 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+
+from .util import write_token, get_token
+if __name__ == "__main__":
+    import sys
+    sys.path.append("../../")
 from app.app import create_app
-from tests.utils import write_token, get_token
+
 
 app = create_app()
 

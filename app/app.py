@@ -5,8 +5,10 @@
 
 
 import json
+import os
 import time
 
+from dotenv import load_dotenv
 from flask_cors import CORS
 
 from app.lin import Lin
@@ -59,17 +61,15 @@ def register_after_request(app):
         return resp
 
 
-def create_app(register_all=True, environment='production'):
+def create_app(register_all=True):
     app = Flask(__name__, static_folder='./assets')
-    app.config['JSON_AS_ASCII'] = False
-    app.config['ENV'] = environment
-    env = app.config.get('ENV')
-    if env == 'production':
-        app.config.from_object('app.config.setting.ProductionConfig')
-        app.config.from_object('app.config.secure.ProductionSecure')
-    elif env == 'development':
-        app.config.from_object('app.config.setting.DevelopmentConfig')
-        app.config.from_object('app.config.secure.DevelopmentSecure')
+    # 兼容 其他HTTP Server 读取环境配置
+    load_dotenv('.flaskenv')
+    # 根据传入环境加载对应配置类
+    flask_env = os.getenv('FLASK_ENV', 'production').capitalize()
+    app.config.from_object('app.config.setting.{}Config'.format(flask_env))
+    app.config.from_object('app.config.secure.{}Secure'.format(flask_env))
+    # 读取日志配置
     app.config.from_object('app.config.log')
     if register_all:
         register_blueprints(app)
@@ -77,6 +77,5 @@ def create_app(register_all=True, environment='production'):
         register_before_request(app)
         register_after_request(app)
         apply_cors(app)
-        # 创建所有表格
 
     return app

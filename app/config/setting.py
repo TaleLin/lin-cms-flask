@@ -17,6 +17,9 @@ class BaseConfig(object):
     # 屏蔽 sql alchemy 的 FSADeprecationWarning
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # 兼容中文
+    JSON_AS_ASCII = False
+
 
 class DevelopmentConfig(BaseConfig):
     """

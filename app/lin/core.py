@@ -35,9 +35,9 @@ class Flask(_Flask):
         """
         将视图函数返回的值转换为flask内置支持的类型
         """
-        if isinstance(rv, (dict, MixinJSONSerializer, ViewModel)):
+        if isinstance(rv, (MixinJSONSerializer, ViewModel)):
             rv = jsonify(rv)
-        elif isinstance(rv, (list, set)):
+        elif isinstance(rv, (int, list, set)):
             rv = json.dumps(rv, cls=JSONEncoder)
         elif isinstance(rv, (tuple)):
             if len(rv) == 0 or len(rv) > 0 and not isinstance(rv[0], Response):
@@ -45,7 +45,7 @@ class Flask(_Flask):
         return super(Flask, self).make_response(rv)
 
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 # 路由函数的权限和模块信息(meta信息)
 Meta = namedtuple('meta', ['auth', 'module', 'mount'])
@@ -294,9 +294,9 @@ class Lin(object):
                 return e
             if isinstance(e, HTTPException):
                 code = e.code
-                msg = e.description
+                message = e.description
                 error_code = 20000
-                return APIException(msg, code, error_code)
+                return APIException(error_code, message).set_code(code)
             else:
                 if not app.config['DEBUG']:
                     import traceback
