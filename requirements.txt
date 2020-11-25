@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 wtforms
 oss2
 python-dotnet
+pytest

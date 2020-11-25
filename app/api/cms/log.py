@@ -5,7 +5,7 @@
 
 import math
 
-from app.lib.utils import get_page_from_query
+from app.lib.util import get_page_from_query
 from app.lin import db
 from app.lin.core import permission_meta
 from app.lin.exception import NotFound, ParameterError
