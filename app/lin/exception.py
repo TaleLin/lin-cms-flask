@@ -13,7 +13,7 @@ from werkzeug._compat import text_type
 class APIException(HTTPException, metaclass=MultipleMeta):
     code = 500
     message = '抱歉，服务器未知错误'
-    error_code = 999
+    error_code = 9999
     headers = {'Content-Type': 'application/json'}
 
     def __init__(self):

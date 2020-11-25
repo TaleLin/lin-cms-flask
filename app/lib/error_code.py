@@ -15,4 +15,4 @@ class BookNotFound(APIException):
 class RefreshException(APIException):
     code = 401
     message = "refresh token 获取失败"
-    error_code = 10100
+    error_code = 10042
