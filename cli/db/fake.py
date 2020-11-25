@@ -5,10 +5,17 @@
 
 if __name__ == "__main__":
     import sys
+    import os
+    current_path = os.path.abspath(__file__)
+    # 获取当前文件的父目录
+    father_path = os.path.abspath(
+        os.path.dirname(current_path) + os.path.sep + ".")
+    os.chdir(father_path)
+    # 切换到项目根目录
     sys.path.append("../../")
-from app.app import create_app
-from app.model.v1.book import Book
 from app.lin.db import db
+from app.model.v1.book import Book
+from app.app import create_app
 
 
 def fake():
