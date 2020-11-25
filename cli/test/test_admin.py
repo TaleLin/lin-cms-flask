@@ -13,6 +13,7 @@ if __name__ == "__main__":
     os.chdir(father_path)
     # 切换到项目根目录
     sys.path.append("../../")
+
 from cli.test.util import get_token
 from app.app import create_app
 
@@ -21,18 +22,10 @@ app = create_app()
 
 def test_authority():
     with app.test_client() as c:
-        rv = c.get('/cms/admin/authority', headers={
+        rv = c.get('/cms/admin/permission', headers={
             'Authorization': 'Bearer ' + get_token()
         })
         assert rv.status_code == 200
-
-
-def test_delete_user():
-    with app.test_client() as c:
-        rv = c.delete('/cms/admin/6', headers={
-            'Authorization': 'Bearer ' + get_token()
-        })
-        assert rv.status_code == 201
 
 
 def test_get_admin_users():
@@ -40,5 +33,9 @@ def test_get_admin_users():
         rv = c.get('/cms/admin/users', headers={
             'Authorization': 'Bearer ' + get_token()
         })
-        json_data = rv.get_json()
         assert rv.status_code == 200
+
+
+if __name__ == "__main__":
+    test_authority()
+    test_get_admin_users()
