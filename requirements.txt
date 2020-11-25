@@ -4,5 +4,5 @@ Flask-JWT-Extended
 Flask-SQLAlchemy
 wtforms
 oss2
-python-dotnet
+python-dotenv
 pytest
