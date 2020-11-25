@@ -38,7 +38,7 @@ readme = """# {0}"""
 
 def create_plugin(name: str):
     cmd = os.getcwd()
-    plugins_path = os.path.join(cmd, "app/plugins")
+    plugins_path = os.path.join(cmd, "app/plugin")
     plugindir = os.path.join(plugins_path, name)
     os.mkdir(plugindir)
 
@@ -64,8 +64,10 @@ def create_plugin(name: str):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(usage="it's usage tip.", description="help info.")
-    parser.add_argument("-n", "--name", default="tpl", help="the name of plugin", dest="name")
+    parser = argparse.ArgumentParser(
+        usage="it's usage tip.", description="help info.")
+    parser.add_argument("-n", "--name", default="tpl",
+                        help="the name of plugin", dest="name")
     args = parser.parse_args()
     name = args.name
     create_plugin(name)

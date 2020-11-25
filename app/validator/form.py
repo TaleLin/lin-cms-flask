@@ -5,11 +5,11 @@
 import time
 
 from app.lin import manager
-from app.lin.forms import Form
-from wtforms import (DateTimeField, FieldList, IntegerField, PasswordField,
-                     StringField)
-from wtforms.validators import (DataRequired, EqualTo, NumberRange, Optional,
-                                Regexp, length)
+from app.lin.form import Form
+from wtforms import (DateTimeField, FieldList,
+                     IntegerField, PasswordField, StringField)
+from wtforms.validators import (
+    DataRequired, EqualTo, NumberRange, Optional, Regexp, length)
 
 
 # 注册校验
@@ -90,7 +90,7 @@ class DispatchAuths(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
 
-    permission_ids = FieldList(StringField(
+    permission_ids = FieldList(IntegerField(
         validators=[DataRequired(message='请输入permission_ids字段')]))
 
 
@@ -98,7 +98,7 @@ class DispatchAuth(Form):
     # 为用户分配的权限
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    permission_id = StringField(
+    permission_id = IntegerField(
         validators=[DataRequired(message='请输入permission_id字段')])
 
 
@@ -106,7 +106,7 @@ class DispatchAuth(Form):
 class RemoveAuths(Form):
     group_id = IntegerField('分组id',
                             validators=[DataRequired(message='请输入分组id'), NumberRange(message='分组id必须大于0', min=1)])
-    permission_ids = FieldList(StringField(
+    permission_ids = FieldList(IntegerField(
         validators=[DataRequired(message='请输入permission_ids字段')]))
 
 

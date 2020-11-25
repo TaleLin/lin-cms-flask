@@ -63,7 +63,7 @@ def register_after_request(app):
 
 def create_app(register_all=True):
     app = Flask(__name__, static_folder='./assets')
-    # 兼容 其他HTTP Server 读取环境配置
+    # 兼容 其他HTTP Server, 手动读取环境配置
     load_dotenv('.flaskenv')
     # 根据传入环境加载对应配置类
     flask_env = os.getenv('FLASK_ENV', 'production').capitalize()

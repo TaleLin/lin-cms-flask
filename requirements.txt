@@ -2,6 +2,6 @@ Flask
 Flask-Cors
 Flask-JWT-Extended
 Flask-SQLAlchemy
-WTForms
+wtforms
 oss2
 python-dotnet

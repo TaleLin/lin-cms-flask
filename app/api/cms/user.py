@@ -6,7 +6,7 @@
 """
 from operator import and_
 
-from app.libs.error_code import RefreshException
+from app.lib.error_code import RefreshException
 from app.lin.core import manager, permission_meta
 from app.lin.db import db
 from app.lin.exception import (Duplicated, Fail, NotFound, ParameterError,
@@ -14,9 +14,9 @@ from app.lin.exception import (Duplicated, Fail, NotFound, ParameterError,
 from app.lin.jwt import admin_required, get_tokens, login_required
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
-from app.models.cms.log import Log
-from app.validators.forms import (ChangePasswordForm, LoginForm, RegisterForm,
-                                  UpdateInfoForm)
+from app.model.cms.log import Log
+from app.validator.form import (ChangePasswordForm, LoginForm, RegisterForm,
+                                UpdateInfoForm)
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_current_user, get_jwt_identity,
                                 verify_jwt_refresh_token_in_request)

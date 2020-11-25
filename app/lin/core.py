@@ -11,7 +11,7 @@ import json
 from collections import namedtuple
 from datetime import date, datetime
 
-from app.models.cms import Group, GroupPermission, Permission, UserGroup
+from app.model.cms import Group, GroupPermission, Permission, UserGroup
 from flask import Blueprint
 from flask import Flask as _Flask
 from flask import current_app, g, jsonify, request
