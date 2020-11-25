@@ -91,7 +91,7 @@ def expired_loader_callback():
 
 @jwt.invalid_token_loader
 def invalid_loader_callback(e):
-    return TokenInvalid()
+    return TokenInvalid(10041)
 
 
 @jwt.unauthorized_loader
