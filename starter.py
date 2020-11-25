@@ -30,3 +30,12 @@ def db(op: str):
     if op == 'fake':
         from cli.db import fake
         fake()
+
+@app.cli.command("test")
+def test():
+    import os
+    '''
+    Run unit test
+    '''
+    os.system('pytest')
+
