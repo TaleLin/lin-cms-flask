@@ -4,3 +4,4 @@ Flask-JWT-Extended
 Flask-SQLAlchemy
 WTForms
 oss2
+python-dotnet
