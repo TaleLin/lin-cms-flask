@@ -7,7 +7,7 @@ def get_file_path():
     # 获取当前文件的父目录
     father_path = os.path.abspath(
         os.path.dirname(current_path) + os.path.sep + ".")
-    return father_path+os.path.sep+"token.json"
+    return father_path + os.path.sep + "token.json"
 
 
 def write_token(data):

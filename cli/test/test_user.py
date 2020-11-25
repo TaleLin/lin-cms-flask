@@ -24,7 +24,7 @@ app = create_app()
 def test_login():
     with app.test_client() as c:
         rv = c.post('/cms/user/login', json={
-            'nickname': 'root', 'password': '123456'
+            'username': 'root', 'password': '123456'
         })
         json_data = rv.get_json()
         print(json_data)
@@ -33,11 +33,15 @@ def test_login():
         assert rv.status_code == 200
 
 
-def test_change_password():
+def test_change_nickname():
     with app.test_client() as c:
-        rv = c.put('/cms/user/', headers={
+        rv = c.put('/cms/user', headers={
             'Authorization': 'Bearer ' + get_token()
         }, json={
-            'email': '1312342604@qq.com'
+            'nickname': 'tester'
         })
         assert rv.status_code == 201
+
+if __name__ == "__main__":
+    test_login()
+    test_change_nickname()
