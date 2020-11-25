@@ -33,9 +33,9 @@ def db(op: str):
 
 @app.cli.command("test")
 def test():
+    '''
+    Run unit test with pytest
+    '''
     import os
-    '''
-    Run unit test
-    '''
     os.system('pytest')
 
