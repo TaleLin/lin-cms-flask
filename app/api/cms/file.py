@@ -2,7 +2,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.extensions.file.local_uploader import LocalUploader
+from app.extension.file.local_uploader import LocalUploader
 from app.lin import login_required
 from app.lin.redprint import Redprint
 from flask import request

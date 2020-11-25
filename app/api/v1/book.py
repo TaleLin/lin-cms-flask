@@ -10,8 +10,8 @@ from app.lin.exception import Success
 from app.lin.interface import ViewModel
 from app.lin.jwt import login_required
 from app.lin.redprint import Redprint
-from app.models.v1.book import Book
-from app.validators.forms import BookSearchForm, CreateOrUpdateBookForm
+from app.model.v1.book import Book
+from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
 
 
 book_api = Redprint('book')

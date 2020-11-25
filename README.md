@@ -118,15 +118,15 @@ Lin 的服务端框架是基于 Python Flask 的，所以如果您比较熟悉 F
 git clone https://github.com/TaleLin/lin-cms-flask.git starter
 ```
 
-> 此处我们以 `starter` 作为工程名，当然您也可以以任意您喜爱的名字作为工程名。
+> 我们以 `starter` 作为工程名，当然您也可以以任意您喜爱的名字作为工程名。
 > 如果您想以某个版本，如`0.0.1`版，作为起始项目，那么请在 github 上的版本页下载相应的版本即可。
 
 ### 安装依赖包
 
-调用环境中的 pip 来安装依赖包:
+进入项目目录，调用环境中的 pip 来安装依赖包:
 
 ```bash
-cd starter && pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 数据库配置
@@ -163,10 +163,10 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 
 如果您是第一次使用 **`Lin-CMS`**，需要初始化数据库。
 
-请先进入项目根目录，然后执行`db_init.py`,用来添加超级管理员 root(默认密码 123456), 以及新建其他必要的分组
+请先进入项目根目录，然后执行`flask db init`,用来添加超级管理员 root(默认密码 123456), 以及新建其他必要的分组
 
 > **Tips:**
-> 如果您需要一些业务样例数据，可以执行脚本`fake.py`添加几本书的数据，当然您也可以根据需要改造这个它，用来批量新增您需要的数据
+> 如果您需要一些业务样例数据，可以执行脚本`flask db fake`添加几本书的数据
 
 ### 运行
 

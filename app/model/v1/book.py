@@ -6,7 +6,7 @@
 from app.lin.exception import NotFound, ParameterError
 from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer
-from app.libs.error_code import BookNotFound
+from app.lib.error_code import BookNotFound
 
 
 class Book(Base):

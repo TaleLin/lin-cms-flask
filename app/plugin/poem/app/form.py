@@ -1,4 +1,4 @@
-from app.lin.forms import Form
+from app.lin.form import Form
 from wtforms import StringField, IntegerField
 from wtforms.validators import DataRequired, Optional, NumberRange
 

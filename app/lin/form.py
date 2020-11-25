@@ -11,15 +11,15 @@
 from flask import request
 from wtforms import Form as WTForm, IntegerField
 from wtforms.validators import StopValidation
-from werkzeug.datastructures import ImmutableMultiDict
+from werkzeug.datastructures import ImmutableDict, ImmutableMultiDict
 from .exception import ParameterError
 
 
 class Form(WTForm):
     def __init__(self):
-        data = ImmutableMultiDict(request.get_json(silent=True))
+        data = request.get_json(silent=True)
         args = request.args.to_dict()
-        super(Form, self).__init__(data, **args)
+        super(Form, self).__init__(data=data, **args)
 
     def validate_for_api(self):
         valid = super(Form, self).validate()

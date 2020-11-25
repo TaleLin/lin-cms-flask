@@ -1,7 +1,7 @@
 from flask import jsonify
 from app.lin.redprint import Redprint
 
-from app.plugins.poem.app.forms import PoemListForm, PoemSearchForm
+from app.plugin.poem.app.form import PoemListForm, PoemSearchForm
 from .model import Poem
 
 api = Redprint('poem')
