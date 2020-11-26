@@ -295,8 +295,8 @@ class Lin(object):
             if isinstance(e, HTTPException):
                 code = e.code
                 message = e.description
-                error_code = 20000
-                return APIException(error_code, message).set_code(code)
+                message_code = 20000
+                return APIException(message_code, message).set_code(code)
             else:
                 if not app.config['DEBUG']:
                     import traceback

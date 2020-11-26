@@ -6,7 +6,7 @@
 """
 import math
 
-from app.lib.util import get_page_from_query, paginate
+from app.lin.utils import get_page_from_query, paginate
 from app.lin import db
 from app.lin.core import find_user, get_ep_infos, manager, permission_meta
 from app.lin.db import get_total_nums

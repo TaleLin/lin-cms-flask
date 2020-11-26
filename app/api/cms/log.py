@@ -5,13 +5,13 @@
 
 import math
 
-from app.lib.util import get_page_from_query
+from app.lin.utils import get_page_from_query
 from app.lin import db
 from app.lin.core import permission_meta
 from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
-from app.lin.util import paginate
+from app.lin.utils import paginate
 from app.model.cms.log import Log
 from app.validator.form import LogFindForm
 from flask import request
