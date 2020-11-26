@@ -18,7 +18,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import MixinJSONSerializer, db
 from .enums import UserActive, UserAdmin
-from .util import camel2line
+from .utils import camel2line
 
 
 # 基础的crud model

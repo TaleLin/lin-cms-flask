@@ -4,7 +4,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.lin.util import MultipleMeta
+from app.lin.multiplemeta import MultipleMeta
 from flask import json, request
 from werkzeug.exceptions import HTTPException
 from werkzeug._compat import text_type
@@ -13,34 +13,34 @@ from werkzeug._compat import text_type
 class APIException(HTTPException, metaclass=MultipleMeta):
     code = 500
     message = '抱歉，服务器未知错误'
-    error_code = 9999
+    message_code = 9999
     headers = {'Content-Type': 'application/json'}
 
     def __init__(self):
         super(APIException, self).__init__(None, None)
 
-    def __init__(self, error_code: int):
-        self.error_code = error_code
+    def __init__(self, message_code: int):
+        self.message_code = message_code
         super(APIException, self).__init__(None, None)
 
     def __init__(self, message: str):
         self.message = message
         super(APIException, self).__init__(message, None)
 
-    def __init__(self, error_code: int, message: str):
-        self.error_code = error_code
+    def __init__(self, message_code: int, message: str):
+        self.message_code = message_code
         self.message = message
         super(APIException, self).__init__(message, None)
 
     def __init__(self, exception_dict: dict):
         code = exception_dict.get('code')
-        error_code = exception_dict.get('error_code')
+        message_code = exception_dict.get('message_code')
         message = exception_dict.get('message')
         headers = exception_dict.get('headers')
         if code:
             self.code = code
-        if error_code:
-            self.error_code = error_code
+        if message_code:
+            self.message_code = message_code
         if message:
             self.message = message
         if headers is not None:
@@ -63,7 +63,7 @@ class APIException(HTTPException, metaclass=MultipleMeta):
     def get_body(self, environ=None):
         body = dict(
             message=self.message,
-            code=self.error_code,
+            code=self.message_code,
             request=request.method + '  ' + self.get_url_no_param()
         )
         text = json.dumps(body)
@@ -82,118 +82,124 @@ class APIException(HTTPException, metaclass=MultipleMeta):
 class Success(APIException):
     code = 201
     message = 'OK'
-    error_code = 0
+    message_code = 0
 
 
 class Created(APIException):
     code = 201
     message = 'Created'
-    error_code = 1
+    message_code = 1
 
 
 class Updated(APIException):
     code = 201
     message = 'Updated'
-    error_code = 2
+    message_code = 2
 
 
 class Deleted(APIException):
     code = 201
     message = 'Deleted'
-    error_code = 3
+    message_code = 3
 
 
 class Fail(APIException):
     code = 400
     message = 'Failed'
-    error_code = 10200
+    message_code = 10200
 
 
 class UnAuthorization(APIException):
     code = 401
     message = 'Authorization Failed'
-    error_code = 10000
+    message_code = 10000
 
 
 class UnAuthentication(APIException):
     code = 401
     message = 'Authentication Failed'
-    error_code = 10010
+    message_code = 10010
 
 
 class NotFound(APIException):
     code = 404
     message = 'Not Found'
-    error_code = 10021
+    message_code = 10021
 
 
 class ParameterError(APIException):
     code = 400
     message = 'Parameters Error'
-    error_code = 10030
+    message_code = 10030
 
 
 class TokenInvalid(APIException):
     code = 401
     message = 'Token Invalid'
-    error_code = 10040
+    message_code = 10040
 
 
 class TokenExpired(APIException):
     code = 422
     message = 'Token Expired'
-    error_code = 10052
+    message_code = 10052
 
 
 class InternalServerError(APIException):
     code = 500
     message = 'Internal Server Error'
-    error_code = 9999
+    message_code = 9999
 
 
 class Duplicated(APIException):
     code = 400
     message = 'Duplicated'
-    error_code = 10060
+    message_code = 10060
 
 
 class Forbidden(APIException):
     code = 401
     message = 'Forbidden'
-    error_code = 10070
+    message_code = 10070
 
 
 class RefreshFailed(APIException):
     code = 401
     message = 'Get Refresh Token Failed'
-    error_code = 10100
+    message_code = 10100
 
 
 class FileTooLarge(APIException):
     code = 413
     message = 'File Too Large'
-    error_code = 10110
+    message_code = 10110
 
 
 class FileTooMany(APIException):
     code = 413
     message = 'File Too Many'
-    error_code = 10120
+    message_code = 10120
 
 
 class FileExtensionError(APIException):
     code = 401
     message = 'FIle Extension Not Allowed'
-    error_code = 10130
+    message_code = 10130
 
 
 class MethodNotAllowed(APIException):
     code = 401
     message = 'Method Not Allowed'
-    error_code = 10080
+    message_code = 10080
 
 
 class RequestLimit(APIException):
     code = 401
     message = 'Too Many Requests'
-    error_code = 10140
+    message_code = 10140
+
+
+class RefreshException(APIException):
+    code = 401
+    message = "refresh token 获取失败"
+    message_code = 10042

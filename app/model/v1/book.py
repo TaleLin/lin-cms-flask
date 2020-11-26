@@ -3,10 +3,9 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin.exception import NotFound, ParameterError
+from app.common.exception import BookNotFound, BookParameterError
 from app.lin.interface import InfoCrud as Base
 from sqlalchemy import Column, String, Integer
-from app.lib.error_code import BookNotFound
 
 
 class Book(Base):
@@ -20,7 +19,7 @@ class Book(Base):
     def get_detail(cls, bid):
         book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound('没有找到相关书籍')
+            raise BookNotFound()
         return book
 
     @classmethod
@@ -41,7 +40,7 @@ class Book(Base):
         book = Book.query.filter_by(
             title=form.title.data, delete_time=None).first()
         if book is not None:
-            raise ParameterError('图书已存在')
+            raise BookParameterError("书籍已存在")
 
         Book.create(
             title=form.title.data,
@@ -56,7 +55,7 @@ class Book(Base):
     def edit_book(cls, bid, form):
         book = Book.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound('没有找到相关书籍')
+            raise BookNotFound()
 
         book.update(
             id=bid,
@@ -72,7 +71,7 @@ class Book(Base):
     def remove_book(cls, bid):
         book = cls.query.filter_by(id=bid, delete_time=None).first()
         if book is None:
-            raise NotFound('没有找到相关书籍')
+            raise BookNotFound()
         # 删除图书，软删除
         book.delete(commit=True)
         return True

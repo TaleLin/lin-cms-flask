@@ -6,10 +6,9 @@
 """
 from operator import and_
 
-from app.lib.error_code import RefreshException
 from app.lin.core import manager, permission_meta
 from app.lin.db import db
-from app.lin.exception import (Duplicated, Fail, NotFound, ParameterError,
+from app.lin.exception import (RefreshException, Duplicated, Fail, NotFound, ParameterError,
                                Success)
 from app.lin.jwt import admin_required, get_tokens, login_required
 from app.lin.log import Logger
