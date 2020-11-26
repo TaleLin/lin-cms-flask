@@ -7,7 +7,7 @@
 
 from app.lin import group_required, login_required, permission_meta
 from app.lin.exception import Success
-from app.lin.interface import ViewModel
+from app.lin.interface import LinModel
 from app.lin.jwt import login_required
 from app.lin.redprint import Redprint
 from app.model.v1.book import Book
@@ -17,9 +17,9 @@ from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
 book_api = Redprint('book')
 
 
-class BookViewModel(ViewModel):
+class BookViewModel(LinModel):
     '''
-    继承ViewModel类可以自动序列化
+    继承LinModel类可以自动序列化
     '''
 
     def __init__(self, book):

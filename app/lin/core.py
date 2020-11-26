@@ -4,7 +4,7 @@
 
      manager and main db models.
 
-    :copyright: © 2018 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 import json
@@ -24,7 +24,7 @@ from .config import Config
 from .db import MixinJSONSerializer, db
 from .exception import (APIException, InternalServerError, NotFound,
                         ParameterError, UnAuthentication)
-from .interface import UserInterface, ViewModel
+from .interface import UserInterface, LinModel
 from .jwt import jwt
 from .logger import LinLog
 
@@ -35,7 +35,7 @@ class Flask(_Flask):
         """
         将视图函数返回的值转换为flask内置支持的类型
         """
-        if isinstance(rv, (MixinJSONSerializer, ViewModel)):
+        if isinstance(rv, (MixinJSONSerializer, LinModel)):
             rv = jsonify(rv)
         elif isinstance(rv, (int, list, set)):
             rv = json.dumps(rv, cls=JSONEncoder)

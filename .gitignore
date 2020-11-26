@@ -51,7 +51,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-token.json
+test.json
 .coverage.*
 .cache
 nosetests.xml

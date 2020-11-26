@@ -1,5 +1,5 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -25,8 +25,6 @@ class ProductionSecure(BaseConfig):
     """
     # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../lincms.db'
-
-
 
     SQLALCHEMY_ECHO = False
 

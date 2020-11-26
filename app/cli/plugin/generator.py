@@ -1,13 +1,12 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import argparse
 import os
 
 banner = """
 \"""
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 \"""
 """
@@ -63,11 +62,5 @@ def create_plugin(name: str):
     open(os.path.join(appdir, "model.py"), mode="x", encoding="utf-8")
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        usage="it's usage tip.", description="help info.")
-    parser.add_argument("-n", "--name", default="tpl",
-                        help="the name of plugin", dest="name")
-    args = parser.parse_args()
-    name = args.name
+def generate(name):
     create_plugin(name)

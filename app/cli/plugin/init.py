@@ -1,19 +1,7 @@
 """
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-if __name__ == "__main__":
-    import sys
-    import os
-    current_path = os.path.abspath(__file__)
-    # 获取当前文件的父目录
-    father_path = os.path.abspath(
-        os.path.dirname(current_path) + os.path.sep + ".")
-
-    os.chdir(father_path)
-    # 切换到项目根目录
-    sys.path.append("../../")
-
 import json
 import re
 from importlib import import_module
@@ -29,6 +17,8 @@ from app.app import create_app
 3、将model中的模型插入到数据库中
 4、如果有需要，将初始数据插入到数据表中
 """
+
+app = create_app(register_all=False)
 
 
 class PluginInit:
@@ -131,8 +121,8 @@ class PluginInit:
                     self.path_info[name]['plugin_path'] + '.app.__init__')
                 dir_info = dir(plugin_module)
             except ModuleNotFoundError as e:
-                raise Exception(str(e) + '\n未找到插件' + name +
-                                '，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包')
+                raise Exception(str(e) + '\n未找到插件' + name
+                                + '，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包')
             if 'initial_data' in dir_info:
                 plugin_module.initial_data()
         print('插件初始化成功')
@@ -367,7 +357,6 @@ class DependenciesResolve:
                 pass
 
 
-if __name__ == '__main__':
-    app = create_app(register_all=False)
+def init():
     plugin_name = input('请输入要初始化的插件名，如果多个插件请使用空格分隔插件名，输入*表示初始化所有插件:\n')
     PluginInit(plugin_name)
