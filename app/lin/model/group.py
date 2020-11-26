@@ -1,10 +1,9 @@
 import os
 
-from flask import current_app
-from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
-
 from app.lin import db, manager
-from app.lin.interface import BaseCrud, InfoCrud
+from app.lin.enums import GroupLevel
+from app.lin.interface import InfoCrud
+from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
 
 
 class Group(InfoCrud):
@@ -17,8 +16,8 @@ class Group(InfoCrud):
     level = Column(
         SmallInteger(),
         nullable=False,
-        server_default=text("3"),
-        comment='分组级别 1：root 2：guest 3：user  root（root、guest分组只能存在一个)')
+        server_default=text(str(GroupLevel.USER.value)),
+        comment='分组级别 1：ROOT 2：GUEST 3：USER （ROOT、GUEST Level 对应分组均唯一存在)')
 
     @ classmethod
     def select_by_user_id(cls, user_id) -> list:
