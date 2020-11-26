@@ -1,12 +1,22 @@
 """
-    :copyright: © 2020 by the Lin team.
-    :license: MIT, see LICENSE for more details.
-"""
+        :copyright: © 2020 by the Lin team.
+        :license: MIT, see LICENSE for more details.
+    """
+
+import os
+
+import click
+from flask.cli import AppGroup, with_appcontext
 
 from app.app import create_app
-import click
+from app.cli.db import fake as _db_fake, init as _db_init
+from app.cli.plugin import init as _plugin_init, generate as _plugin_generate
 
 app = create_app()
+
+db_cli = AppGroup("db")
+
+plugin_cli = AppGroup('plugin')
 
 
 @app.route('/', methods=['GET'], strict_slashes=False)
@@ -18,24 +28,47 @@ def lin_slogan():
     Lin <br/><span style="font-size:30px">心上无垢，林间有风。</span></p></div> """
 
 
-@app.cli.command("db")
-@click.argument("op")
-def db(op: str):
+@db_cli.command("init")
+def db_init():
     '''
-    Run database script
+    initialize database
     '''
-    if op == 'init':
-        from cli.db import init
-        init()
-    if op == 'fake':
-        from cli.db import fake
-        fake()
+    _db_init()
 
-@app.cli.command("test")
-def test():
+
+@db_cli.command("fake")
+def db_fake():
+    '''
+    fake db data
+    '''
+    _db_fake()
+
+
+@plugin_cli.command("init", with_appcontext=False)
+def plugin_init():
+    '''
+    initialize plugin
+    '''
+    _plugin_init()
+
+
+@plugin_cli.command("generate")
+@click.argument("name")
+def plugin_generate(name: str):
+    '''
+    generate plugin
+    '''
+    _plugin_generate(name)
+
+
+@click.command("test")
+def pytest():
     '''
     Run unit test with pytest
     '''
-    import os
     os.system('pytest')
 
+
+app.cli.add_command(db_cli)
+app.cli.add_command(plugin_cli)
+app.cli.add_command(pytest)

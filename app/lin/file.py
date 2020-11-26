@@ -4,7 +4,7 @@
 
     uploader 模块，使用策略模式实现的上传文件接口
 
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 import hashlib
@@ -170,8 +170,8 @@ class Uploader(object):
             for single in self._file_storage:
                 if self._get_size(single) > self._single_limit:
                     raise FileTooLarge(
-                        single.filename + '大小不能超过' +
-                        str(self._single_limit) + '字节'
+                        single.filename + '大小不能超过'
+                        + str(self._single_limit) + '字节'
                     )
                 total_size += self._get_size(single)
             if total_size > self._total_limit:

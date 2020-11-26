@@ -4,7 +4,7 @@
 
     logger 模块，记录系统日志
 
-    :copyright: © 2019 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 import datetime
@@ -31,10 +31,10 @@ class LinLog:
             )
             logging.basicConfig(level=logging.DEBUG)
             self._handler = LinRotatingFileHandler(
-                    log_dir=self._log_config['DIR'],
-                    max_bytes=self._log_config['SIZE_LIMIT'],
-                    encoding='UTF-8'
-                )
+                log_dir=self._log_config['DIR'],
+                max_bytes=self._log_config['SIZE_LIMIT'],
+                encoding='UTF-8'
+            )
             self._handler.setFormatter(fmt)
             self._handler.setLevel(level=logging.DEBUG)
             self._app.logger.addHandler(self._handler)

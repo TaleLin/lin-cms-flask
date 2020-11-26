@@ -5,7 +5,7 @@
 
     interface means you must implement the necessary methods and inherit properties.
 
-    :copyright: © 2018 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 import os
@@ -215,7 +215,7 @@ class UserInterface(InfoCrud):
         raise Exception('must implement this method')
 
 
-class ViewModel:
+class LinModel:
     # 提供自动序列化功能
     def keys(self):
         return self.__dict__.keys()

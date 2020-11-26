@@ -4,7 +4,7 @@
 
     Redprint make blueprint more fine-grained
 
-    :copyright: © 2018 by the Lin team.
+    :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
 
