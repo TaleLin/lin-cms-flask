@@ -30,19 +30,24 @@ def lin_slogan():
 
 
 @db_cli.command("init")
-def db_init():
+@click.option('--force', is_flag=True, help='Create after drop.')
+def db_init(force):
     '''
-    initialize database
+    initialize the database.
     '''
-    _db_init()
+    if force:
+        click.confirm("此操作将清空数据，是否继续?", abort=True)
+    _db_init(force)
+    click.echo("数据库初始化成功")
 
 
 @db_cli.command("fake")
 def db_fake():
     '''
-    fake db data
+    fake the db data.
     '''
     _db_fake()
+    click.echo("fake数据添加成功")
 
 
 @plugin_cli.command("init", with_appcontext=False)
@@ -53,7 +58,7 @@ def plugin_init():
     _plugin_init()
 
 
-@plugin_cli.command("generate")
+@plugin_cli.command("generate", with_appcontext=False)
 @click.argument("name")
 def plugin_generate(name: str):
     '''

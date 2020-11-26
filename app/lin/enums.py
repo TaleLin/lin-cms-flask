@@ -19,3 +19,9 @@ class UserAdmin(Enum):
 class UserActive(Enum):
     ACTIVE = 1
     NOT_ACTIVE = 2
+
+
+class GroupLevel(Enum):
+    ROOT = 1
+    GUEST = 2
+    USER = 3

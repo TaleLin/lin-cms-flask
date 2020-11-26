@@ -10,7 +10,7 @@ from app.lin.utils import get_page_from_query, paginate
 from app.lin import db
 from app.lin.core import find_user, get_ep_infos, manager, permission_meta
 from app.lin.db import get_total_nums
-from app.lin.enums import UserActive, UserAdmin
+from app.lin.enums import GroupLevel, UserActive, UserAdmin
 from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
 from app.lin.log import Logger
@@ -114,12 +114,16 @@ def change_user_password(uid):
 
 @admin_api.route('/user/<int:uid>', methods=['DELETE'])
 @permission_meta(auth='删除用户', module='管理员', mount=False)
-@Logger(template='管理员删除了一个用户')  # 记录日志
+@Logger(template='管理员删除了一个用户')
 @admin_required
 def delete_user(uid):
     user = manager.user_model.get(id=uid)
     if user is None:
         raise NotFound('用户不存在')
+    groups = manager.group_model.select_by_user_id(uid)
+    # 超级管理员分组的用户仅有一个分组
+    if groups[0].level == GroupLevel.ROOT.value:
+        raise Forbidden('无法删除此用户')
     with db.auto_commit():
         manager.user_group_model.query.filter_by(
             user_id=uid).delete(synchronize_session=False)
@@ -148,9 +152,10 @@ def update_user(uid):
             user_id=user.id).delete(synchronize_session=False)
         # 根据传入分组ids 新增关联记录
         user_group_list = list()
-        # 如果没传分组数据，则将其设定为 id 2 的 guest 分组
+        # 如果没传分组数据，则将其设定为 guest 分组
         if len(group_ids) == 0:
-            group_ids = [2]
+            group_ids = [manager.group_model.get(
+                level=GroupLevel.GUEST.value).id]
         for group_id in group_ids:
             user_group = manager.user_group_model()
             user_group.user_id = user.id
@@ -255,12 +260,14 @@ def update_group(gid):
 @Logger(template='管理员删除一个分组')  # 记录日志
 @admin_required
 def delete_group(gid):
-    if gid == 2:
-        raise Forbidden('guest分组不可删除')
     exist = manager.group_model.get(id=gid)
     if not exist:
         raise NotFound('分组不存在，删除失败')
-    if manager.user_model.select_page_by_group_id(gid, 1):
+    guest_group = manager.group_model.get(level=GroupLevel.GUEST.value)
+    root_group = manager.group_model.get(level=GroupLevel.ROOT.value)
+    if gid in (guest_group.id, root_group.id):
+        raise Forbidden('不可删除此分组')
+    if manager.user_model.select_page_by_group_id(gid, root_group.id):
         raise Forbidden('分组下存在用户，不可删除')
     with db.auto_commit():
         # 删除group id 对应的关联记录

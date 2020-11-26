@@ -18,6 +18,7 @@ from flask.json import JSONEncoder as _JSONEncoder
 from flask.wrappers import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
+from sqlalchemy.exc import OperationalError
 
 from .config import Config
 from .db import MixinJSONSerializer, db
@@ -158,7 +159,7 @@ class Lin(object):
                  permission_model=None,  # permission model, default None
                  group_permission_model=None,  # group permission 多对多关联模型
                  user_group_model=None,  # user group 多对多关联模型
-                 create_all=True,  # 是否创建所有数据库表, default true
+                 create_all=False,  # 是否创建所有数据库表, default true
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
                  json_encoder=True,  # 是否使用自定义的json_encoder , default True
@@ -225,7 +226,6 @@ class Lin(object):
         self.app.extensions['manager'] = self.manager
         db.init_app(app)
         create_all and self._enable_create_all(app)
-        self._check_db_init(app)
         jwt.init_app(app)
         mount and self.mount(app)
         handle and self.handle_error(app)
@@ -234,54 +234,57 @@ class Lin(object):
 
     def init_permissions(self, app):
         with app.app_context():
-            permissions = manager.permission_model.get(one=False)
-            # 新增的权限记录
-            new_added_permissions = list()
-            deleted_ids = [permission.id for permission in permissions]
-            # mount-> unmount 的记录
-            unmounted_ids = list()
-            # unmount-> mount 的记录
-            mounted_ids = list()
-            # 用代码中记录的权限比对数据库中的权限
-            for ep, meta in self.manager.ep_meta.items():
-                name, module, mount = meta
-                # db_existed 判定 代码中的权限是否存在于权限表记录中
-                db_existed = False
-                for permission in permissions:
-                    if permission.name == name and permission.module == module:
-                        # 此条记录存在，不会被删除
-                        deleted_ids.remove(permission.id)
-                        # 此条记录存在，不需要添加到权限表
-                        db_existed = True
-                        # 判定mount的变动情况，将记录id添加到对应的列表中
-                        if permission.mount != mount:
-                            if mount:
-                                mounted_ids.append(permission.id)
-                            else:
-                                unmounted_ids.append(permission.id)
-                        break
-                # 遍历结束，代码中的记录不存在于已有的权限表中，则将其添加到新增权限记录列表
-                if not db_existed:
-                    permission = self.manager.permission_model()
-                    permission.name = name
-                    permission.module = module
-                    permission.mount = mount
-                    new_added_permissions.append(permission)
-            with db.auto_commit():
-                if new_added_permissions:
-                    db.session.add_all(new_added_permissions)
-                if unmounted_ids:
-                    manager.permission_model.query.filter(
-                        manager.permission_model.id.in_(unmounted_ids)).update({"mount": False}, synchronize_session=False)
-                if mounted_ids:
-                    manager.permission_model.query.filter(
-                        manager.permission_model.id.in_(mounted_ids)).update({"mount": True}, synchronize_session=False)
-                if deleted_ids:
-                    manager.permission_model.query.filter(manager.permission_model.id.in_(
-                        deleted_ids)).delete(synchronize_session=False)
-                    # 分组-权限关联表中的数据也要清理
-                    manager.group_permission_model.query.filter(manager.group_permission_model.permission_id.in_(
-                        deleted_ids)).delete(synchronize_session=False)
+            try:
+                permissions = manager.permission_model.get(one=False)
+                # 新增的权限记录
+                new_added_permissions = list()
+                deleted_ids = [permission.id for permission in permissions]
+                # mount-> unmount 的记录
+                unmounted_ids = list()
+                # unmount-> mount 的记录
+                mounted_ids = list()
+                # 用代码中记录的权限比对数据库中的权限
+                for ep, meta in self.manager.ep_meta.items():
+                    name, module, mount = meta
+                    # db_existed 判定 代码中的权限是否存在于权限表记录中
+                    db_existed = False
+                    for permission in permissions:
+                        if permission.name == name and permission.module == module:
+                            # 此条记录存在，不会被删除
+                            deleted_ids.remove(permission.id)
+                            # 此条记录存在，不需要添加到权限表
+                            db_existed = True
+                            # 判定mount的变动情况，将记录id添加到对应的列表中
+                            if permission.mount != mount:
+                                if mount:
+                                    mounted_ids.append(permission.id)
+                                else:
+                                    unmounted_ids.append(permission.id)
+                            break
+                    # 遍历结束，代码中的记录不存在于已有的权限表中，则将其添加到新增权限记录列表
+                    if not db_existed:
+                        permission = self.manager.permission_model()
+                        permission.name = name
+                        permission.module = module
+                        permission.mount = mount
+                        new_added_permissions.append(permission)
+                with db.auto_commit():
+                    if new_added_permissions:
+                        db.session.add_all(new_added_permissions)
+                    if unmounted_ids:
+                        manager.permission_model.query.filter(
+                            manager.permission_model.id.in_(unmounted_ids)).update({"mount": False}, synchronize_session=False)
+                    if mounted_ids:
+                        manager.permission_model.query.filter(
+                            manager.permission_model.id.in_(mounted_ids)).update({"mount": True}, synchronize_session=False)
+                    if deleted_ids:
+                        manager.permission_model.query.filter(manager.permission_model.id.in_(
+                            deleted_ids)).delete(synchronize_session=False)
+                        # 分组-权限关联表中的数据也要清理
+                        manager.group_permission_model.query.filter(manager.group_permission_model.permission_id.in_(
+                            deleted_ids)).delete(synchronize_session=False)
+            except OperationalError:
+                pass
 
     def mount(self, app):
         # 加载默认插件路由
@@ -328,11 +331,6 @@ class Lin(object):
     def _enable_create_all(self, app):
         with app.app_context():
             db.create_all()
-
-    def _check_db_init(self, app):
-        with app.app_context():
-            if not manager.user_model.query.all():
-                print("当前用户表中无记录")
 
 
 class Manager(object):

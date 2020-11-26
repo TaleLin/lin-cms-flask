@@ -4,35 +4,38 @@
 """
 from app.lin.core import manager
 from app.lin.db import db
-import os
+from app.lin.enums import GroupLevel
 
 
-def init():
-    if manager.user_model.query.all() or manager.user_group_model.query.all() or manager.group_model.query.all():
+def init(force=False):
+    db.create_all()
+    if force:
+        db.drop_all()
+        db.create_all()
+    elif manager.user_model.get(one=False) or manager.user_group_model.get(one=False) or manager.group_model.get(one=False):
         exit("表中存在数据，初始化失败")
     with db.auto_commit():
         # 创建一个超级管理员分组
         root_group = manager.group_model()
-        root_group.name = "root"
+        root_group.name = "Root"
         root_group.info = "超级用户组"
-        root_group.level = 1
+        root_group.level = GroupLevel.ROOT.value
         db.session.add(root_group)
         # 创建一个超级管理员
-        user = manager.user_model()
-        user.username = 'root'
-        user.password = '123456'
-        user.email = '123456789@qq.com'
-        user.admin = 2
-        db.session.add(user)
-        # root用户id为1， 超级管理员分组id为1, 将对应关系写入user_group表中
+        root = manager.user_model()
+        root.username = 'root'
+        root.password = '123456'
+        root.admin = 2
+        db.session.add(root)
+        db.session.flush()
+        # root用户 and  超级管理员分组 对应关系写入user_group表中
         user_group = manager.user_group_model()
-        user_group.user_id = 1
-        user_group.group_id = 1
+        user_group.user_id = root.id
+        user_group.group_id = root_group.id
         db.session.add(user_group)
-        # 添加 默认用户组 guest
+        # 添加 默认游客组
         guest_group = manager.group_model()
-        guest_group.name = "guest"
+        guest_group.name = "Guest"
         guest_group.info = "游客组"
-        guest_group.level = 2
+        guest_group.level = GroupLevel.GUEST.value
         db.session.add(guest_group)
-    print("数据库初始化成功")
