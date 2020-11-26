@@ -13,7 +13,7 @@ from app.lin.exception import (RefreshException, Duplicated, Fail, NotFound, Par
 from app.lin.jwt import admin_required, get_tokens, login_required
 from app.lin.log import Logger
 from app.lin.redprint import Redprint
-from app.model.cms.log import Log
+from app.lin.model.log import Log
 from app.validator.form import (ChangePasswordForm, LoginForm, RegisterForm,
                                 UpdateInfoForm)
 from flask_jwt_extended import (create_access_token, create_refresh_token,

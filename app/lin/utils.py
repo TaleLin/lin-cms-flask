@@ -9,7 +9,6 @@
 """
 import errno
 import importlib.util
-import inspect
 import os
 import random
 import re

@@ -12,7 +12,7 @@ from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.lin.utils import paginate
-from app.model.cms.log import Log
+from app.lin.model.log import Log
 from app.validator.form import LogFindForm
 from flask import request
 from sqlalchemy import text
