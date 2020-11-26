@@ -21,11 +21,21 @@ from werkzeug.local import LocalProxy
 
 from .config import Config
 from .db import MixinJSONSerializer, db
-from .exception import (APIException, InternalServerError, NotFound,
-                        ParameterError, UnAuthentication)
-from .interface import UserInterface, LinModel
+from .exception import APIException, InternalServerError
+from .interface import LinModel
 from .jwt import jwt
 from .logger import LinLog
+
+
+class JSONEncoder(_JSONEncoder):
+    def default(self, o):
+        if hasattr(o, 'keys') and hasattr(o, '__getitem__'):
+            return dict(o)
+        if isinstance(o, datetime):
+            return o.strftime('%Y-%m-%dT%H:%M:%SZ')
+        if isinstance(o, date):
+            return o.strftime('%Y-%m-%d')
+        return JSONEncoder.default(self, o)
 
 
 class Flask(_Flask):
@@ -144,10 +154,11 @@ class Lin(object):
                  app: Flask = None,  # flask app , default None
                  group_model=None,  # group model, default None
                  user_model=None,  # user model, default None
+                 identity_model=None,  # user identity model,default None
                  permission_model=None,  # permission model, default None
                  group_permission_model=None,  # group permission 多对多关联模型
                  user_group_model=None,  # user group 多对多关联模型
-                 create_all=True,  # 是否创建所有数据库表, default false
+                 create_all=True,  # 是否创建所有数据库表, default true
                  mount=True,  # 是否挂载默认的蓝图, default True
                  handle=True,  # 是否使用全局异常处理, default True
                  json_encoder=True,  # 是否使用自定义的json_encoder , default True
@@ -160,6 +171,7 @@ class Lin(object):
             self.init_app(app,
                           group_model,
                           user_model,
+                          identity_model,
                           permission_model,
                           group_permission_model,
                           user_group_model,
@@ -174,6 +186,7 @@ class Lin(object):
                  app: Flask,
                  group_model=None,
                  user_model=None,
+                 identity_model=None,
                  permission_model=None,
                  group_permission_model=None,
                  user_group_model=None,
@@ -204,6 +217,7 @@ class Lin(object):
         self.manager = Manager(app.config.get('PLUGIN_PATH'),
                                group_model,
                                user_model,
+                               identity_model,
                                permission_model,
                                group_permission_model,
                                user_group_model
@@ -211,6 +225,7 @@ class Lin(object):
         self.app.extensions['manager'] = self.manager
         db.init_app(app)
         create_all and self._enable_create_all(app)
+        self._check_db_init(app)
         jwt.init_app(app)
         mount and self.mount(app)
         handle and self.handle_error(app)
@@ -314,6 +329,11 @@ class Lin(object):
         with app.app_context():
             db.create_all()
 
+    def _check_db_init(self, app):
+        with app.app_context():
+            if not manager.user_model.query.all():
+                print("当前用户表中无记录")
+
 
 class Manager(object):
     """ manager for lin """
@@ -325,6 +345,7 @@ class Manager(object):
                  plugin_path,
                  group_model=None,
                  user_model=None,
+                 identity_model=None,
                  permission_model=None,
                  group_permission_model=None,
                  user_group_model=None
@@ -336,6 +357,7 @@ class Manager(object):
             self.group_model = group_model
 
         if not user_model:
+            from .model.user import User
             self.user_model = User
         else:
             self.user_model = user_model
@@ -357,6 +379,12 @@ class Manager(object):
             self.user_group_model = UserGroup
         else:
             self.user_group_model = user_group_model
+
+        if not identity_model:
+            from .model.user_identity import UserIdentity
+            self.identity_model = UserIdentity
+        else:
+            self.identity_model = identity_model
 
         from .loader import Loader
         self.loader: Loader = Loader(plugin_path)
@@ -406,53 +434,3 @@ def get_manager():
         app = current_app._get_current_object()
         with app.app_context():
             return app.extensions['manager']
-
-
-class User(UserInterface, db.Model):
-
-    @classmethod
-    def verify(cls, username, password):
-        user = cls.query.filter_by(username=username).first()
-        if user is None or user.delete_time is not None:
-            raise NotFound('用户不存在')
-        if not user.check_password(password):
-            raise ParameterError('密码错误，请输入正确密码')
-        if not user.is_active:
-            raise UnAuthentication('您目前处于未激活状态，请联系超级管理员')
-        return user
-
-    def reset_password(self, new_password):
-        #: attention,remember to commit
-        #: 注意，修改密码后记得提交至数据库
-        self.password = new_password
-
-    def change_password(self, old_password, new_password):
-        #: attention,remember to commit
-        #: 注意，修改密码后记得提交至数据库
-        if self.check_password(old_password):
-            self.password = new_password
-            return True
-        return False
-
-    @classmethod
-    def select_page_by_group_id(cls, group_id, root_group_id) -> list:
-        '''
-        通过分组id分页获取用户数据
-        '''
-        query = db.session.query(manager.user_group_model.user_id).filter(
-            manager.user_group_model.group_id == group_id,
-            manager.user_group_model.group_id != root_group_id)
-        result = cls.query.filter_by(soft=True).filter(cls.id.in_(query))
-        users = result.all()
-        return users
-
-
-class JSONEncoder(_JSONEncoder):
-    def default(self, o):
-        if hasattr(o, 'keys') and hasattr(o, '__getitem__'):
-            return dict(o)
-        if isinstance(o, datetime):
-            return o.strftime('%Y-%m-%dT%H:%M:%SZ')
-        if isinstance(o, date):
-            return o.strftime('%Y-%m-%d')
-        return JSONEncoder.default(self, o)
