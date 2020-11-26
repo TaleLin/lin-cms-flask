@@ -9,6 +9,10 @@
 '''
 
 
+import inspect
+import types
+
+
 class MultiMethod:
     '''
     Represents a single multimethod.

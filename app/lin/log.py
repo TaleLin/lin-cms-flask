@@ -11,7 +11,7 @@
 import re
 from functools import wraps
 
-from app.model.cms.log import Log
+from app.lin.model.log import Log
 from flask import Response, request
 from flask_jwt_extended import get_current_user
 

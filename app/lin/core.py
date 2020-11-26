@@ -11,7 +11,6 @@ import json
 from collections import namedtuple
 from datetime import date, datetime
 
-from app.model.cms import Group, GroupPermission, Permission, UserGroup
 from flask import Blueprint
 from flask import Flask as _Flask
 from flask import current_app, g, jsonify, request
@@ -331,6 +330,7 @@ class Manager(object):
                  user_group_model=None
                  ):
         if not group_model:
+            from .model.group import Group
             self.group_model = Group
         else:
             self.group_model = group_model
@@ -341,16 +341,19 @@ class Manager(object):
             self.user_model = user_model
 
         if not permission_model:
+            from .model.permission import Permission
             self.permission_model = Permission
         else:
             self.permission_model = permission_model
 
         if not group_permission_model:
+            from .model.group_permission import GroupPermission
             self.group_permission_model = GroupPermission
         else:
             self.group_permission_model = group_permission_model
 
         if not user_group_model:
+            from .model.user_group import UserGroup
             self.user_group_model = UserGroup
         else:
             self.user_group_model = user_group_model
