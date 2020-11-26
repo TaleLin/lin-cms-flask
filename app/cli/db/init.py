@@ -9,8 +9,7 @@ import os
 
 def init():
     if manager.user_model.query.all() or manager.user_group_model.query.all() or manager.group_model.query.all():
-        print("表中存在数据，初始化失败")
-        return
+        exit("表中存在数据，初始化失败")
     with db.auto_commit():
         # 创建一个超级管理员分组
         root_group = manager.group_model()

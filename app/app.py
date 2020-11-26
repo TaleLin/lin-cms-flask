@@ -61,7 +61,7 @@ def register_after_request(app):
         return resp
 
 
-def create_app(register_all=True):
+def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder='./assets')
     # 兼容 其他HTTP Server, 手动读取环境配置
     load_dotenv('.flaskenv')
@@ -73,7 +73,7 @@ def create_app(register_all=True):
     app.config.from_object('app.config.log')
     if register_all:
         register_blueprints(app)
-        Lin(app)
+        Lin(app, **kwargs)
         register_before_request(app)
         register_after_request(app)
         apply_cors(app)
