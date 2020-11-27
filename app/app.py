@@ -71,6 +71,8 @@ def create_app(register_all=True, **kwargs):
     app.config.from_object('app.config.secure.{}Secure'.format(flask_env))
     # 读取日志配置
     app.config.from_object('app.config.log')
+    # 读取message code 配置
+    app.config.from_object('app.config.message')
     if register_all:
         register_blueprints(app)
         Lin(app, **kwargs)
