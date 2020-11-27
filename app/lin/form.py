@@ -24,6 +24,7 @@ class Form(WTForm):
     def validate_for_api(self):
         valid = super(Form, self).validate()
         if not valid:
+            print(self.errors, type(self.errors))
             raise ParameterError(self.errors)
         return self
 

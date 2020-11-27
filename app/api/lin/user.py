@@ -29,12 +29,11 @@ user_api = Redprint('user')
 @admin_required
 def register():
     form = RegisterForm().validate_for_api()
-    # TODO model更新后开放注释
-    # if manager.user_model.count_by_username(form.username.data) > 0:
-    #     raise Duplicated('用户名重复，请重新输入')
-    # if form.email.data and form.email.data.strip() != "":
-    #     if manager.user_model.count_by_email(form.email.data) > 0:
-    #         raise Duplicated('注册邮箱重复，请重新输入')
+    if manager.user_model.count_by_username(form.username.data) > 0:
+        raise Duplicated('用户名重复，请重新输入')
+    if form.email.data and form.email.data.strip() != "":
+        if manager.user_model.count_by_email(form.email.data) > 0:
+            raise Duplicated('注册邮箱重复，请重新输入')
     _register_user(form)
     return Success('用户创建成功')
 

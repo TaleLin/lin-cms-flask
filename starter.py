@@ -11,9 +11,11 @@ from flask.cli import AppGroup
 from app.app import create_app
 from app.cli.db import fake as _db_fake, init as _db_init
 from app.cli.plugin import init as _plugin_init, generate as _plugin_generate
-from app.model.cms.user import User
+from app.model.lin import (Group, GroupPermission,
+                           Permission, User, UserGroup, UserIdentity)
 
-app = create_app()
+app = create_app(group_model=Group, user_model=User, group_permission_model=GroupPermission,
+                 permission_model=Permission, identity_model=UserIdentity, user_group_model=UserGroup)
 
 db_cli = AppGroup("db")
 

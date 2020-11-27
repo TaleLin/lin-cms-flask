@@ -9,8 +9,7 @@ import math
 from app.lin.utils import get_page_from_query, paginate
 from app.lin import db
 from app.lin.core import find_user, get_ep_infos, manager, permission_meta
-from app.lin.db import get_total_nums
-from app.lin.enums import GroupLevel, UserActive, UserAdmin
+from app.lin.enums import GroupLevelEnum
 from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
 from app.lin.log import Logger
@@ -39,8 +38,10 @@ def get_admin_users():
     group_id = request.args.get('group_id')
     # 根据筛选条件和分页，获取 用户id 与 用户组id 的一对多 数据
     # 过滤root 分组
+    query_root_group_id = db.session.query(manager.group_model.id).filter(
+        manager.group_model.level == GroupLevelEnum.ROOT.value)
     _user_groups_list = db.session.query(manager.user_group_model.user_id.label('user_id'), func.group_concat(
-        manager.user_group_model.group_id).label('group_ids')).filter(manager.user_group_model.group_id != 1)
+        manager.user_group_model.group_id).label('group_ids')).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
     if group_id:
         _user_groups_list = _user_groups_list.filter(
             manager.user_group_model.group_id == group_id)
@@ -50,7 +51,7 @@ def get_admin_users():
     # 获取 符合条件的 用户id 数量
     # 过滤root 分组
     _total = db.session.query(func.count(
-        func.distinct(manager.user_group_model.user_id))).filter(manager.user_group_model.group_id != 1)
+        func.distinct(manager.user_group_model.user_id))).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
     if group_id:
         _total = _total.filter(manager.user_group_model.group_id == group_id)
     total = _total.scalar()
@@ -122,7 +123,7 @@ def delete_user(uid):
         raise NotFound('用户不存在')
     groups = manager.group_model.select_by_user_id(uid)
     # 超级管理员分组的用户仅有一个分组
-    if groups[0].level == GroupLevel.ROOT.value:
+    if groups[0].level == GroupLevelEnum.ROOT.value:
         raise Forbidden('无法删除此用户')
     with db.auto_commit():
         manager.user_group_model.query.filter_by(
@@ -155,7 +156,7 @@ def update_user(uid):
         # 如果没传分组数据，则将其设定为 guest 分组
         if len(group_ids) == 0:
             group_ids = [manager.group_model.get(
-                level=GroupLevel.GUEST.value).id]
+                level=GroupLevelEnum.GUEST.value).id]
         for group_id in group_ids:
             user_group = manager.user_group_model()
             user_group.user_id = user.id
@@ -171,7 +172,7 @@ def update_user(uid):
 def get_admin_groups():
     start, count = paginate()
     groups = manager.group_model.query.filter(
-        manager.group_model.level != 1).offset(start).limit(count).all()
+        manager.group_model.level != GroupLevelEnum.ROOT.value).offset(start).limit(count).all()
     if groups is None:
         raise NotFound('不存在任何分组')
 
@@ -181,7 +182,8 @@ def get_admin_groups():
         group._fields.append('permissions')
 
     # root分组隐藏不显示
-    total = get_total_nums(manager.group_model) - 1
+    total = db.session.query(func.count(manager.group_model.id)).filter(
+        manager.group_model.level != GroupLevelEnum.ROOT.value, manager.group_model.delete_time == None).scalar()
     total_page = math.ceil(total / count)
     page = get_page_from_query()
 
@@ -198,8 +200,8 @@ def get_admin_groups():
 @permission_meta(auth='查询所有分组', module='管理员', mount=False)
 @admin_required
 def get_all_group():
-    groups = manager.group_model.query.filter(
-        manager.group_model.level != 1).all()
+    groups = manager.group_model.query.filter(manager.group_model.delete_time == None,
+                                              manager.group_model.level != GroupLevelEnum.ROOT.value).all()
     if groups is None:
         raise NotFound('不存在任何分组')
     return groups
@@ -263,8 +265,8 @@ def delete_group(gid):
     exist = manager.group_model.get(id=gid)
     if not exist:
         raise NotFound('分组不存在，删除失败')
-    guest_group = manager.group_model.get(level=GroupLevel.GUEST.value)
-    root_group = manager.group_model.get(level=GroupLevel.ROOT.value)
+    guest_group = manager.group_model.get(level=GroupLevelEnum.GUEST.value)
+    root_group = manager.group_model.get(level=GroupLevelEnum.ROOT.value)
     if gid in (guest_group.id, root_group.id):
         raise Forbidden('不可删除此分组')
     if manager.user_model.select_page_by_group_id(gid, root_group.id):

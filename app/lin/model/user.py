@@ -5,7 +5,7 @@ from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
 
 from app.lin import db, manager
 from app.lin.interface import BaseCrud, InfoCrud
-from app.lin.enums import GroupLevel
+from app.lin.enums import GroupLevelEnum
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -74,7 +74,7 @@ class User(InfoCrud):
 
     @property
     def is_admin(self):
-        return manager.user_group_model.get(user_id=self.id).group_id == GroupLevel.ROOT.value
+        return manager.user_group_model.get(user_id=self.id).group_id == GroupLevelEnum.ROOT.value
 
     @property
     def is_active(self):

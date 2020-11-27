@@ -16,7 +16,7 @@ from app.lin.core import Flask, g, request
 
 
 def register_blueprints(app):
-    from app.api.cms import create_cms
+    from app.api.lin import create_cms
     from app.api.v1 import create_v1
     app.register_blueprint(create_v1(), url_prefix='/v1')
     app.register_blueprint(create_cms(), url_prefix='/cms')
@@ -63,12 +63,12 @@ def register_after_request(app):
 
 def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder='./assets')
-    # 兼容 其他HTTP Server, 手动读取环境配置
+    # 兼容 其他HTTP Server托管启动, 手动读取环境配置
+    load_dotenv('.env')
     load_dotenv('.flaskenv')
     # 根据传入环境加载对应配置类
-    flask_env = os.getenv('FLASK_ENV', 'production').capitalize()
-    app.config.from_object('app.config.setting.{}Config'.format(flask_env))
-    app.config.from_object('app.config.secure.{}Secure'.format(flask_env))
+    app.config.from_object('app.config.setting.{env}Config'.format(
+        env=app.config.get("ENV").capitalize()))
     # 读取日志配置
     app.config.from_object('app.config.log')
     # 读取code message 配置

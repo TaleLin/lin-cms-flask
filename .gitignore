@@ -1,3 +1,6 @@
+# .env 中记录了私密配置
+# .env
+
 .DS_Store
 .idea
 .vscode
@@ -115,7 +118,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/

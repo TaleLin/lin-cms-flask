@@ -12,12 +12,10 @@ import os
 from datetime import datetime
 
 from flask import current_app
-from sqlalchemy import (Column, DateTime, FetchedValue, Index, Integer,
-                        SmallInteger, String, func, text)
+from sqlalchemy import (Column, DateTime, func, text)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import MixinJSONSerializer, db
-from .enums import UserActive, UserAdmin
 from .utils import camel2line
 
 
