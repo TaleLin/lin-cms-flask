@@ -11,7 +11,7 @@ from sqlalchemy import Column, String, Integer
 class Book(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(50), nullable=False)
-    author = Column(String(30), default='未名')
+    author = Column(String(30), default="未名")
     summary = Column(String(1000))
     image = Column(String(50))
 
@@ -29,16 +29,16 @@ class Book(Base):
 
     @classmethod
     def search_by_keywords(cls, q):
-        books = cls.query.filter(Book.title.like(
-            '%' + q + '%'), Book.delete_time == None).all()
+        books = cls.query.filter(
+            Book.title.like("%" + q + "%"), Book.delete_time == None
+        ).all()
         if not books:
             raise BookNotFound()
         return books
 
     @classmethod
     def new_book(cls, form):
-        book = Book.query.filter_by(
-            title=form.title.data, delete_time=None).first()
+        book = Book.query.filter_by(title=form.title.data, delete_time=None).first()
         if book is not None:
             raise BookParameterError("书籍已存在")
 
@@ -47,7 +47,7 @@ class Book(Base):
             author=form.author.data,
             summary=form.summary.data,
             image=form.image.data,
-            commit=True
+            commit=True,
         )
         return True
 
@@ -63,7 +63,7 @@ class Book(Base):
             author=form.author.data,
             summary=form.summary.data,
             image=form.image.data,
-            commit=True
+            commit=True,
         )
         return True
 

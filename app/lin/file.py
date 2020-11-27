@@ -13,12 +13,10 @@ import os
 from flask import current_app
 from werkzeug.datastructures import FileStorage
 
-from .exception import FileTooLarge, \
-    FileTooMany, FileExtensionError, ParameterError
+from .exception import FileTooLarge, FileTooMany, FileExtensionError, ParameterError
 
 
 class Uploader(object):
-
     def __init__(self, files: list or FileStorage, config={}):
         #: the list of allowed files
         #: 被允许的文件类型列表
@@ -37,7 +35,7 @@ class Uploader(object):
         self._nums = 0
         #: the directory of file storage
         #: 文件存贮目录
-        self._store_dir = ''
+        self._store_dir = ""
         #: the FileStorage Object
         #: 文件存贮对象
         self._file_storage = self.__parse_files(files)
@@ -53,6 +51,7 @@ class Uploader(object):
     @staticmethod
     def _generate_uuid():
         import uuid
+
         return str(uuid.uuid1())
 
     @staticmethod
@@ -62,7 +61,7 @@ class Uploader(object):
         :param filename: 原始文件名
         :return: string 文件的扩展名
         """
-        return '.' + filename.lower().split('.')[-1]
+        return "." + filename.lower().split(".")[-1]
 
     @staticmethod
     def _generate_md5(data: bytes):
@@ -93,18 +92,35 @@ class Uploader(object):
         :param custom_config: 用户自定义配置参数
         :return: None
         """
-        default_config = current_app.config.get('FILE')
-        self._include = custom_config['INCLUDE'] if \
-            'INCLUDE' in custom_config else default_config['INCLUDE']
-        self._exclude = custom_config['EXCLUDE'] if \
-            'EXCLUDE' in custom_config else default_config['EXCLUDE']
-        self._single_limit = custom_config['SINGLE_LIMIT'] if \
-            'SINGLE_LIMIT' in custom_config else default_config['SINGLE_LIMIT']
-        self._total_limit = custom_config['TOTAL_LIMIT'] if \
-            'TOTAL_LIMIT' in custom_config else default_config['TOTAL_LIMIT']
-        self._nums = custom_config['NUMS'] if 'NUMS' in custom_config else default_config['NUMS']
-        self._store_dir = custom_config['STORE_DIR'] if \
-            'STORE_DIR' in custom_config else default_config['STORE_DIR']
+        default_config = current_app.config.get("FILE")
+        self._include = (
+            custom_config["INCLUDE"]
+            if "INCLUDE" in custom_config
+            else default_config["INCLUDE"]
+        )
+        self._exclude = (
+            custom_config["EXCLUDE"]
+            if "EXCLUDE" in custom_config
+            else default_config["EXCLUDE"]
+        )
+        self._single_limit = (
+            custom_config["SINGLE_LIMIT"]
+            if "SINGLE_LIMIT" in custom_config
+            else default_config["SINGLE_LIMIT"]
+        )
+        self._total_limit = (
+            custom_config["TOTAL_LIMIT"]
+            if "TOTAL_LIMIT" in custom_config
+            else default_config["TOTAL_LIMIT"]
+        )
+        self._nums = (
+            custom_config["NUMS"] if "NUMS" in custom_config else default_config["NUMS"]
+        )
+        self._store_dir = (
+            custom_config["STORE_DIR"]
+            if "STORE_DIR" in custom_config
+            else default_config["STORE_DIR"]
+        )
 
     @staticmethod
     def __parse_files(files):
@@ -118,7 +134,7 @@ class Uploader(object):
         验证文件是否合法
         """
         if not self._file_storage:
-            raise ParameterError('未找到符合条件的文件资源')
+            raise ParameterError("未找到符合条件的文件资源")
         self.__allowed_file()
         self.__allowed_file_size()
 
@@ -126,19 +142,24 @@ class Uploader(object):
         uuid_filename = self._generate_name(filename)
         format_day = self.__get_format_day()
         store_dir = self._store_dir
-        return os.path.join(store_dir, uuid_filename), format_day + '/' + uuid_filename, uuid_filename
+        return (
+            os.path.join(store_dir, uuid_filename),
+            format_day + "/" + uuid_filename,
+            uuid_filename,
+        )
 
     def mkdir_if_not_exists(self):
         if not os.path.isabs(self._store_dir):
             self._store_dir = os.path.abspath(self._store_dir)
         # mkdir by YYYY/MM/DD
-        self._store_dir += '/' + self.__get_format_day()
+        self._store_dir += "/" + self.__get_format_day()
         if not os.path.exists(self._store_dir):
             os.makedirs(self._store_dir)
 
     @staticmethod
     def __get_format_day():
         import time
+
         return str(time.strftime("%Y/%m/%d"))
 
     def __allowed_file(self):
@@ -147,14 +168,18 @@ class Uploader(object):
         """
         if (self._include and self._exclude) or self._include:
             for single in self._file_storage:
-                if '.' not in single.filename or \
-                        single.filename.lower().rsplit('.', 1)[1] not in self._include:
+                if (
+                    "." not in single.filename
+                    or single.filename.lower().rsplit(".", 1)[1] not in self._include
+                ):
                     raise FileExtensionError()
             return True
         elif self._exclude and not self._include:
             for single in self._file_storage:
-                if '.' not in single.filename or \
-                        single.filename.lower().rsplit('.', 1)[1] in self._exclude:
+                if (
+                    "." not in single.filename
+                    or single.filename.lower().rsplit(".", 1)[1] in self._exclude
+                ):
                     raise FileExtensionError()
             return True
 
@@ -170,8 +195,7 @@ class Uploader(object):
             for single in self._file_storage:
                 if self._get_size(single) > self._single_limit:
                     raise FileTooLarge(
-                        single.filename + '大小不能超过'
-                        + str(self._single_limit) + '字节'
+                        single.filename + "大小不能超过" + str(self._single_limit) + "字节"
                     )
                 total_size += self._get_size(single)
             if total_size > self._total_limit:

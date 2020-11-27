@@ -35,11 +35,11 @@ class Config(defaultdict):
 
     def get_config(self, key: str, default=None):
         """ plugin_name.key """
-        if '.' not in key:
+        if "." not in key:
             return self.get(key, default)
-        index = key.rindex('.')
+        index = key.rindex(".")
         plugin_name = key[:index]
-        plugin_key = key[index + 1:]
+        plugin_key = key[index + 1 :]
         plugin_conf = self.get(plugin_name)
         if plugin_conf is None:
             return default

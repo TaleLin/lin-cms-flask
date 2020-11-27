@@ -20,31 +20,31 @@ class Loader(object):
 
     def __init__(self, plugin_path):
         self.plugins = {}
-        assert type(plugin_path) is dict, 'plugin_path must be a dict'
+        assert type(plugin_path) is dict, "plugin_path must be a dict"
         self.plugin_path = plugin_path
         self.load_plugins_config()
         self.load_plugins()
 
     def load_plugins(self):
         for name, conf in self.plugin_path.items():
-            enable = conf.get('enable', None)
+            enable = conf.get("enable", None)
             if enable:
-                path = conf.get('path')
+                path = conf.get("path")
                 # load plugin
-                path and self._load_plugin(f'{path}.app.__init__', name)
+                path and self._load_plugin(f"{path}.app.__init__", name)
 
     def load_plugins_config(self):
         for name, conf in self.plugin_path.items():
-            path = conf.get('path', None)
+            path = conf.get("path", None)
             # load config
-            self._load_config(f'{path}.config', name, conf)
+            self._load_config(f"{path}.config", name, conf)
 
     def _load_plugin(self, path, name):
         mod = import_module(path)
         plugin = Plugin(name=name)
         dic = mod.__dict__
         for key in dic.keys():
-            if not key.startswith('_') and key != 'initial_data':
+            if not key.startswith("_") and key != "initial_data":
                 attr = dic[key]
                 if isinstance(attr, Redprint):
                     plugin.add_controller(attr.name, attr)
@@ -58,8 +58,9 @@ class Loader(object):
     def _check_version(self, path, version, name):
         info_mod = import_module(path)
         info_dic = info_mod.__dict__
-        assert info_dic['__version__'] == version, 'the plugin ' + \
-            name + " needs to be updated"
+        assert info_dic["__version__"] == version, (
+            "the plugin " + name + " needs to be updated"
+        )
 
     def _load_config(self, config_path, name, conf):
         default_conf = {}
@@ -68,7 +69,7 @@ class Loader(object):
                 mod = import_module(config_path)
                 dic = mod.__dict__
                 for key in dic.keys():
-                    if not key.startswith('_'):
+                    if not key.startswith("_"):
                         default_conf[key] = dic[key]
         except ModuleNotFoundError as e:
             pass

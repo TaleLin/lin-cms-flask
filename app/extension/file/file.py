@@ -5,17 +5,21 @@ from sqlalchemy import Column, Integer, Index, String, text
 
 
 class File(InfoCrud):
-    __tablename__ = 'lin_file'
-    __table_args__ = (Index('md5_del', 'md5', 'delete_time', unique=True), )
+    __tablename__ = "lin_file"
+    __table_args__ = (Index("md5_del", "md5", "delete_time", unique=True),)
 
     id = Column(Integer(), primary_key=True)
     path = Column(String(500), nullable=False)
-    type = Column(String(10), nullable=False, server_default=text(
-        "'LOCAL'"), comment='LOCAL 本地，REMOTE 远程')
+    type = Column(
+        String(10),
+        nullable=False,
+        server_default=text("'LOCAL'"),
+        comment="LOCAL 本地，REMOTE 远程",
+    )
     name = Column(String(100), nullable=False)
     extension = Column(String(50))
     size = Column(Integer())
-    md5 = Column(String(40), comment='md5值，防止上传重复文件')
+    md5 = Column(String(40), comment="md5值，防止上传重复文件")
 
     @classmethod
     def select_by_md5(cls, md5):
@@ -26,7 +30,8 @@ class File(InfoCrud):
     @classmethod
     def count_by_md5(cls, md5):
         result = db.session.query(func.count(cls.id)).filter(
-            cls.delete_time == None, cls.md5 == md5)
+            cls.delete_time == None, cls.md5 == md5
+        )
         count = result.scalar()
         return count
 
@@ -37,6 +42,6 @@ class File(InfoCrud):
             if hasattr(file, key):
                 setattr(file, key, kwargs[key])
         db.session.add(file)
-        if kwargs.get('commit') is True:
+        if kwargs.get("commit") is True:
             db.session.commit()
         return file

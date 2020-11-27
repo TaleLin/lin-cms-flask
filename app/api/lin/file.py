@@ -7,10 +7,10 @@ from app.lin import login_required
 from app.lin.redprint import Redprint
 from flask import request
 
-file_api = Redprint('file')
+file_api = Redprint("file")
 
 
-@file_api.route('', methods=['POST'])
+@file_api.route("", methods=["POST"])
 @login_required
 def post_file():
     files = request.files

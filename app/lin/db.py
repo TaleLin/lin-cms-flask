@@ -23,11 +23,10 @@ class SQLAlchemy(_SQLAlchemy):
 
 
 class Query(BaseQuery):
-
     def filter_by(self, soft=False, **kwargs):
         # soft 应用软删除
         if soft:
-            kwargs['delete_time'] = None
+            kwargs["delete_time"] = None
         return super(Query, self).filter_by(**kwargs)
 
     def get_or_404(self, ident):
@@ -48,8 +47,11 @@ db = SQLAlchemy(query_class=Query)
 
 def get_total_nums(cls, is_soft=False, **kwargs):
     nums = db.session.query(func.count(cls.id))
-    nums = nums.filter(cls.delete_time == None).filter_by(
-        **kwargs).scalar() if is_soft else nums.filter().scalar()
+    nums = (
+        nums.filter(cls.delete_time == None).filter_by(**kwargs).scalar()
+        if is_soft
+        else nums.filter().scalar()
+    )
     if nums:
         return nums
     else:

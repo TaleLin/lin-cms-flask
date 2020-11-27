@@ -11,9 +11,13 @@
 from functools import wraps
 
 from flask import request
-from flask_jwt_extended import (JWTManager, create_access_token,
-                                create_refresh_token, get_current_user,
-                                verify_jwt_in_request)
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    create_refresh_token,
+    get_current_user,
+    verify_jwt_in_request,
+)
 
 from .exception import NotFound, TokenExpired, TokenInvalid, UnAuthentication
 
@@ -28,7 +32,7 @@ def admin_required(fn):
         verify_jwt_in_request()
         current_user = get_current_user()
         if not current_user.is_admin:
-            raise UnAuthentication('只有超级管理员可操作')
+            raise UnAuthentication("只有超级管理员可操作")
         return fn(*args, **kwargs)
 
     return wrapper
@@ -45,12 +49,14 @@ def group_required(fn):
         # not admin
         if not current_user.is_admin:
             from .core import find_group_ids_by_user_id
+
             group_ids = find_group_ids_by_user_id(current_user.id)
             if group_ids is None:
-                raise UnAuthentication('您还不属于任何分组，请联系超级管理员获得权限')
+                raise UnAuthentication("您还不属于任何分组，请联系超级管理员获得权限")
             from .core import is_user_allowed
+
             if not is_user_allowed(group_ids):
-                raise UnAuthentication('权限不够，请联系超级管理员获得权限')
+                raise UnAuthentication("权限不够，请联系超级管理员获得权限")
             else:
                 return fn(*args, **kwargs)
         else:
@@ -72,15 +78,19 @@ def login_required(fn):
 @jwt.user_loader_callback_loader
 def user_loader_callback(identity):
     from .core import find_user
-    if identity['scope'] != SCOPE:
+
+    if identity["scope"] != SCOPE:
         raise UnAuthentication()
-    if 'remote_addr' in identity.keys() and identity['remote_addr'] != request.remote_addr:
+    if (
+        "remote_addr" in identity.keys()
+        and identity["remote_addr"] != request.remote_addr
+    ):
         raise UnAuthentication()
     # token is granted , user must be exit
     # 如果token已经被颁发，则该用户一定存在
-    user = find_user(id=identity['uid'])
+    user = find_user(id=identity["uid"])
     if user is None:
-        raise NotFound('用户不存在')
+        raise NotFound("用户不存在")
     return user
 
 
@@ -96,24 +106,26 @@ def invalid_loader_callback(e):
 
 @jwt.unauthorized_loader
 def unauthorized_loader_callback(e):
-    return UnAuthentication('认证失败，请检查请求头或者重新登陆')
+    return UnAuthentication("认证失败，请检查请求头或者重新登陆")
 
 
 @jwt.user_claims_loader
 def add_claims_to_access_token(identity):
     return {
-        'uid': identity['uid'],
-        'scope': identity['scope'],
-        'remote_addr': identity['remote_addr'] if 'remote_addr' in identity.keys() else None
+        "uid": identity["uid"],
+        "scope": identity["scope"],
+        "remote_addr": identity["remote_addr"]
+        if "remote_addr" in identity.keys()
+        else None,
     }
 
 
 def verify_access_token():
-    __verify_token('access')
+    __verify_token("access")
 
 
 def verify_refresh_token():
-    __verify_token('refresh')
+    __verify_token("refresh")
 
 
 def __verify_token(request_type):
@@ -121,6 +133,7 @@ def __verify_token(request_type):
     from flask_jwt_extended.config import config
     from flask_jwt_extended.utils import verify_token_claims
     from flask_jwt_extended.view_decorators import _decode_jwt_from_cookies as decode
+
     try:
         from flask import _app_ctx_stack as ctx_stack
     except ImportError:
@@ -134,13 +147,13 @@ def __verify_token(request_type):
 
 def _check_is_active(current_user):
     if not current_user.is_active:
-        raise UnAuthentication('您目前处于未激活状态，请联系超级管理员')
+        raise UnAuthentication("您目前处于未激活状态，请联系超级管理员")
 
 
 def get_tokens(user, verify_remote_addr=False):
-    identity['uid'] = user.id
+    identity["uid"] = user.id
     if verify_remote_addr:
-        identity['remote_addr'] = request.remote_addr
+        identity["remote_addr"] = request.remote_addr
     access_token = create_access_token(identity=identity)
     refresh_token = create_refresh_token(identity=identity)
     return access_token, refresh_token

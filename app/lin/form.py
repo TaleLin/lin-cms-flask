@@ -31,11 +31,11 @@ class Form(WTForm):
 
 def integer_check(form, field):
     if field.data is None:
-        raise StopValidation('输入字段不可为空')
+        raise StopValidation("输入字段不可为空")
     try:
         field.data = int(field.data)
     except ValueError:
-        raise StopValidation('不是一个有效整数')
+        raise StopValidation("不是一个有效整数")
 
 
 class LinIntegerField(IntegerField):
