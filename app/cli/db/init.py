@@ -4,7 +4,7 @@
 """
 from app.lin.core import manager
 from app.lin.db import db
-from app.lin.enums import GroupLevel
+from app.lin.enums import GroupLevelEnum
 
 
 def init(force=False):
@@ -19,7 +19,7 @@ def init(force=False):
         root_group = manager.group_model()
         root_group.name = "Root"
         root_group.info = "超级用户组"
-        root_group.level = GroupLevel.ROOT.value
+        root_group.level = GroupLevelEnum.ROOT.value
         db.session.add(root_group)
         # 创建一个超级管理员
         root = manager.user_model()
@@ -36,5 +36,5 @@ def init(force=False):
         guest_group = manager.group_model()
         guest_group.name = "Guest"
         guest_group.info = "游客组"
-        guest_group.level = GroupLevel.GUEST.value
+        guest_group.level = GroupLevelEnum.GUEST.value
         db.session.add(guest_group)

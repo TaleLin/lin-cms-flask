@@ -133,11 +133,12 @@ pip install -r requirements.txt
 
 #### 默认使用 Sqlite3
 
-Lin 默认启用 Sqlite3 数据库，`app/config/secure.py`中默认配置了它
+Lin 默认启用 Sqlite3 数据库，打开项目根目录的`.env`文件，配置环境对应的`{env}_SQLALCHEMY_DATABASE_URI`
 
 ```py
 # 数据库配置示例
-    SQLALCHEMY_DATABASE_URI = 'sqlite://../lincms.db'
+    DEVELOPMENT_SQLALCHEMY_DATABASE_URI = 'sqlite:///relative/path/to/file.db'
+    PRODUCTION_SQLALCHEMY_DATABASE_URI = 'sqlite:////absolute/path/to/file.db'
 ```
 
 这将在项目的最外层目录生成名为`lincms.db`的 Sqlite3 数据库文件。
@@ -146,16 +147,17 @@ Lin 默认启用 Sqlite3 数据库，`app/config/secure.py`中默认配置了它
 
 **Tips:** 默认的依赖中不包含 Python 的 Mysql 库，如有需要，请自行在您的运行环境中安装它（如`pymysql`或`cymysql`等）。
 
-Lin 需要您自己在 MySQL 中新建一个数据库，名字由您自己决定(例如`lincms`)。接着在工程中进行一项简单的配置。使用编辑器打开 Lin 工程的`app/config/secure.py`，在`SQLALCHEMY_DATABASE_URI`这项中配置 MySQL 数据库的用户名、密码、ip、端口号与数据库名。
+Lin 需要您自己在 MySQL 中新建一个数据库，名字由您自己决定(例如`lincms`)。
+
+创建数据库后，打开项目根目录的`.env`文件，配置环境对应的`{env}_SQLALCHEMY_DATABASE_URI`。
 
 如下所示：
 
-```py
-# 数据库配置示例
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
+```conf
+# 数据库配置示例: '数据库+驱动库://用户名:密码@主机:端口/数据库名'
+DEVELOPMENT_SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
+PRODUCTION_SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 ```
-
-**请务必根据自己的实际情况修改此配置项**。
 
 > 您所使用的数据库账号必须具有创建数据表的权限，否则 Lin 将无法为您自动创建数据表
 
@@ -166,7 +168,7 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/lincms'
 请先进入项目根目录，然后执行`flask db init`,用来添加超级管理员 root(默认密码 123456), 以及新建其他必要的分组
 
 > **Tips:**
-> 如果您需要一些业务样例数据，可以执行脚本`flask db fake`添加几本书的数据
+> 如果您需要一些业务样例数据，可以执行脚本`flask db fake`添加它
 
 ### 运行
 
@@ -186,4 +188,6 @@ flask run
 
 - [ ] 新增 `websocket`模块
 - [ ] 七牛 文件上传支持
+- [ ] 限流限频 功能
+- [ ] 图形验证码
 - [ ] 优化核心库逻辑&重构

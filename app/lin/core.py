@@ -349,37 +349,37 @@ class Manager(object):
                  user_group_model=None
                  ):
         if not group_model:
-            from .model.group import Group
+            from .model import Group
             self.group_model = Group
         else:
             self.group_model = group_model
 
         if not user_model:
-            from .model.user import User
+            from .model import User
             self.user_model = User
         else:
             self.user_model = user_model
 
         if not permission_model:
-            from .model.permission import Permission
+            from .model import Permission
             self.permission_model = Permission
         else:
             self.permission_model = permission_model
 
         if not group_permission_model:
-            from .model.group_permission import GroupPermission
+            from .model import GroupPermission
             self.group_permission_model = GroupPermission
         else:
             self.group_permission_model = group_permission_model
 
         if not user_group_model:
-            from .model.user_group import UserGroup
+            from .model import UserGroup
             self.user_group_model = UserGroup
         else:
             self.user_group_model = user_group_model
 
         if not identity_model:
-            from .model.user_identity import UserIdentity
+            from .model import UserIdentity
             self.identity_model = UserIdentity
         else:
             self.identity_model = identity_model
