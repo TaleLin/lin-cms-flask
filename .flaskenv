@@ -3,3 +3,5 @@ FLASK_APP=starter:app
 # 指定 Flask 运行模式并自动寻找对应配置类
 # 我们已经内置了development,production两个配置类
 FLASK_ENV=development
+FLASK_RUN_HOST="127.0.0.1"
+FLASK_RUN_PORT=5000
