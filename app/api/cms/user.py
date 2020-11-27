@@ -134,7 +134,9 @@ def get_allowed_apis():
     group_ids = [group.id for group in groups]
     res = manager.permission_model.select_by_group_ids(group_ids)
     setattr(user, 'permissions', res)
-    user._fields.append('permissions')
+    setattr(user, 'admin', user.is_admin)
+    user._fields.extend(['admin', 'permissions'])
+
     return user
 
 
