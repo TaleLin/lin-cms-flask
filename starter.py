@@ -13,7 +13,7 @@ from app.cli.db import fake as _db_fake, init as _db_init
 from app.cli.plugin import init as _plugin_init, generate as _plugin_generate
 from app.model.cms.user import User
 
-app = create_app(user_model=User)
+app = create_app()
 
 db_cli = AppGroup("db")
 
