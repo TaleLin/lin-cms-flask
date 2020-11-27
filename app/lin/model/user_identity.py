@@ -12,6 +12,6 @@ class UserIdentity(InfoCrud):
 
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), nullable=False, comment='用户id')
-    identity_type = Column(String(100), nullable=False)
-    identifier = Column(String(100))
-    credential = Column(String(100))
+    identity_type = Column(String(100), nullable=False,comment='认证类型')
+    identifier = Column(String(100),comment='标识')
+    credential = Column(String(100),comment='凭证')

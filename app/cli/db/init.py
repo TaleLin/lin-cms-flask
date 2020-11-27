@@ -24,10 +24,9 @@ def init(force=False):
         # 创建一个超级管理员
         root = manager.user_model()
         root.username = 'root'
-        root.password = '123456'
-        root.admin = 2
         db.session.add(root)
         db.session.flush()
+        root.password = '123456'
         # root用户 and  超级管理员分组 对应关系写入user_group表中
         user_group = manager.user_group_model()
         user_group.user_id = root.id

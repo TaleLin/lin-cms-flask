@@ -144,9 +144,9 @@ def _register_user(form: RegisterForm):
         user.username = form.username.data
         if form.email.data and form.email.data.strip() != "":
             user.email = form.email.data
-        user.password = form.password.data
         db.session.add(user)
         db.session.flush()
+        user.password = form.password.data
         group_ids = form.group_ids.data
         # 如果没传分组数据，则将其设定为 id 2 的 guest 分组
         if len(group_ids) == 0:
