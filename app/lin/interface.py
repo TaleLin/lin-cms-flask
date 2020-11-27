@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 from flask import current_app
-from sqlalchemy import (Column, DateTime, func, text)
+from sqlalchemy import Column, DateTime, func, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import MixinJSONSerializer, db
@@ -25,7 +25,7 @@ class BaseCrud(db.Model, MixinJSONSerializer):
 
     def __init__(self):
         name: str = self.__class__.__name__
-        if not hasattr(self, '__tablename__'):
+        if not hasattr(self, "__tablename__"):
             self.__tablename__ = camel2line(name)
 
     def _set_fields(self):
@@ -33,7 +33,7 @@ class BaseCrud(db.Model, MixinJSONSerializer):
 
     def set_attrs(self, attrs_dict):
         for key, value in attrs_dict.items():
-            if hasattr(self, key) and key != 'id':
+            if hasattr(self, key) and key != "id":
                 setattr(self, key, value)
 
     # 硬删除
@@ -47,8 +47,7 @@ class BaseCrud(db.Model, MixinJSONSerializer):
     def get(cls, start=None, count=None, one=True, **kwargs):
         if one:
             return cls.query.filter().filter_by(**kwargs).first()
-        return cls.query.filter().filter_by(
-            **kwargs).offset(start).limit(count).all()
+        return cls.query.filter().filter_by(**kwargs).offset(start).limit(count).all()
 
     # 增
     @classmethod
@@ -58,7 +57,7 @@ class BaseCrud(db.Model, MixinJSONSerializer):
             if hasattr(one, key):
                 setattr(one, key, kwargs[key])
         db.session.add(one)
-        if kwargs.get('commit') is True:
+        if kwargs.get("commit") is True:
             db.session.commit()
         return one
 
@@ -67,7 +66,7 @@ class BaseCrud(db.Model, MixinJSONSerializer):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
         db.session.add(self)
-        if kwargs.get('commit') is True:
+        if kwargs.get("commit") is True:
             db.session.commit()
         return self
 
@@ -76,21 +75,22 @@ class BaseCrud(db.Model, MixinJSONSerializer):
 class InfoCrud(db.Model, MixinJSONSerializer):
     __abstract__ = True
     create_time = Column(DateTime(timezone=True), server_default=func.now())
-    update_time = Column(DateTime(timezone=True),
-                         server_default=func.now(), onupdate=func.now())
+    update_time = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     delete_time = Column(DateTime(timezone=True))
 
     def __init__(self):
         name: str = self.__class__.__name__
-        if not hasattr(self, '__tablename__'):
+        if not hasattr(self, "__tablename__"):
             self.__tablename__ = camel2line(name)
 
     def _set_fields(self):
-        self._exclude = ['delete_time']
+        self._exclude = ["delete_time"]
 
     def set_attrs(self, attrs_dict):
         for key, value in attrs_dict.items():
-            if hasattr(self, key) and key != 'id':
+            if hasattr(self, key) and key != "id":
                 setattr(self, key, value)
 
     # 软删除
@@ -111,12 +111,11 @@ class InfoCrud(db.Model, MixinJSONSerializer):
     @classmethod
     def get(cls, start=None, count=None, one=True, **kwargs):
         # 应用软删除，必须带有delete_time
-        if kwargs.get('delete_time') is None:
-            kwargs['delete_time'] = None
+        if kwargs.get("delete_time") is None:
+            kwargs["delete_time"] = None
         if one:
             return cls.query.filter().filter_by(**kwargs).first()
-        return cls.query.filter().filter_by(
-            **kwargs).offset(start).limit(count).all()
+        return cls.query.filter().filter_by(**kwargs).offset(start).limit(count).all()
 
     # 增
     @classmethod
@@ -130,7 +129,7 @@ class InfoCrud(db.Model, MixinJSONSerializer):
             if hasattr(one, key):
                 setattr(one, key, kwargs[key])
         db.session.add(one)
-        if kwargs.get('commit') is True:
+        if kwargs.get("commit") is True:
             db.session.commit()
         return one
 
@@ -141,7 +140,7 @@ class InfoCrud(db.Model, MixinJSONSerializer):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
         db.session.add(self)
-        if kwargs.get('commit') is True:
+        if kwargs.get("commit") is True:
             db.session.commit()
         return self
 

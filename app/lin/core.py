@@ -30,17 +30,16 @@ from .logger import LinLog
 
 class JSONEncoder(_JSONEncoder):
     def default(self, o):
-        if hasattr(o, 'keys') and hasattr(o, '__getitem__'):
+        if hasattr(o, "keys") and hasattr(o, "__getitem__"):
             return dict(o)
         if isinstance(o, datetime):
-            return o.strftime('%Y-%m-%dT%H:%M:%SZ')
+            return o.strftime("%Y-%m-%dT%H:%M:%SZ")
         if isinstance(o, date):
-            return o.strftime('%Y-%m-%d')
+            return o.strftime("%Y-%m-%d")
         return JSONEncoder.default(self, o)
 
 
 class Flask(_Flask):
-
     def make_lin_response(self, rv):
         """
         将视图函数返回的值转换为flask内置支持的类型
@@ -55,10 +54,10 @@ class Flask(_Flask):
         return super(Flask, self).make_response(rv)
 
 
-__version__ = '0.1.3'
+__version__ = "0.1.3"
 
 # 路由函数的权限和模块信息(meta信息)
-Meta = namedtuple('meta', ['auth', 'module', 'mount'])
+Meta = namedtuple("meta", ["auth", "module", "mount"])
 
 #       -> endpoint -> func
 # auth                      -> module
@@ -74,7 +73,7 @@ permission_meta_infos = {}
 lin_config = Config()
 
 
-def permission_meta(auth, module='common', mount=True):
+def permission_meta(auth, module="common", mount=True):
     """
     记录路由函数的信息
     记录路由函数访问的推送信息模板
@@ -87,11 +86,12 @@ def permission_meta(auth, module='common', mount=True):
 
     def wrapper(func):
         name = func.__name__ + str(func.__hash__())
-        existed = permission_meta_infos.get(
-            name, None) and permission_meta_infos.get(name).module == module
+        existed = (
+            permission_meta_infos.get(name, None)
+            and permission_meta_infos.get(name).module == module
+        )
         if existed:
-            raise Exception(
-                "func's name cant't be repeat in a same module")
+            raise Exception("func's name cant't be repeat in a same module")
         else:
             permission_meta_infos.setdefault(name, Meta(auth, module, mount))
         return func
@@ -138,7 +138,8 @@ def is_user_allowed(group_ids):
     meta = manager.ep_meta.get(ep)
     # 判断 用户组拥有的权限是否包含endpoint标记的权限
     return manager.permission_model.exist_by_group_ids_and_module_and_name(
-        group_ids, meta.module, meta.auth)
+        group_ids, meta.module, meta.auth
+    )
 
 
 def find_auth_module(auth):
@@ -150,80 +151,87 @@ def find_auth_module(auth):
 
 
 class Lin(object):
-
-    def __init__(self,
-                 app: Flask = None,  # flask app , default None
-                 group_model=None,  # group model, default None
-                 user_model=None,  # user model, default None
-                 identity_model=None,  # user identity model,default None
-                 permission_model=None,  # permission model, default None
-                 group_permission_model=None,  # group permission 多对多关联模型
-                 user_group_model=None,  # user group 多对多关联模型
-                 create_all=False,  # 是否创建所有数据库表, default true
-                 mount=True,  # 是否挂载默认的蓝图, default True
-                 handle=True,  # 是否使用全局异常处理, default True
-                 json_encoder=True,  # 是否使用自定义的json_encoder , default True
-                 lin_response=True,  # 是否启用自动序列化，default True, 需要启用json_encoder才能生效
-                 logger=True,   # 是否使用自定义系统日志，default True
-                 ):
+    def __init__(
+        self,
+        app: Flask = None,  # flask app , default None
+        group_model=None,  # group model, default None
+        user_model=None,  # user model, default None
+        identity_model=None,  # user identity model,default None
+        permission_model=None,  # permission model, default None
+        group_permission_model=None,  # group permission 多对多关联模型
+        user_group_model=None,  # user group 多对多关联模型
+        create_all=False,  # 是否创建所有数据库表, default true
+        mount=True,  # 是否挂载默认的蓝图, default True
+        handle=True,  # 是否使用全局异常处理, default True
+        json_encoder=True,  # 是否使用自定义的json_encoder , default True
+        lin_response=True,  # 是否启用自动序列化，default True, 需要启用json_encoder才能生效
+        logger=True,  # 是否使用自定义系统日志，default True
+    ):
         self.app = app
         self.manager = None
         if app is not None:
-            self.init_app(app,
-                          group_model,
-                          user_model,
-                          identity_model,
-                          permission_model,
-                          group_permission_model,
-                          user_group_model,
-                          create_all,
-                          mount,
-                          handle,
-                          json_encoder,
-                          lin_response,
-                          logger)
+            self.init_app(
+                app,
+                group_model,
+                user_model,
+                identity_model,
+                permission_model,
+                group_permission_model,
+                user_group_model,
+                create_all,
+                mount,
+                handle,
+                json_encoder,
+                lin_response,
+                logger,
+            )
 
-    def init_app(self,
-                 app: Flask,
-                 group_model=None,
-                 user_model=None,
-                 identity_model=None,
-                 permission_model=None,
-                 group_permission_model=None,
-                 user_group_model=None,
-                 create_all=False,
-                 mount=True,
-                 handle=True,
-                 json_encoder=True,
-                 lin_response=True,
-                 logger=True
-                 ):
+    def init_app(
+        self,
+        app: Flask,
+        group_model=None,
+        user_model=None,
+        identity_model=None,
+        permission_model=None,
+        group_permission_model=None,
+        user_group_model=None,
+        create_all=False,
+        mount=True,
+        handle=True,
+        json_encoder=True,
+        lin_response=True,
+        logger=True,
+    ):
         # default config
-        app.config.setdefault('PLUGIN_PATH', {})
+        app.config.setdefault("PLUGIN_PATH", {})
         # 默认蓝图的前缀
-        app.config.setdefault('BP_URL_PREFIX', '/plugin')
+        app.config.setdefault("BP_URL_PREFIX", "/plugin")
         # 默认文件上传配置
-        app.config.setdefault('FILE', {
-            "STORE_DIR": 'app/assets',
-            "SINGLE_LIMIT": 1024 * 1024 * 2,
-            "TOTAL_LIMIT": 1024 * 1024 * 20,
-            "NUMS": 10,
-            "INCLUDE": set(['jpg', 'png', 'jpeg']),
-            "EXCLUDE": set([])
-        })
+        app.config.setdefault(
+            "FILE",
+            {
+                "STORE_DIR": "app/assets",
+                "SINGLE_LIMIT": 1024 * 1024 * 2,
+                "TOTAL_LIMIT": 1024 * 1024 * 20,
+                "NUMS": 10,
+                "INCLUDE": set(["jpg", "png", "jpeg"]),
+                "EXCLUDE": set([]),
+            },
+        )
         json_encoder and self._enable_json_encoder(app)
         json_encoder and lin_response and self._enable_lin_response(app)
         self.app = app
         # 初始化 manager
-        self.manager = Manager(app.config.get('PLUGIN_PATH'),
-                               group_model,
-                               user_model,
-                               identity_model,
-                               permission_model,
-                               group_permission_model,
-                               user_group_model
-                               )
-        self.app.extensions['manager'] = self.manager
+        self.manager = Manager(
+            app.config.get("PLUGIN_PATH"),
+            group_model,
+            user_model,
+            identity_model,
+            permission_model,
+            group_permission_model,
+            user_group_model,
+        )
+        self.app.extensions["manager"] = self.manager
         db.init_app(app)
         create_all and self._enable_create_all(app)
         jwt.init_app(app)
@@ -273,34 +281,39 @@ class Lin(object):
                         db.session.add_all(new_added_permissions)
                     if unmounted_ids:
                         manager.permission_model.query.filter(
-                            manager.permission_model.id.in_(unmounted_ids)).update({"mount": False}, synchronize_session=False)
+                            manager.permission_model.id.in_(unmounted_ids)
+                        ).update({"mount": False}, synchronize_session=False)
                     if mounted_ids:
                         manager.permission_model.query.filter(
-                            manager.permission_model.id.in_(mounted_ids)).update({"mount": True}, synchronize_session=False)
+                            manager.permission_model.id.in_(mounted_ids)
+                        ).update({"mount": True}, synchronize_session=False)
                     if deleted_ids:
-                        manager.permission_model.query.filter(manager.permission_model.id.in_(
-                            deleted_ids)).delete(synchronize_session=False)
+                        manager.permission_model.query.filter(
+                            manager.permission_model.id.in_(deleted_ids)
+                        ).delete(synchronize_session=False)
                         # 分组-权限关联表中的数据也要清理
-                        manager.group_permission_model.query.filter(manager.group_permission_model.permission_id.in_(
-                            deleted_ids)).delete(synchronize_session=False)
+                        manager.group_permission_model.query.filter(
+                            manager.group_permission_model.permission_id.in_(
+                                deleted_ids
+                            )
+                        ).delete(synchronize_session=False)
             except OperationalError:
                 pass
 
     def mount(self, app):
         # 加载默认插件路由
-        bp = Blueprint('plugin', __name__)
+        bp = Blueprint("plugin", __name__)
         # 加载插件的路由
         for plugin in self.manager.plugins.values():
             if len(plugin.controllers.values()) > 1:
                 for controller in plugin.controllers.values():
-                    controller.register(bp, url_prefix='/' + plugin.name)
+                    controller.register(bp, url_prefix="/" + plugin.name)
             else:
                 for controller in plugin.controllers.values():
                     controller.register(bp)
-        app.register_blueprint(bp, url_prefix=app.config.get('BP_URL_PREFIX'))
+        app.register_blueprint(bp, url_prefix=app.config.get("BP_URL_PREFIX"))
         for ep, func in app.view_functions.items():
-            info = permission_meta_infos.get(
-                func.__name__ + str(func.__hash__()), None)
+            info = permission_meta_infos.get(func.__name__ + str(func.__hash__()), None)
             if info:
                 self.manager.ep_meta.setdefault(ep, info)
 
@@ -315,8 +328,9 @@ class Lin(object):
                 message_code = 20000
                 return APIException(message_code, message).set_code(code)
             else:
-                if not app.config['DEBUG']:
+                if not app.config["DEBUG"]:
                     import traceback
+
                     app.logger.error(traceback.format_exc())
                     return InternalServerError()
                 else:
@@ -339,52 +353,60 @@ class Manager(object):
     # 路由函数的meta信息的容器
     ep_meta = {}
 
-    def __init__(self,
-                 plugin_path,
-                 group_model=None,
-                 user_model=None,
-                 identity_model=None,
-                 permission_model=None,
-                 group_permission_model=None,
-                 user_group_model=None
-                 ):
+    def __init__(
+        self,
+        plugin_path,
+        group_model=None,
+        user_model=None,
+        identity_model=None,
+        permission_model=None,
+        group_permission_model=None,
+        user_group_model=None,
+    ):
         if not group_model:
             from .model import Group
+
             self.group_model = Group
         else:
             self.group_model = group_model
 
         if not user_model:
             from .model import User
+
             self.user_model = User
         else:
             self.user_model = user_model
 
         if not permission_model:
             from .model import Permission
+
             self.permission_model = Permission
         else:
             self.permission_model = permission_model
 
         if not group_permission_model:
             from .model import GroupPermission
+
             self.group_permission_model = GroupPermission
         else:
             self.group_permission_model = group_permission_model
 
         if not user_group_model:
             from .model import UserGroup
+
             self.user_group_model = UserGroup
         else:
             self.user_group_model = user_group_model
 
         if not identity_model:
             from .model import UserIdentity
+
             self.identity_model = UserIdentity
         else:
             self.identity_model = identity_model
 
         from .loader import Loader
+
         self.loader: Loader = Loader(plugin_path)
 
     def find_user(self, **kwargs):
@@ -425,10 +447,10 @@ manager: Manager = LocalProxy(lambda: get_manager())
 
 
 def get_manager():
-    _manager = current_app.extensions['manager']
+    _manager = current_app.extensions["manager"]
     if _manager:
         return _manager
     else:
         app = current_app._get_current_object()
         with app.app_context():
-            return app.extensions['manager']
+            return app.extensions["manager"]

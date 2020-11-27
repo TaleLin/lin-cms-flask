@@ -14,8 +14,8 @@ from flask import Response, request
 from flask_jwt_extended import get_current_user
 from .sse import sser
 
-REG_XP = r'[{](.*?)[}]'
-OBJECTS = ['user', 'response', 'request']
+REG_XP = r"[{](.*?)[}]"
+OBJECTS = ["user", "response", "request"]
 SUCCESS_STATUS = [200, 201]
 MESSAGE_EVENTS = set()
 
@@ -32,14 +32,14 @@ class Notify(object):
         if event:
             self.event = event
         elif self.event is None:
-            raise Exception('event must not be None!')
+            raise Exception("event must not be None!")
         if template:
             self.template: str = template
         elif self.template is None:
-            raise Exception('template must not be None!')
+            raise Exception("template must not be None!")
         # 加入所有types中
         MESSAGE_EVENTS.add(event)
-        self.message = ''
+        self.message = ""
         self.response = None
         self.user = None
         self.extra = kwargs
@@ -58,29 +58,32 @@ class Notify(object):
 
     def push_message(self):
         # status = '操作成功' if self.response.status_code in SUCCESS_STATUS else '操作失败'
-        sser.add_message(self.event,
-                         {'message': self.message,
-                          'time': int(datetime.now().timestamp()),
-                          **self.extra
-                          })
+        sser.add_message(
+            self.event,
+            {
+                "message": self.message,
+                "time": int(datetime.now().timestamp()),
+                **self.extra,
+            },
+        )
 
     # 解析自定义消息的模板
     def _parse_template(self):
         message = self.template
         total = re.findall(REG_XP, message)
         for it in total:
-            assert '.' in it, '%s中必须包含 . ,且为一个' % it
-            i = it.rindex('.')
+            assert "." in it, "%s中必须包含 . ,且为一个" % it
+            i = it.rindex(".")
             obj = it[:i]
-            assert obj in OBJECTS, '%s只能为user,response,request中的一个' % obj
-            prop = it[i + 1:]
-            if obj == 'user':
-                item = getattr(self.user, prop, '')
-            elif obj == 'response':
-                item = getattr(self.response, prop, '')
+            assert obj in OBJECTS, "%s只能为user,response,request中的一个" % obj
+            prop = it[i + 1 :]
+            if obj == "user":
+                item = getattr(self.user, prop, "")
+            elif obj == "response":
+                item = getattr(self.response, prop, "")
             else:
-                item = getattr(request, prop, '')
-            message = message.replace('{%s}' % it, str(item))
+                item = getattr(request, prop, "")
+            message = message.replace("{%s}" % it, str(item))
         return message
 
     def _check_can_push(self):

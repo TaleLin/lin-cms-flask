@@ -6,3 +6,4 @@ wtforms
 oss2
 python-dotenv
 pytest
+black

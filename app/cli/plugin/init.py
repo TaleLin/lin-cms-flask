@@ -23,7 +23,7 @@ app = create_app(register_all=False)
 
 class PluginInit:
     # 插件位置默认前缀
-    plugin_path = 'app.plugin'
+    plugin_path = "app.plugin"
 
     def __init__(self, name):
         self.app = create_app(register_all=False)
@@ -40,40 +40,40 @@ class PluginInit:
         self.create_data()
 
     def generate_path(self):
-        if self.name == '*':
+        if self.name == "*":
             names = self.__get_all_plugins()
         else:
             names = self.name.split(" ")
         for name in names:
-            if self.name == '':
-                exit('插件名称不能为空，请重试')
+            if self.name == "":
+                exit("插件名称不能为空，请重试")
             self.path_info[name] = {
-                'plugin_path': self.plugin_path + '.' + name,
-                'plugin_config_path': self.plugin_path + '.' + name + '.config',
-                'plugin_info_path': self.plugin_path + '.' + name + '.info'
+                "plugin_path": self.plugin_path + "." + name,
+                "plugin_config_path": self.plugin_path + "." + name + ".config",
+                "plugin_info_path": self.plugin_path + "." + name + ".info",
             }
 
     def auto_install_rely(self):
         try:
             DependenciesResolve(app, self.path_info)
         except Exception as e:
-            raise Exception('安装插件依赖时发生错误！\nError:' + str(e))
+            raise Exception("安装插件依赖时发生错误！\nError:" + str(e))
         from subprocess import CalledProcessError
+
         for name in self.path_info:
-            print('正在初始化插件' + name + '...')
-            filename = 'requirements.txt'
-            file_path = self.app.config.root_path + '/plugin/' + name + '/' + filename
-            success_msg = '安装' + name + '插件的依赖成功'
-            fail_msg = name + '插件的依赖安装失败，请[手动安装依赖]: http://doc.7yue.pro/'
+            print("正在初始化插件" + name + "...")
+            filename = "requirements.txt"
+            file_path = self.app.config.root_path + "/plugin/" + name + "/" + filename
+            success_msg = "安装" + name + "插件的依赖成功"
+            fail_msg = name + "插件的依赖安装失败，请[手动安装依赖]: http://doc.7yue.pro/"
             if os.path.exists(file_path):
                 if (os.path.getsize(file_path)) == 0:
                     continue
-                print('正在安装' + name + '插件的依赖...')
+                print("正在安装" + name + "插件的依赖...")
 
                 try:
                     # 使用try except来判断使用pip管理包还是pipenv管理包，首选pipenv
-                    ret = self.__execute_cmd(
-                        cmd='pipenv install -r ' + file_path)
+                    ret = self.__execute_cmd(cmd="pipenv install -r " + file_path)
 
                     if ret:
                         print(success_msg)
@@ -82,8 +82,7 @@ class PluginInit:
 
                 except CalledProcessError:
                     try:
-                        ret = self.__execute_cmd(
-                            cmd='pip install -r ' + file_path)
+                        ret = self.__execute_cmd(cmd="pip install -r " + file_path)
 
                         if ret:
                             print(success_msg)
@@ -91,20 +90,19 @@ class PluginInit:
                             exit(fail_msg)
 
                     except Exception as e:
-                        exit((str(e)) + '\n' + fail_msg)
+                        exit((str(e)) + "\n" + fail_msg)
 
                 except Exception as e:
-                    exit((str(e)) + '\n' + fail_msg)
+                    exit((str(e)) + "\n" + fail_msg)
 
     def auto_write_setting(self):
-        print('正在自动写入配置文件...')
+        print("正在自动写入配置文件...")
         setting_text = dict()
         for name, val in self.path_info.items():
             try:
-                info_mod = import_module(
-                    self.path_info[name]['plugin_info_path'])
+                info_mod = import_module(self.path_info[name]["plugin_info_path"])
             except ModuleNotFoundError as e:
-                raise Exception(str(e) + '\n未找到插件' + name + '，请检查您输入的插件名是否正确')
+                raise Exception(str(e) + "\n未找到插件" + name + "，请检查您输入的插件名是否正确")
 
             res = self._generate_setting(name, info_mod)
             setting_text[name] = res
@@ -113,56 +111,58 @@ class PluginInit:
         self.__update_setting(new_setting=setting_text)
 
     def create_data(self):
-        print('正在创建基础数据...')
+        print("正在创建基础数据...")
         for name, val in self.path_info.items():
             # 调用插件__init__模块中的initial_data方法，创建初始的数据
             try:
                 plugin_module = import_module(
-                    self.path_info[name]['plugin_path'] + '.app.__init__')
+                    self.path_info[name]["plugin_path"] + ".app.__init__"
+                )
                 dir_info = dir(plugin_module)
             except ModuleNotFoundError as e:
-                raise Exception(str(e) + '\n未找到插件' + name
-                                + '，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包')
-            if 'initial_data' in dir_info:
+                raise Exception(
+                    str(e) + "\n未找到插件" + name + "，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包"
+                )
+            if "initial_data" in dir_info:
                 plugin_module.initial_data()
-        print('插件初始化成功')
+        print("插件初始化成功")
 
     def _generate_setting(self, name, info_mod):
         info_mod_dic = info_mod.__dict__
         ret = {
-            'path': self.path_info[name]['plugin_path'],
-            'enable': True,
+            "path": self.path_info[name]["plugin_path"],
+            "enable": True,
             # info_mod_dic.__version__
-            'version': info_mod_dic.pop("__version__", '0.0.1')
+            "version": info_mod_dic.pop("__version__", "0.0.1"),
         }
         # 向setting_doc中写入插件的配置项
-        cfg_mod = import_module(self.path_info[name]['plugin_config_path'])
+        cfg_mod = import_module(self.path_info[name]["plugin_config_path"])
         dic = cfg_mod.__dict__
         for key in dic.keys():
-            if not key.startswith('__'):
+            if not key.startswith("__"):
                 ret[key] = dic[key]
         return ret
 
     def __update_setting(self, new_setting):
         # 得到现存的插件配置
-        old_setting = self.app.config.get('PLUGIN_PATH')
+        old_setting = self.app.config.get("PLUGIN_PATH")
         final_setting = self.__cal_setting(new_setting, old_setting)
 
-        sub_str = 'PLUGIN_PATH = ' + self.__format_setting(final_setting)
+        sub_str = "PLUGIN_PATH = " + self.__format_setting(final_setting)
 
-        setting_path = self.app.config.root_path + '/config/setting.py'
-        with open(setting_path, 'r', encoding='UTF-8') as f:
+        setting_path = self.app.config.root_path + "/config/setting.py"
+        with open(setting_path, "r", encoding="UTF-8") as f:
             content = f.read()
-            pattern = 'PLUGIN_PATH = \{([\s\S]*)\}+.*?'
+            pattern = "PLUGIN_PATH = \{([\s\S]*)\}+.*?"
             result = re.sub(pattern, sub_str, content)
 
-        with open(setting_path, 'w+', encoding='UTF-8') as f:
+        with open(setting_path, "w+", encoding="UTF-8") as f:
             f.write(result)
 
     def __get_all_plugins(self):
         # 返回所有插件的目录名称
         ret = []
-        path = self.app.config.root_path + '/plugin'
+        path = self.app.config.root_path + "/plugin"
         for file in os.listdir(path=path):
             file_path = os.path.join(path, file)
             if os.path.isdir(file_path):
@@ -181,9 +181,9 @@ class PluginInit:
     def __format_setting(cls, setting):
         # 格式化setting字符串
         setting_str = str(setting)
-        ret = setting_str.replace('},', '},\n   ').replace('{', '{\n    ', 1)
-        replace_reg = re.compile(r'\}$')
-        ret = replace_reg.sub('\n}', ret)
+        ret = setting_str.replace("},", "},\n   ").replace("{", "{\n    ", 1)
+        replace_reg = re.compile(r"\}$")
+        ret = replace_reg.sub("\n}", ret)
         return ret
 
     @staticmethod
@@ -208,7 +208,7 @@ class PluginInit:
                     final_setting[key] = old_setting[key]
                 else:
                     # 新的存在
-                    if new_setting[key]['version'] == old_setting[key]['version']:
+                    if new_setting[key]["version"] == old_setting[key]["version"]:
                         # 版本号相同，使用旧的配置
                         final_setting[key] = old_setting[key]
                     else:
@@ -219,7 +219,6 @@ class PluginInit:
 
 
 class DependenciesResolve:
-
     def __init__(self, app_obj, path):
         self.app = app_obj
         self.path_info = path
@@ -233,10 +232,9 @@ class DependenciesResolve:
 
     def generate_graph(self):
         try:
-            p = subprocess.Popen(["pipenv", "graph", "--json"],
-                                 stdout=subprocess.PIPE)
+            p = subprocess.Popen(["pipenv", "graph", "--json"], stdout=subprocess.PIPE)
 
-            r = p.communicate()[0].decode('utf-8')
+            r = p.communicate()[0].decode("utf-8")
             self.root_graph = json.loads(r)
 
         except subprocess.CalledProcessError as e:
@@ -250,19 +248,21 @@ class DependenciesResolve:
     def check_dependencies(self):
         for package in self.root_graph:
             # 验证顶级包是否符合规范
-            self.__check_top_dependencies(package['package'])
+            self.__check_top_dependencies(package["package"])
 
             # 验证子包是否符合规范
-            self.__check_sub_dependencies(package['dependencies'])
+            self.__check_sub_dependencies(package["dependencies"])
 
     def __generate_plugin_graph(self):
         for name, val in self.path_info.items():
             # 首先去校验插件依赖于住项目的依赖是否存在冲突
-            plugin_path = self.path_info[name]['plugin_path'].replace(
-                '.', '/').replace('app', '')
-            requirements_path = self.app.config.root_path + \
-                plugin_path + '/requirements.txt'
-            with open(requirements_path, 'r', encoding='UTF-8') as f:
+            plugin_path = (
+                self.path_info[name]["plugin_path"].replace(".", "/").replace("app", "")
+            )
+            requirements_path = (
+                self.app.config.root_path + plugin_path + "/requirements.txt"
+            )
+            with open(requirements_path, "r", encoding="UTF-8") as f:
                 while True:
 
                     # 正则匹配requirements的每一行的信息
@@ -270,7 +270,7 @@ class DependenciesResolve:
                     if not line:
                         break
 
-                    pattern = '(.*?)(==|<=|>=|!=|>|<)(.*)'
+                    pattern = "(.*?)(==|<=|>=|!=|>|<)(.*)"
                     search_obj = re.search(pattern, line)
                     if search_obj:
 
@@ -279,76 +279,89 @@ class DependenciesResolve:
                         version = search_obj.group(3)
                         key = search_obj.group(1).lower()
 
-                        plugin_package = dict({'package': {}})
-                        plugin_package['package']['key'] = key
-                        plugin_package['package']['package_name'] = package_name
-                        plugin_package['package']['version'] = version
-                        plugin_package['package']['condition'] = condition
-                        plugin_package['package']['plugin_name'] = name
+                        plugin_package = dict({"package": {}})
+                        plugin_package["package"]["key"] = key
+                        plugin_package["package"]["package_name"] = package_name
+                        plugin_package["package"]["version"] = version
+                        plugin_package["package"]["condition"] = condition
+                        plugin_package["package"]["plugin_name"] = name
                         self.plugin_graph.append(plugin_package)
 
     def __check_top_dependencies(self, top_package):
         for plugin_package in self.plugin_graph:
-            top_version = top_package['installed_version']
-            plugin_version = plugin_package['package']['version']
-            if top_package['key'] == plugin_package['package']['key'] and top_version != plugin_version:
-                err_msg = '由于项目主目录已经存在在包' \
-                          '' + top_package['package_name'] + '，但 ' + plugin_package['package']['plugin_name']\
-                          + ' 插件尝试重复安装不同版本，请尝试手动去掉该插件的requirements.txt中的包'
+            top_version = top_package["installed_version"]
+            plugin_version = plugin_package["package"]["version"]
+            if (
+                top_package["key"] == plugin_package["package"]["key"]
+                and top_version != plugin_version
+            ):
+                err_msg = (
+                    "由于项目主目录已经存在在包"
+                    ""
+                    + top_package["package_name"]
+                    + "，但 "
+                    + plugin_package["package"]["plugin_name"]
+                    + " 插件尝试重复安装不同版本，请尝试手动去掉该插件的requirements.txt中的包"
+                )
                 raise Exception(err_msg)
 
     def __check_sub_dependencies(self, dep_package):
         # 判断插件中要安装的依赖，是否符合主项目已安装的依赖规定的范围
         for dependence in dep_package:
-            required_version = dependence['required_version']
-            dep_name = dependence['key']
+            required_version = dependence["required_version"]
+            dep_name = dependence["key"]
 
             if required_version is not None:
                 version_infos = required_version.split(",")
                 for version_info in version_infos:
-                    pattern = '(>=|<=|!=|==|<|>)(.*)'
+                    pattern = "(>=|<=|!=|==|<|>)(.*)"
                     search_obj = re.search(pattern, version_info)
                     condition = search_obj.group(1)
-                    version = int(search_obj.group(2).replace('.', ''))
+                    version = int(search_obj.group(2).replace(".", ""))
 
                     for plugin_package in self.plugin_graph:
-                        name = plugin_package['package']['key']
+                        name = plugin_package["package"]["key"]
                         if dep_name == name:
                             plugin_package_version = int(
-                                plugin_package['package']['version'].replace('.', ''))
-                            err_msg = plugin_package['package']['plugin_name'] + '插件的依赖 ' + name +\
-                                ' 与主项目依赖版本发生冲突! 请自行手动解决'
-                            if condition == '>=':
+                                plugin_package["package"]["version"].replace(".", "")
+                            )
+                            err_msg = (
+                                plugin_package["package"]["plugin_name"]
+                                + "插件的依赖 "
+                                + name
+                                + " 与主项目依赖版本发生冲突! 请自行手动解决"
+                            )
+                            if condition == ">=":
                                 if plugin_package_version >= version:
                                     pass
                                 else:
                                     raise Exception(err_msg)
 
-                            elif condition == '==':
+                            elif condition == "==":
                                 if plugin_package_version == version:
                                     pass
                                 else:
                                     raise Exception(err_msg)
 
-                            elif condition == '!=':
+                            elif condition == "!=":
                                 if plugin_package_version != version:
                                     pass
                                 else:
                                     raise Exception(err_msg)
 
-                            elif condition == '<=':
+                            elif condition == "<=":
                                 if plugin_package_version <= version:
                                     pass
                                 else:
                                     raise Exception(err_msg)
 
-                            elif condition == '<':
+                            elif condition == "<":
                                 if plugin_package_version < version:
                                     pass
                                 else:
                                     raise Exception(err_msg)
 
-                            elif condition == '>':
+                            elif condition == ">":
                                 if plugin_package_version > version:
                                     pass
                                 else:
@@ -358,5 +371,5 @@ class DependenciesResolve:
 
 
 def init():
-    plugin_name = input('请输入要初始化的插件名，如果多个插件请使用空格分隔插件名，输入*表示初始化所有插件:\n')
+    plugin_name = input("请输入要初始化的插件名，如果多个插件请使用空格分隔插件名，输入*表示初始化所有插件:\n")
     PluginInit(plugin_name)

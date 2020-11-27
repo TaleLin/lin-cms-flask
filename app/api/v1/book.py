@@ -14,13 +14,13 @@ from app.model.v1.book import Book
 from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
 
 
-book_api = Redprint('book')
+book_api = Redprint("book")
 
 
 class BookViewModel(LinModel):
-    '''
+    """
     继承LinModel类可以自动序列化
-    '''
+    """
 
     def __init__(self, book):
         self.title = book.title
@@ -28,49 +28,49 @@ class BookViewModel(LinModel):
         self.summary = book.summary
 
 
-@book_api.route('/<bid>/base', methods=['GET'])
+@book_api.route("/<bid>/base", methods=["GET"])
 def get_book_base(bid):
     book = Book.get_detail(bid)
     return BookViewModel(book)
 
 
-@book_api.route('/<bid>', methods=['GET'])
+@book_api.route("/<bid>", methods=["GET"])
 @login_required
 def get_book(bid):
     book = Book.get_detail(bid)
     return book
 
 
-@book_api.route('', methods=['GET'])
+@book_api.route("", methods=["GET"])
 @login_required
 def get_books():
     books = Book.get_all()
     return books
 
 
-@book_api.route('/search', methods=['GET'])
+@book_api.route("/search", methods=["GET"])
 def search():
     form = BookSearchForm().validate_for_api()
     books = Book.search_by_keywords(form.q.data)
     return books
 
 
-@book_api.route('', methods=['POST'])
+@book_api.route("", methods=["POST"])
 def create_book():
     form = CreateOrUpdateBookForm().validate_for_api()
     Book.new_book(form)
     return Success(12)
 
 
-@book_api.route('/<bid>', methods=['PUT'])
+@book_api.route("/<bid>", methods=["PUT"])
 def update_book(bid):
     form = CreateOrUpdateBookForm().validate_for_api()
     Book.edit_book(bid, form)
     return Success(13)
 
 
-@book_api.route('/<bid>', methods=['DELETE'])
-@permission_meta(auth='删除图书', module='图书')
+@book_api.route("/<bid>", methods=["DELETE"])
+@permission_meta(auth="删除图书", module="图书")
 @group_required
 def delete_book(bid):
     print(Book.get_detail(bid))

@@ -57,16 +57,16 @@ class Sse(object):
 
     def heartbeat(self, comment=None):
         # 发送注释 : this is a test stream\n\n 告诉客户端，服务器还活着
-        if comment and type(comment) == 'str':
+        if comment and type(comment) == "str":
             self._buffer.append(comment)
         else:
-            self._buffer.append(': sse sever is still alive \n\n')
+            self._buffer.append(": sse sever is still alive \n\n")
         tmp = self.join_buffer()
         self._buffer.clear()
         return tmp
 
     def join_buffer(self):
-        string = ''
+        string = ""
         for it in self._buffer:
             string += it
         return string

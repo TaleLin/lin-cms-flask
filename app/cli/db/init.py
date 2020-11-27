@@ -12,7 +12,11 @@ def init(force=False):
     if force:
         db.drop_all()
         db.create_all()
-    elif manager.user_model.get(one=False) or manager.user_group_model.get(one=False) or manager.group_model.get(one=False):
+    elif (
+        manager.user_model.get(one=False)
+        or manager.user_group_model.get(one=False)
+        or manager.group_model.get(one=False)
+    ):
         exit("表中存在数据，初始化失败")
     with db.auto_commit():
         # 创建一个超级管理员分组
@@ -23,10 +27,10 @@ def init(force=False):
         db.session.add(root_group)
         # 创建一个超级管理员
         root = manager.user_model()
-        root.username = 'root'
+        root.username = "root"
         db.session.add(root)
         db.session.flush()
-        root.password = '123456'
+        root.password = "123456"
         # root用户 and  超级管理员分组 对应关系写入user_group表中
         user_group = manager.user_group_model()
         user_group.user_id = root.id

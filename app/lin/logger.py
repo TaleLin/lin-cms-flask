@@ -19,21 +19,23 @@ class LinLog:
         self._fmt = fmt
         self._handler = handler
         self._logger = None
-        self._log_config = self._app.config.get('LOG')
+        self._log_config = self._app.config.get("LOG")
         self.init_logger()
         self.set_logger()
 
     def init_logger(self):
-        if self._log_config['FILE'] and not self._app.debug:
+        if self._log_config["FILE"] and not self._app.debug:
             fmt = logging.Formatter(
                 "%(asctime)s %(levelname)s %(process)d   ---  [%(threadName)s]"
-                " - %(message)s" if not self._fmt else self._fmt
+                " - %(message)s"
+                if not self._fmt
+                else self._fmt
             )
             logging.basicConfig(level=logging.DEBUG)
             self._handler = LinRotatingFileHandler(
-                log_dir=self._log_config['DIR'],
-                max_bytes=self._log_config['SIZE_LIMIT'],
-                encoding='UTF-8'
+                log_dir=self._log_config["DIR"],
+                max_bytes=self._log_config["SIZE_LIMIT"],
+                encoding="UTF-8",
             )
             self._handler.setFormatter(fmt)
             self._handler.setLevel(level=logging.DEBUG)
@@ -49,10 +51,12 @@ class LinLog:
 
 
 class LinRotatingFileHandler(BaseRotatingHandler):
-    def __init__(self, log_dir='logs', mode='a', max_bytes=0, encoding=None, delay=False):
+    def __init__(
+        self, log_dir="logs", mode="a", max_bytes=0, encoding=None, delay=False
+    ):
 
         if max_bytes > 0:
-            mode = 'a'
+            mode = "a"
         self._log_dir = log_dir
         self._suffix = ".log"
         self._year_month = datetime.datetime.now().strftime("%Y-%m")
@@ -60,8 +64,7 @@ class LinRotatingFileHandler(BaseRotatingHandler):
         self._create_new_stream_if_not_exists(self.store_dir, open_stream=False)
         self.filename = datetime.datetime.now().strftime("%Y-%m-%d")
         filename = os.path.join(self.store_dir, self.filename) + self._suffix
-        BaseRotatingHandler.__init__(self, filename,
-                                     mode, encoding, delay)
+        BaseRotatingHandler.__init__(self, filename, mode, encoding, delay)
         self.max_bytes = max_bytes
 
     def doRollover(self):
@@ -75,14 +78,15 @@ class LinRotatingFileHandler(BaseRotatingHandler):
         if self.filename != filename or self._year_month != year_month:
             self.baseFilename = self.baseFilename.replace(
                 os.path.join(self._year_month, self.filename),
-                os.path.join(year_month, filename))
+                os.path.join(year_month, filename),
+            )
             self.filename = filename
             self._year_month = year_month
         else:
             dfn = self.rotation_filename(
                 self.baseFilename.replace(
                     self._suffix,
-                    '-' + datetime.datetime.now().strftime("%H-%M-%S") + self._suffix
+                    "-" + datetime.datetime.now().strftime("%H-%M-%S") + self._suffix,
                 )
             )
             if os.path.exists(dfn):

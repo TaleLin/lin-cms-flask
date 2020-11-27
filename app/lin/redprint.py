@@ -24,11 +24,11 @@ class Redprint:
 
     def register(self, bp, url_prefix=None):
         if url_prefix is None and self.with_prefix:
-            url_prefix = '/' + self.name
+            url_prefix = "/" + self.name
         else:
-            url_prefix = '' + str(url_prefix) + '/' + self.name
+            url_prefix = "" + str(url_prefix) + "/" + self.name
         for f, rule, options in self.mound:
-            endpoint = self.name + '+' + options.pop("endpoint", f.__name__)
+            endpoint = self.name + "+" + options.pop("endpoint", f.__name__)
             if rule:
                 url = url_prefix + rule
                 bp.add_url_rule(url, endpoint, f, **options)
