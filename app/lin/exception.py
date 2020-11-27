@@ -5,7 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from app.lin.multiplemeta import MultipleMeta
-from flask import json, request
+from flask import json, request, current_app
 from werkzeug.exceptions import HTTPException
 from werkzeug._compat import text_type
 
@@ -17,20 +17,26 @@ class APIException(HTTPException, metaclass=MultipleMeta):
     headers = {'Content-Type': 'application/json'}
 
     def __init__(self):
-        super(APIException, self).__init__(None, None)
+        msg = current_app.config.get("MESSAGE").get(self.message_code)
+        if msg:
+            self.message = msg
+        super(APIException, self).__init__(self.message, None)
 
     def __init__(self, message_code: int):
         self.message_code = message_code
-        super(APIException, self).__init__(None, None)
+        msg = current_app.config.get("MESSAGE").get(self.message_code)
+        if msg:
+            self.message = msg
+        super(APIException, self).__init__(self.message, None)
 
     def __init__(self, message: str):
         self.message = message
-        super(APIException, self).__init__(message, None)
+        super(APIException, self).__init__(self.message, None)
 
     def __init__(self, message_code: int, message: str):
         self.message_code = message_code
         self.message = message
-        super(APIException, self).__init__(message, None)
+        super(APIException, self).__init__(self.message, None)
 
     def __init__(self, exception_dict: dict):
         code = exception_dict.get('code')
@@ -43,15 +49,23 @@ class APIException(HTTPException, metaclass=MultipleMeta):
             self.message_code = message_code
         if message:
             self.message = message
+        else:
+            msg = current_app.config.get("MESSAGE").get(self.message_code)
+            if msg:
+                self.message = msg
         if headers is not None:
             headers_merged = headers.copy()
             headers_merged.update(self.headers)
             self.headers = headers_merged
 
-        super(APIException, self).__init__(message, None)
+        super(APIException, self).__init__(self.message, None)
 
     def set_code(self, code: int):
         self.code = code
+        return self
+
+    def set_message_code(self, message_code: int):
+        self.message_code = message_code
         return self
 
     def add_headers(self, headers: dict):
