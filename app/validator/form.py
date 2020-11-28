@@ -199,8 +199,7 @@ class EventsForm(Form):
 # 更新用户邮箱和昵称
 class UpdateInfoForm(EmailForm):
     nickname = StringField()
-    # avatar = StringField()
-    avatar = StringField(validators=[DataRequired(message="请输入events字段")])
+    avatar = StringField()
 
     def validate_nickname(self, value):
         if value.data:
