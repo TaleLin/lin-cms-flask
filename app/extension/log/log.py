@@ -1,10 +1,17 @@
-import os
+"""
+    Log of Lin
+    ~~~~~~~~~
 
-from flask import current_app
-from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
+    log 扩展，用户行为日志 模型
 
-from app.lin import db, manager
+    :copyright: © 2020 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
+
+from app.lin.db import db
 from app.lin.interface import BaseCrud, InfoCrud
+from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
 
 
 class Log(InfoCrud):

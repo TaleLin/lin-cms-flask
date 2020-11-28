@@ -1,4 +1,4 @@
-# 文件相关配置
+# 本地文件上传相关配置模版
 FILE = {
     "STORE_DIR": "app/assets",
     "SINGLE_LIMIT": 1024 * 1024 * 2,

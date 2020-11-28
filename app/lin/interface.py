@@ -145,7 +145,7 @@ class InfoCrud(db.Model, MixinJSONSerializer):
         return self
 
 
-class LinModel:
+class LinViewModel:
     # 提供自动序列化功能
     def keys(self):
         return self.__dict__.keys()

@@ -5,14 +5,13 @@
 
 import math
 
-from app.lin.utils import get_page_from_query
-from app.lin import db
+from app.lin.db import db
 from app.lin.core import permission_meta
 from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
+from app.extension.log.log import Log
 from app.lin.redprint import Redprint
-from app.lin.utils import paginate
-from app.lin.model.log import Log
+from app.lin.utils import get_page_from_query, paginate
 from app.validator.form import LogFindForm
 from flask import request
 from sqlalchemy import text
@@ -54,7 +53,7 @@ def get_logs():
 def get_user_logs():
     form = LogFindForm().validate_for_api()
     keyword = request.args.get("keyword", default=None, type=str)
-    if keyword is None or "":
+    if keyword is None or str():
         raise ParameterError("搜索关键字不可为空")
     start, count = paginate()
     logs = Log.query.filter(Log.message.like(f"%{keyword}%"))

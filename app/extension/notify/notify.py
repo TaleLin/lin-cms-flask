@@ -2,7 +2,7 @@
     notify of Lin
     ~~~~~~~~~
 
-    notify 模块，消息推送
+    notify 扩展，消息推送
 
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
