@@ -7,54 +7,26 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import json
 from collections import namedtuple
 from datetime import date, datetime
+from functools import wraps
 
-from flask import Blueprint
-from flask import Flask as _Flask
-from flask import current_app, g, jsonify, request
+from app.lin.syslogger import SysLogger
+from flask import Blueprint, Flask, current_app, g, json, jsonify, request
 from flask.json import JSONEncoder as _JSONEncoder
+from flask.json import jsonify
 from flask.wrappers import Response
+from sqlalchemy.exc import OperationalError
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
-from sqlalchemy.exc import OperationalError
 
 from .config import Config
 from .db import MixinJSONSerializer, db
 from .exception import APIException, InternalServerError
-from .interface import LinModel
+from .interface import LinViewModel
 from .jwt import jwt
-from .logger import LinLog
 
-
-class JSONEncoder(_JSONEncoder):
-    def default(self, o):
-        if hasattr(o, "keys") and hasattr(o, "__getitem__"):
-            return dict(o)
-        if isinstance(o, datetime):
-            return o.strftime("%Y-%m-%dT%H:%M:%SZ")
-        if isinstance(o, date):
-            return o.strftime("%Y-%m-%d")
-        return JSONEncoder.default(self, o)
-
-
-class Flask(_Flask):
-    def make_lin_response(self, rv):
-        """
-        将视图函数返回的值转换为flask内置支持的类型
-        """
-        if isinstance(rv, (MixinJSONSerializer, LinModel)):
-            rv = jsonify(rv)
-        elif isinstance(rv, (int, list, set)):
-            rv = json.dumps(rv, cls=JSONEncoder)
-        elif isinstance(rv, (tuple)):
-            if len(rv) == 0 or len(rv) > 0 and not isinstance(rv[0], Response):
-                rv = json.dumps(rv, cls=JSONEncoder)
-        return super(Flask, self).make_response(rv)
-
-
-__version__ = "0.1.3"
+__version__ = "0.3.0"
 
 # 路由函数的权限和模块信息(meta信息)
 Meta = namedtuple("meta", ["auth", "module", "mount"])
@@ -71,6 +43,32 @@ permission_meta_infos = {}
 # so we move the plugin config here,which you can access config more convenience
 
 lin_config = Config()
+
+
+class JSONEncoder(_JSONEncoder):
+    def default(self, o):
+        if hasattr(o, "keys") and hasattr(o, "__getitem__"):
+            return dict(o)
+        if isinstance(o, datetime):
+            return o.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if isinstance(o, date):
+            return o.strftime("%Y-%m-%d")
+        return JSONEncoder.default(self, o)
+
+
+def auto_response(func):
+    @wraps(func)
+    def make_lin_response(rv):
+        if isinstance(rv, (MixinJSONSerializer, LinViewModel)):
+            rv = jsonify(rv)
+        elif isinstance(rv, (int, list, set)):
+            rv = json.dumps(rv, cls=JSONEncoder)
+        elif isinstance(rv, (tuple)):
+            if len(rv) == 0 or len(rv) > 0 and not isinstance(rv[0], Response):
+                rv = json.dumps(rv, cls=JSONEncoder)
+        return func(rv)
+
+    return make_lin_response
 
 
 def permission_meta(auth, module="common", mount=True):
@@ -163,9 +161,8 @@ class Lin(object):
         create_all=False,  # 是否创建所有数据库表, default true
         mount=True,  # 是否挂载默认的蓝图, default True
         handle=True,  # 是否使用全局异常处理, default True
-        json_encoder=True,  # 是否使用自定义的json_encoder , default True
-        lin_response=True,  # 是否启用自动序列化，default True, 需要启用json_encoder才能生效
-        logger=True,  # 是否使用自定义系统日志，default True
+        auto_jsonify=True,  # 是否启用自动序列化，default True
+        syslogger=True,  # 是否使用自定义系统运行日志，default True
     ):
         self.app = app
         self.manager = None
@@ -181,14 +178,13 @@ class Lin(object):
                 create_all,
                 mount,
                 handle,
-                json_encoder,
-                lin_response,
-                logger,
+                auto_jsonify,
+                syslogger,
             )
 
     def init_app(
         self,
-        app: Flask,
+        app,
         group_model=None,
         user_model=None,
         identity_model=None,
@@ -198,32 +194,16 @@ class Lin(object):
         create_all=False,
         mount=True,
         handle=True,
-        json_encoder=True,
-        lin_response=True,
-        logger=True,
+        auto_jsonify=True,
+        syslogger=True,
     ):
-        # default config
-        app.config.setdefault("PLUGIN_PATH", {})
         # 默认蓝图的前缀
         app.config.setdefault("BP_URL_PREFIX", "/plugin")
-        # 默认文件上传配置
-        app.config.setdefault(
-            "FILE",
-            {
-                "STORE_DIR": "app/assets",
-                "SINGLE_LIMIT": 1024 * 1024 * 2,
-                "TOTAL_LIMIT": 1024 * 1024 * 20,
-                "NUMS": 10,
-                "INCLUDE": set(["jpg", "png", "jpeg"]),
-                "EXCLUDE": set([]),
-            },
-        )
-        json_encoder and self._enable_json_encoder(app)
-        json_encoder and lin_response and self._enable_lin_response(app)
+        auto_jsonify and self._enable_auto_jsonify(app)
         self.app = app
         # 初始化 manager
         self.manager = Manager(
-            app.config.get("PLUGIN_PATH"),
+            app.config.get("PLUGIN_PATH", dict()),
             group_model,
             user_model,
             identity_model,
@@ -237,7 +217,7 @@ class Lin(object):
         jwt.init_app(app)
         mount and self.mount(app)
         handle and self.handle_error(app)
-        logger and LinLog(app)
+        syslogger and SysLogger(app)
         self.init_permissions(app)
 
     def init_permissions(self, app):
@@ -247,7 +227,7 @@ class Lin(object):
                 # 新增的权限记录
                 new_added_permissions = list()
                 deleted_ids = [permission.id for permission in permissions]
-                # mount-> unmount 的记录
+                # mount-> unmount
                 unmounted_ids = list()
                 # unmount-> mount 的记录
                 mounted_ids = list()
@@ -311,7 +291,9 @@ class Lin(object):
             else:
                 for controller in plugin.controllers.values():
                     controller.register(bp)
-        app.register_blueprint(bp, url_prefix=app.config.get("BP_URL_PREFIX"))
+        app.register_blueprint(
+            bp, url_prefix=app.config.get("BP_URL_PREFIX", "/plugins")
+        )
         for ep, func in app.view_functions.items():
             info = permission_meta_infos.get(func.__name__ + str(func.__hash__()), None)
             if info:
@@ -336,11 +318,9 @@ class Lin(object):
                 else:
                     raise e
 
-    def _enable_json_encoder(self, app):
+    def _enable_auto_jsonify(self, app):
         app.json_encoder = JSONEncoder
-
-    def _enable_lin_response(self, app):
-        app.make_response = app.make_lin_response
+        app.make_response = auto_response(app.make_response)
 
     def _enable_create_all(self, app):
         with app.app_context():
@@ -363,6 +343,7 @@ class Manager(object):
         group_permission_model=None,
         user_group_model=None,
     ):
+
         if not group_model:
             from .model import Group
 

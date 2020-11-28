@@ -6,14 +6,14 @@
 """
 import math
 
-from app.lin.utils import get_page_from_query, paginate
-from app.lin import db
 from app.lin.core import find_user, get_ep_infos, manager, permission_meta
+from app.lin.db import db
 from app.lin.enums import GroupLevelEnum
 from app.lin.exception import Forbidden, NotFound, ParameterError, Success
 from app.lin.jwt import admin_required
-from app.lin.log import Logger
+from app.extension.log.logger import Logger
 from app.lin.redprint import Redprint
+from app.lin.utils import get_page_from_query, paginate
 from app.validator.form import (
     DispatchAuth,
     DispatchAuths,
@@ -273,7 +273,7 @@ def create_group():
             gp.group_id = group.id
             gp.permission_id = permission_id
             group_permission_list.append(gp)
-        manager.group_permission_model.insert_batch(group_permission_list)
+        db.session.add_all(group_permission_list)
     return Success("新建分组成功")
 
 

@@ -1,5 +1,5 @@
 # .env 中记录了私密配置
-# .env
+# *.env
 
 .DS_Store
 .idea

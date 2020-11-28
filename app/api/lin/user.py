@@ -8,6 +8,7 @@ from operator import and_
 
 from app.lin.core import manager, permission_meta
 from app.lin.db import db
+from app.extension.log.log import Log
 from app.lin.exception import (
     RefreshException,
     Duplicated,
@@ -17,9 +18,8 @@ from app.lin.exception import (
     Success,
 )
 from app.lin.jwt import admin_required, get_tokens, login_required
-from app.lin.log import Logger
+from app.extension.log.logger import Logger
 from app.lin.redprint import Redprint
-from app.lin.model.log import Log
 from app.validator.form import (
     ChangePasswordForm,
     LoginForm,

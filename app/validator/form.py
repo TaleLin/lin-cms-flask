@@ -2,15 +2,14 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import re
 import time
 
-from app.lin import manager
-from app.lin.form import Form
+from app.lin.core import manager
 from app.lin.exception import ParameterError
+from app.lin.form import Form
 from wtforms import DateTimeField, FieldList, IntegerField, PasswordField, StringField
 from wtforms.validators import DataRequired, EqualTo, NumberRange, Regexp, length
-import re
-
 
 # 注册校验
 

@@ -5,19 +5,18 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin import group_required, login_required, permission_meta
 from app.lin.exception import Success
-from app.lin.interface import LinModel
-from app.lin.jwt import login_required
+from app.lin.interface import LinViewModel
+from app.lin.jwt import group_required, login_required
+from app.lin.core import permission_meta
 from app.lin.redprint import Redprint
 from app.model.v1.book import Book
 from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
 
-
 book_api = Redprint("book")
 
 
-class BookViewModel(LinModel):
+class BookViewModel(LinViewModel):
     """
     继承LinModel类可以自动序列化
     """

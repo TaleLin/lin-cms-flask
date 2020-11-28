@@ -1,8 +1,8 @@
 """
-    log of Lin
+    Logger of Lin
     ~~~~~~~~~
 
-    log 模块，用户日志记录
+    log 扩展，用户行为日志记录器
 
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
@@ -11,17 +11,21 @@
 import re
 from functools import wraps
 
-from app.lin.model.log import Log
 from flask import Response, request
 from flask_jwt_extended import get_current_user
+from .log import Log
+from app.lin.core import find_info_by_ep
 
-from .core import find_info_by_ep
 
 REG_XP = r"[{](.*?)[}]"
 OBJECTS = ["user", "response", "request"]
 
 
 class Logger(object):
+    """
+    用户行为日志记录器
+    """
+
     # message template
     template = None
 
