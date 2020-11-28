@@ -81,23 +81,5 @@ def plugin_generate(name: str):
     _plugin_generate(name)
 
 
-@click.command("test")
-def pytest():
-    """
-    Run unit test with pytest
-    """
-    os.system("pytest")
-
-
-@click.command("format")
-def format():
-    """
-    Format project code  with black
-    """
-    os.system("black {}".format(os.getcwd()))
-
-
 app.cli.add_command(db_cli)
 app.cli.add_command(plugin_cli)
-app.cli.add_command(pytest)
-app.cli.add_command(format)

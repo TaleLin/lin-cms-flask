@@ -88,12 +88,3 @@ class ProductionConfig(BaseConfig):
 
     # 令牌配置
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-
-
-class TestingConfig(BaseConfig):
-    """
-    测试环境普通配置
-    """
-
-    # 令牌配置
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
