@@ -12,11 +12,11 @@ from app.lin import Lin
 
 
 def register_blueprints(app):
-    from app.api.lin import create_lin
+    from app.api.cms import create_cms
     from app.api.v1 import create_v1
 
     app.register_blueprint(create_v1(), url_prefix="/v1")
-    app.register_blueprint(create_lin(), url_prefix="/cms")
+    app.register_blueprint(create_cms(), url_prefix="/cms")
 
 
 def apply_cors(app):

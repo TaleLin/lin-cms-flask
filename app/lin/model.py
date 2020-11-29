@@ -18,10 +18,7 @@ from .interface import (
 )
 
 
-class Group(GroupInfoCrud):
-    def _set_fields(self):
-        self._exclude = ["delete_time", "create_time", "update_time"]
-
+class Group(GroupInterface):
     @classmethod
     def count_by_id(cls, id) -> int:
         result = db.session.query(func.count(cls.id)).filter(
@@ -40,9 +37,6 @@ class Permission(PermissionInterface):
 
 
 class User(UserInterface):
-    def _set_fields(self):
-        self._exclude = ["delete_time", "create_time", "update_time"]
-
     @property
     def avatar(self):
         site_domain = (

@@ -145,8 +145,12 @@ def get_allowed_apis():
     user = get_current_user()
     groups = manager.group_model.select_by_user_id(user.id)
     group_ids = [group.id for group in groups]
-    permissions = manager.permission_model.select_by_group_ids(group_ids)
-    res = split_group(permissions, "module")
+    _permissions = manager.permission_model.select_by_group_ids(group_ids)
+    permission_list = [
+        {"permission": permission.name, "module": permission.module}
+        for permission in _permissions
+    ]
+    res = split_group(permission_list, "module")
     setattr(user, "permissions", res)
     setattr(user, "admin", user.is_admin)
     user._fields.extend(["admin", "permissions"])
