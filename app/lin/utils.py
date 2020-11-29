@@ -16,8 +16,6 @@ import time
 import types
 from importlib import import_module
 
-from flask import current_app, request
-
 
 def get_timestamp(fmt="%Y-%m-%d %H:%M:%S"):
     return time.strftime(fmt, time.localtime(time.time()))
@@ -88,32 +86,6 @@ def get_pwd():
     return os.path.abspath(os.getcwd())
 
 
-def paginate():
-    from .exception import ParameterError
-
-    count = int(
-        request.args.get(
-            "count",
-            current_app.config.get("COUNT_DEFAULT")
-            if current_app.config.get("COUNT_DEFAULT")
-            else 5,
-        )
-    )
-    start = int(
-        request.args.get(
-            "page",
-            current_app.config.get("PAGE_DEFAULT")
-            if current_app.config.get("PAGE_DEFAULT")
-            else 0,
-        )
-    )
-    count = 15 if count >= 15 else count
-    start = start * count
-    if start < 0 or count < 0:
-        raise ParameterError()
-    return start, count
-
-
 def camel2line(camel: str):
     p = re.compile(r"([a-z]|\d)([A-Z])")
     line = re.sub(p, r"\1_\2", camel).lower()
@@ -127,15 +99,3 @@ def get_random_str(length):
         sa.append(random.choice(seed))
     salt = "".join(sa)
     return salt
-
-
-def get_count_from_query():
-    count_default = current_app.config.get("COUNT_DEFAULT")
-    count = int(request.args.get("count", count_default if count_default else 1))
-    return count
-
-
-def get_page_from_query():
-    page_default = current_app.config.get("PAGE_DEFAULT")
-    page = int(request.args.get("page", page_default if page_default else 0))
-    return page

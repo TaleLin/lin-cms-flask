@@ -72,6 +72,5 @@ def update_book(bid):
 @permission_meta(auth="删除图书", module="图书")
 @group_required
 def delete_book(bid):
-    print(Book.get_detail(bid))
     Book.remove_book(bid)
     return Success(14)
