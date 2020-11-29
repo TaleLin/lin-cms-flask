@@ -5,10 +5,12 @@
     :license: MIT, see LICENSE for more details.
 """
 from typing import Union
-from .multiplemeta import MultipleMeta
-from flask import json, request, current_app
-from werkzeug.exceptions import HTTPException
+
+from flask import current_app, json, request
 from werkzeug._compat import text_type
+from werkzeug.exceptions import HTTPException
+
+from .multiplemeta import MultipleMeta
 
 
 class APIException(HTTPException, metaclass=MultipleMeta):

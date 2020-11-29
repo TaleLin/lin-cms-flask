@@ -1,2 +1,2 @@
-from .init import init
 from .generator import generate
+from .init import init

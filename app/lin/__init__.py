@@ -11,13 +11,13 @@ from collections import namedtuple
 from datetime import date, datetime
 from functools import wraps
 
-from app.lin.syslogger import SysLogger
 from flask import Blueprint, Flask, current_app, json, jsonify, request
 from flask.json import JSONEncoder as _JSONEncoder
-from flask.json import jsonify
 from flask.wrappers import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
+
+from app.lin.syslogger import SysLogger
 
 from .config import Config
 from .db import MixinJSONSerializer, db
@@ -229,6 +229,18 @@ class Lin(object):
             identity_model = UserIdentity
         # 默认蓝图的前缀
         app.config.setdefault("BP_URL_PREFIX", "/plugin")
+        # 文件上传配置未指定时的默认值
+        app.config.setdefault(
+            "FILE",
+            {
+                "STORE_DIR": "app/assets",
+                "SINGLE_LIMIT": 1024 * 1024 * 2,
+                "TOTAL_LIMIT": 1024 * 1024 * 20,
+                "NUMS": 10,
+                "INCLUDE": set(["jpg", "png", "jpeg"]),
+                "EXCLUDE": set([]),
+            },
+        )
         auto_jsonify and self._enable_auto_jsonify(app)
         self.app = app
         # 初始化 manager

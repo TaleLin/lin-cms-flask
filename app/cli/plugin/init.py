@@ -3,10 +3,11 @@
     :license: MIT, see LICENSE for more details.
 """
 import json
-import re
-from importlib import import_module
-import subprocess
 import os
+import re
+import subprocess
+from importlib import import_module
+
 from app.app import create_app
 
 """

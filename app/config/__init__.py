@@ -3,8 +3,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from datetime import timedelta
 import os
+from datetime import timedelta
 
 
 class BaseConfig(object):

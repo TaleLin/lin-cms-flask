@@ -9,8 +9,10 @@ import click
 from flask.cli import AppGroup
 
 from app.app import create_app
-from app.cli.db import fake as _db_fake, init as _db_init
-from app.cli.plugin import init as _plugin_init, generate as _plugin_generate
+from app.cli.db import fake as _db_fake
+from app.cli.db import init as _db_init
+from app.cli.plugin import generate as _plugin_generate
+from app.cli.plugin import init as _plugin_init
 from app.model.lin import (
     Group,
     GroupPermission,

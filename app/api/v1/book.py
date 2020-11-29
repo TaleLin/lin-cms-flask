@@ -5,9 +5,9 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from app.lin import LinViewModel, permission_meta
 from app.lin.exception import Success
 from app.lin.jwt import group_required, login_required
-from app.lin import permission_meta, LinViewModel
 from app.lin.redprint import Redprint
 from app.model.v1.book import Book
 from app.validator.form import BookSearchForm, CreateOrUpdateBookForm

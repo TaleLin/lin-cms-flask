@@ -9,9 +9,10 @@
 """
 
 
+from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
+
 from app.lin.db import db
 from app.lin.interface import BaseCrud, InfoCrud
-from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
 
 
 class Log(InfoCrud):

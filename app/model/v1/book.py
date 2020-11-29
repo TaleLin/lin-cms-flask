@@ -3,9 +3,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from sqlalchemy import Column, Integer, String
+
 from app.common.exception import BookNotFound, BookParameterError
 from app.lin.interface import InfoCrud as Base
-from sqlalchemy import Column, String, Integer
 
 
 class Book(Base):

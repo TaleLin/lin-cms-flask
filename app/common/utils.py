@@ -1,3 +1,6 @@
+from itertools import groupby
+from operator import itemgetter
+
 from flask import current_app, request
 
 
@@ -37,3 +40,12 @@ def paginate():
     if start < 0 or count < 0:
         raise ParameterError()
     return start, count
+
+
+def split_group(dict_list, key):
+    dict_list.sort(key=itemgetter(key))
+    tmps = groupby(dict_list, itemgetter(key))
+    result = []
+    for key, group in tmps:
+        result.append({key: list(group)})
+    return result

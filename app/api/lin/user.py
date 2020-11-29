@@ -6,32 +6,34 @@
 """
 from operator import and_
 
-from app.lin import manager, permission_meta
-from app.lin.db import db
-from app.extension.log.log import Log
-from app.lin.exception import (
-    RefreshFailed,
-    Duplicated,
-    Fail,
-    NotFound,
-    ParameterError,
-    Success,
-)
-from app.lin.jwt import admin_required, get_tokens, login_required
-from app.extension.log.logger import Logger
-from app.lin.redprint import Redprint
-from app.validator.form import (
-    ChangePasswordForm,
-    LoginForm,
-    RegisterForm,
-    UpdateInfoForm,
-)
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     get_current_user,
     get_jwt_identity,
     verify_jwt_refresh_token_in_request,
+)
+
+from app.common.utils import split_group
+from app.extension.log.log import Log
+from app.extension.log.logger import Logger
+from app.lin import manager, permission_meta
+from app.lin.db import db
+from app.lin.exception import (
+    Duplicated,
+    Fail,
+    NotFound,
+    ParameterError,
+    RefreshFailed,
+    Success,
+)
+from app.lin.jwt import admin_required, get_tokens, login_required
+from app.lin.redprint import Redprint
+from app.validator.form import (
+    ChangePasswordForm,
+    LoginForm,
+    RegisterForm,
+    UpdateInfoForm,
 )
 
 user_api = Redprint("user")
@@ -143,7 +145,8 @@ def get_allowed_apis():
     user = get_current_user()
     groups = manager.group_model.select_by_user_id(user.id)
     group_ids = [group.id for group in groups]
-    res = manager.permission_model.select_by_group_ids(group_ids)
+    permissions = manager.permission_model.select_by_group_ids(group_ids)
+    res = split_group(permissions, "module")
     setattr(user, "permissions", res)
     setattr(user, "admin", user.is_admin)
     user._fields.extend(["admin", "permissions"])

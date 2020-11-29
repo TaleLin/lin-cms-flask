@@ -6,6 +6,9 @@
 """
 import math
 
+from flask import request
+from sqlalchemy import func
+
 from app.common.utils import get_page_from_query, paginate
 from app.extension.log.logger import Logger
 from app.lin import find_user, get_ep_infos, manager, permission_meta
@@ -23,8 +26,6 @@ from app.validator.form import (
     UpdateGroup,
     UpdateUserInfoForm,
 )
-from flask import request
-from sqlalchemy import func
 
 admin_api = Redprint("admin")
 

@@ -2,8 +2,9 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from . import get_token
 from app.app import create_app
+
+from . import get_token
 
 app = create_app()
 

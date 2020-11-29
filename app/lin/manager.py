@@ -10,6 +10,7 @@
 
 
 from sqlalchemy.exc import OperationalError
+
 from .db import db
 
 
@@ -68,8 +69,9 @@ class Manager(object):
 
     def is_user_allowed(self, group_ids):
         """查看当前user有无权限访问该路由函数"""
-        from .db import db
         from flask import request
+
+        from .db import db
 
         ep = request.endpoint
         # 根据 endpoint 查找 authority, 一定存在
