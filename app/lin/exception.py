@@ -5,7 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from typing import Union
-from app.lin.multiplemeta import MultipleMeta
+from .multiplemeta import MultipleMeta
 from flask import json, request, current_app
 from werkzeug.exceptions import HTTPException
 from werkzeug._compat import text_type
@@ -199,9 +199,3 @@ class RequestLimit(APIException):
     code = 401
     message = "Too Many Requests"
     message_code = 10140
-
-
-class RefreshException(APIException):
-    code = 401
-    message = "refresh token 获取失败"
-    message_code = 10042

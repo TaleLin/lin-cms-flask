@@ -8,12 +8,9 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import os
 from datetime import datetime
 
-from flask import current_app
-from sqlalchemy import Column, DateTime, func, text
-from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import Column, DateTime, func
 
 from .db import MixinJSONSerializer, db
 from .utils import camel2line
@@ -143,12 +140,3 @@ class InfoCrud(db.Model, MixinJSONSerializer):
         if kwargs.get("commit") is True:
             db.session.commit()
         return self
-
-
-class LinViewModel:
-    # 提供自动序列化功能
-    def keys(self):
-        return self.__dict__.keys()
-
-    def __getitem__(self, key):
-        return getattr(self, key)

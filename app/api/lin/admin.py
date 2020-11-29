@@ -8,7 +8,7 @@ import math
 
 from app.common.utils import get_page_from_query, paginate
 from app.extension.log.logger import Logger
-from app.lin.core import find_user, get_ep_infos, manager, permission_meta
+from app.lin import find_user, get_ep_infos, manager, permission_meta
 from app.lin.db import db
 from app.lin.enums import GroupLevelEnum
 from app.lin.exception import Forbidden, NotFound, ParameterError, Success

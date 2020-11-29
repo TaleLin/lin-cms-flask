@@ -1,7 +1,7 @@
 import oss2
 
 from app.lin.utils import get_random_str
-from app.lin.core import lin_config
+from app.lin import lin_config
 
 
 def upload_image_bytes(name: str, data: bytes):

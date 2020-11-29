@@ -1,14 +1,14 @@
 import os
 
-from app.lin.core import manager
-from app.lin.db import db
-from app.lin.enums import GroupLevelEnum
-from app.lin.interface import BaseCrud, InfoCrud
 from flask import current_app
 from sqlalchemy import Column, Index, Integer, SmallInteger, String, func, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from . import manager
+from .db import db
+from .enums import GroupLevelEnum
 from .exception import NotFound, ParameterError, UnAuthentication
+from .interface import BaseCrud, InfoCrud
 
 
 class Group(InfoCrud):
@@ -55,22 +55,6 @@ class Permission(InfoCrud):
     mount = Column(
         SmallInteger(), nullable=False, server_default=text("1"), comment="0：关闭 1：开启"
     )
-
-    @classmethod
-    def exist_by_group_ids_and_module_and_name(
-        cls, group_ids: list, module, name
-    ) -> bool:
-        """
-        传入用户组的 id 列表 和 权限模块名称 权限名称，根据 Group-Permission关联表 判断对应权限是否存在
-        """
-        query = db.session.query(manager.group_permission_model.permission_id).filter(
-            manager.group_permission_model.group_id.in_(group_ids)
-        )
-        result = cls.query.filter_by(
-            soft=True, module=module, name=name, mount=True
-        ).filter(cls.id.in_(query))
-        permission = result.first()
-        return True if permission else False
 
 
 class User(InfoCrud):

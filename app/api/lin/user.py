@@ -6,11 +6,11 @@
 """
 from operator import and_
 
-from app.lin.core import manager, permission_meta
+from app.lin import manager, permission_meta
 from app.lin.db import db
 from app.extension.log.log import Log
 from app.lin.exception import (
-    RefreshException,
+    RefreshFailed,
     Duplicated,
     Fail,
     NotFound,
@@ -125,7 +125,7 @@ def refresh():
     try:
         verify_jwt_refresh_token_in_request()
     except Exception:
-        return RefreshException()
+        return RefreshFailed()
 
     identity = get_jwt_identity()
     if identity:
