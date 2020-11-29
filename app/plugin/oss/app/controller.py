@@ -6,7 +6,7 @@ from .model import Image
 from .enums import LocalOrCloud
 from app.lin.db import db
 from app.lin.redprint import Redprint
-from app.lin.core import lin_config
+from app.lin import lin_config
 
 api = Redprint("oss")
 

@@ -11,7 +11,6 @@
 from flask import request
 from wtforms import Form as WTForm, IntegerField
 from wtforms.validators import StopValidation
-from werkzeug.datastructures import ImmutableDict, ImmutableMultiDict
 from .exception import ParameterError
 
 

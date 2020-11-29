@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 
-from app.lin.core import Lin
+from app.lin import Lin
 
 
 def register_blueprints(app):

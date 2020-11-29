@@ -2,7 +2,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.lin.core import manager
+from app.lin import manager
 from app.lin.db import db
 from app.lin.enums import GroupLevelEnum
 

@@ -1,0 +1,177 @@
+"""
+     mananger module of Lin.
+     ~~~~~~~~~
+
+     manager model
+
+    :copyright: © 2020 by the Lin team.
+    :license: MIT, see LICENSE for more details.
+"""
+
+
+from sqlalchemy.exc import OperationalError
+from .db import db
+
+
+class Manager(object):
+    """ manager for lin """
+
+    # 路由函数的meta信息的容器
+    ep_meta = {}
+
+    def __init__(
+        self,
+        plugin_path,
+        group_model,
+        user_model,
+        identity_model,
+        permission_model,
+        group_permission_model,
+        user_group_model,
+    ):
+        self.group_model = group_model
+        self.user_model = user_model
+        self.permission_model = permission_model
+        self.group_permission_model = group_permission_model
+        self.user_group_model = user_group_model
+        self.identity_model = identity_model
+        from .loader import Loader
+
+        self.loader: Loader = Loader(plugin_path)
+
+    def find_user(self, **kwargs):
+        return self.user_model.query.filter_by(**kwargs).first()
+
+    def verify_user(self, username, password):
+        return self.user_model.verify(username, password)
+
+    def find_group(self, **kwargs):
+        return self.group_model.query.filter_by(**kwargs).first()
+
+    def get_ep_infos(self):
+        """ 返回权限管理中的所有视图函数的信息，包含它所属module """
+        info_list = self.permission_model.query.filter_by(mount=True).all()
+        infos = {}
+        for permission in info_list:
+            module = infos.get(permission.module, None)
+            if module:
+                module.append(permission)
+            else:
+                infos.setdefault(permission.module, [permission])
+
+        return infos
+
+    def find_info_by_ep(self, ep):
+        """ 通过请求的endpoint寻找路由函数的meta信息"""
+        info = self.ep_meta.get(ep)
+        return info if info.mount else None
+
+    def is_user_allowed(self, group_ids):
+        """查看当前user有无权限访问该路由函数"""
+        from .db import db
+        from flask import request
+
+        ep = request.endpoint
+        # 根据 endpoint 查找 authority, 一定存在
+        meta = self.ep_meta.get(ep)
+        # 判断 用户组拥有的权限是否包含endpoint标记的权限
+        # 传入用户组的 id 列表 和 权限模块名称 权限名称，根据 Group-Permission Model 判断对应权限是否存在
+        query = db.session.query(self.group_permission_model.permission_id).filter(
+            self.group_permission_model.group_id.in_(group_ids)
+        )
+        result = self.user_model.query.filter_by(
+            soft=True, module=meta.module, name=meta.auth, mount=True
+        ).filter(self.user_model.id.in_(query))
+        permission = result.first()
+        return True if permission else False
+
+    def find_auth_module(self, auth):
+        """ 通过权限寻找meta信息"""
+        for _, meta in self.ep_meta.items():
+            if meta.auth == auth:
+                return meta
+        return None
+
+    @property
+    def plugins(self):
+        return self.loader.plugins
+
+    def get_plugin(self, name):
+        return self.loader.plugins.get(name)
+
+    def get_model(self, name):
+        # attention!!! if models have the same name,will return the first one
+        # 注意！！！ 如果容器内有相同的model，则默认返回第一个
+        for plugin in self.plugins.values():
+            return plugin.models.get(name)
+
+    def get_service(self, name):
+        # attention!!! if services have the same name,will return the first one
+        # 注意！！！ 如果容器内有相同的service，则默认返回第一个
+        for plugin in self.plugins.values():
+            return plugin.services.get(name)
+
+    def sync_permissions(self):
+        try:
+            permissions = self.permission_model.get(one=False)
+            # 新增的权限记录
+            new_added_permissions = list()
+            deleted_ids = [permission.id for permission in permissions]
+            # mount-> unmount
+            unmounted_ids = list()
+            # unmount-> mount 的记录
+            mounted_ids = list()
+            # 用代码中记录的权限比对数据库中的权限
+            for ep, meta in self.ep_meta.items():
+                name, module, mount = meta
+                # db_existed 判定 代码中的权限是否存在于权限表记录中
+                db_existed = False
+                for permission in permissions:
+                    if permission.name == name and permission.module == module:
+                        # 此条记录存在，不会被删除
+                        deleted_ids.remove(permission.id)
+                        # 此条记录存在，不需要添加到权限表
+                        db_existed = True
+                        # 判定mount的变动情况，将记录id添加到对应的列表中
+                        if permission.mount != mount:
+                            if mount:
+                                mounted_ids.append(permission.id)
+                            else:
+                                unmounted_ids.append(permission.id)
+                        break
+                # 遍历结束，代码中的记录不存在于已有的权限表中，则将其添加到新增权限记录列表
+                if not db_existed:
+                    permission = self.permission_model()
+                    permission.name = name
+                    permission.module = module
+                    permission.mount = mount
+                    new_added_permissions.append(permission)
+            with db.auto_commit():
+                _sync_permissions(
+                    self, new_added_permissions, unmounted_ids, mounted_ids, deleted_ids
+                )
+        except OperationalError:
+            pass
+
+
+def _sync_permissions(
+    manager, new_added_permissions, unmounted_ids, mounted_ids, deleted_ids
+):
+    if new_added_permissions:
+        db.session.add_all(new_added_permissions)
+    if unmounted_ids:
+        manager.permission_model.query.filter(
+            manager.permission_model.id.in_(unmounted_ids)
+        ).update({"mount": False}, synchronize_session=False)
+    if mounted_ids:
+        manager.permission_model.query.filter(
+            manager.permission_model.id.in_(mounted_ids)
+        ).update({"mount": True}, synchronize_session=False)
+    if deleted_ids:
+        manager.permission_model.query.filter(
+            manager.permission_model.id.in_(deleted_ids)
+        ).delete(synchronize_session=False)
+        # 分组-权限关联表中的数据也要清理
+        manager.group_permission_model.query.filter(
+            manager.group_permission_model.permission_id.in_(deleted_ids)
+        ).delete(synchronize_session=False)

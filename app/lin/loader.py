@@ -12,7 +12,7 @@ from importlib import import_module
 from .redprint import Redprint
 from .db import db
 from .plugin import Plugin
-from .core import lin_config
+from . import lin_config
 
 
 class Loader(object):

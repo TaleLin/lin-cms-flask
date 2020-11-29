@@ -14,7 +14,7 @@ from functools import wraps
 from flask import Response, request
 from flask_jwt_extended import get_current_user
 from .log import Log
-from app.lin.core import find_info_by_ep
+from app.lin import find_info_by_ep
 
 
 REG_XP = r"[{](.*?)[}]"
