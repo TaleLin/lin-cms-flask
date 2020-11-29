@@ -1,4 +1,5 @@
-from app.lin.model import UserGroup as LinUserGroup, manager, db
+from app.lin.model import UserGroup as LinUserGroup
+from app.lin.model import db, manager
 
 
 class UserGroup(LinUserGroup):

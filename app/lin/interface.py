@@ -8,11 +8,27 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import os
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, func
+from flask import current_app
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Index,
+    Integer,
+    SmallInteger,
+    String,
+    func,
+    text,
+)
+from werkzeug.security import check_password_hash, generate_password_hash
 
+from . import manager
 from .db import MixinJSONSerializer, db
+from .enums import GroupLevelEnum
+from .exception import NotFound, ParameterError, UnAuthentication
+from .interface import BaseCrud, InfoCrud
 from .utils import camel2line
 
 
@@ -140,3 +156,110 @@ class InfoCrud(db.Model, MixinJSONSerializer):
         if kwargs.get("commit") is True:
             db.session.commit()
         return self
+
+
+class GroupInterface(InfoCrud):
+    __tablename__ = "lin_group"
+    __table_args__ = (Index("name_del", "name", "delete_time", unique=True),)
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(60), nullable=False, comment="分组名称，例如：搬砖者")
+    info = Column(String(255), comment="分组信息：例如：搬砖的人")
+    level = Column(
+        SmallInteger(),
+        nullable=False,
+        server_default=text(str(GroupLevelEnum.USER.value)),
+        comment="分组级别 1：ROOT 2：GUEST 3：USER （ROOT、GUEST Level 对应分组均唯一存在)",
+    )
+
+    @classmethod
+    def count_by_id(cls, id) -> int:
+        raise NotImplementedError()
+
+
+class GroupPermissionInterface(BaseCrud):
+    __tablename__ = "lin_group_permission"
+    __table_args__ = (Index("group_id_permission_id", "group_id", "permission_id"),)
+
+    id = Column(Integer(), primary_key=True)
+    group_id = Column(Integer(), nullable=False, comment="分组id")
+    permission_id = Column(Integer(), nullable=False, comment="权限id")
+
+
+class PermissionInterface(InfoCrud):
+    __tablename__ = "lin_permission"
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(60), nullable=False, comment="权限名称，例如：访问首页")
+    module = Column(String(50), nullable=False, comment="权限所属模块，例如：人员管理")
+    mount = Column(
+        SmallInteger(), nullable=False, server_default=text("1"), comment="0：关闭 1：开启"
+    )
+
+
+class UserInterface(InfoCrud):
+    __tablename__ = "lin_user"
+    __table_args__ = (
+        Index("username_del", "username", "delete_time", unique=True),
+        Index("email_del", "email", "delete_time", unique=True),
+    )
+
+    id = Column(Integer(), primary_key=True)
+    username = Column(String(24), nullable=False, comment="用户名，唯一")
+    nickname = Column(String(24), comment="用户昵称")
+    _avatar = Column("avatar", String(500), comment="头像url")
+    email = Column(String(100), comment="邮箱")
+
+    @property
+    def avatar(self) -> str:
+        raise NotImplementedError()
+
+    @classmethod
+    def count_by_id(cls, uid) -> int:
+        raise NotImplementedError()
+
+    @staticmethod
+    def count_by_id_and_group_name(user_id, group_name) -> int:
+        raise NotImplementedError()
+
+    @property
+    def is_admin(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def is_active(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def password(self) -> str:
+        raise NotImplementedError()
+
+    @password.setter
+    def password(self, raw) -> None:
+        raise NotImplementedError()
+
+    def check_password(self, raw) -> bool:
+        raise NotImplementedError()
+
+    @classmethod
+    def verify(cls, username, password) -> UserInterface:
+        raise NotImplementedError()
+
+
+class UserGroupInterface(BaseCrud):
+    __tablename__ = "lin_user_group"
+    __table_args__ = (Index("user_id_group_id", "user_id", "group_id"),)
+
+    id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer(), nullable=False, comment="用户id")
+    group_id = Column(Integer(), nullable=False, comment="分组id")
+
+
+class UserIdentityInterface(InfoCrud):
+    __tablename__ = "lin_user_identity"
+
+    id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer(), nullable=False, comment="用户id")
+    identity_type = Column(String(100), nullable=False, comment="认证类型")
+    identifier = Column(String(100), comment="标识")
+    credential = Column(String(100), comment="凭证")

@@ -1,4 +1,5 @@
-from app.lin.model import User as LinUser, manager, db, func
+from app.lin.model import User as LinUser
+from app.lin.model import db, func, manager
 
 
 class User(LinUser):

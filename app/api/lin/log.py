@@ -5,6 +5,9 @@
 
 import math
 
+from flask import request
+from sqlalchemy import text
+
 from app.common.utils import get_page_from_query, paginate
 from app.extension.log.log import Log
 from app.lin import permission_meta
@@ -13,8 +16,6 @@ from app.lin.exception import NotFound, ParameterError
 from app.lin.jwt import group_required
 from app.lin.redprint import Redprint
 from app.validator.form import LogFindForm
-from flask import request
-from sqlalchemy import text
 
 log_api = Redprint("log")
 

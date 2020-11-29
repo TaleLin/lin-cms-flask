@@ -4,6 +4,7 @@
 """
 
 from flask import Blueprint
+
 from app.api.v1 import book
 
 

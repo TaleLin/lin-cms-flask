@@ -9,8 +9,10 @@
 """
 
 from flask import request
-from wtforms import Form as WTForm, IntegerField
+from wtforms import Form as WTForm
+from wtforms import IntegerField
 from wtforms.validators import StopValidation
+
 from .exception import ParameterError
 
 

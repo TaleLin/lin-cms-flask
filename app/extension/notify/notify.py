@@ -7,11 +7,13 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from functools import wraps
 import re
 from datetime import datetime
+from functools import wraps
+
 from flask import Response, request
 from flask_jwt_extended import get_current_user
+
 from .sse import sser
 
 REG_XP = r"[{](.*?)[}]"

@@ -13,7 +13,7 @@ import os
 from flask import current_app
 from werkzeug.datastructures import FileStorage
 
-from .exception import FileTooLarge, FileTooMany, FileExtensionError, ParameterError
+from .exception import FileExtensionError, FileTooLarge, FileTooMany, ParameterError
 
 
 class Uploader(object):

@@ -8,23 +8,17 @@ from . import manager
 from .db import db
 from .enums import GroupLevelEnum
 from .exception import NotFound, ParameterError, UnAuthentication
-from .interface import BaseCrud, InfoCrud
+from .interface import (
+    GroupInterface,
+    GroupPermissionInterface,
+    PermissionInterface,
+    UserGroupInterface,
+    UserIdentityInterface,
+    UserInterface,
+)
 
 
-class Group(InfoCrud):
-    __tablename__ = "lin_group"
-    __table_args__ = (Index("name_del", "name", "delete_time", unique=True),)
-
-    id = Column(Integer(), primary_key=True)
-    name = Column(String(60), nullable=False, comment="分组名称，例如：搬砖者")
-    info = Column(String(255), comment="分组信息：例如：搬砖的人")
-    level = Column(
-        SmallInteger(),
-        nullable=False,
-        server_default=text(str(GroupLevelEnum.USER.value)),
-        comment="分组级别 1：ROOT 2：GUEST 3：USER （ROOT、GUEST Level 对应分组均唯一存在)",
-    )
-
+class Group(GroupInfoCrud):
     def _set_fields(self):
         self._exclude = ["delete_time", "create_time", "update_time"]
 
@@ -37,39 +31,15 @@ class Group(InfoCrud):
         return count
 
 
-class GroupPermission(BaseCrud):
-    __tablename__ = "lin_group_permission"
-    __table_args__ = (Index("group_id_permission_id", "group_id", "permission_id"),)
-
-    id = Column(Integer(), primary_key=True)
-    group_id = Column(Integer(), nullable=False, comment="分组id")
-    permission_id = Column(Integer(), nullable=False, comment="权限id")
+class GroupPermission(GroupPermissionInterface):
+    pass
 
 
-class Permission(InfoCrud):
-    __tablename__ = "lin_permission"
-
-    id = Column(Integer(), primary_key=True)
-    name = Column(String(60), nullable=False, comment="权限名称，例如：访问首页")
-    module = Column(String(50), nullable=False, comment="权限所属模块，例如：人员管理")
-    mount = Column(
-        SmallInteger(), nullable=False, server_default=text("1"), comment="0：关闭 1：开启"
-    )
+class Permission(PermissionInterface):
+    pass
 
 
-class User(InfoCrud):
-    __tablename__ = "lin_user"
-    __table_args__ = (
-        Index("username_del", "username", "delete_time", unique=True),
-        Index("email_del", "email", "delete_time", unique=True),
-    )
-
-    id = Column(Integer(), primary_key=True)
-    username = Column(String(24), nullable=False, comment="用户名，唯一")
-    nickname = Column(String(24), comment="用户昵称")
-    _avatar = Column("avatar", String(500), comment="头像url")
-    email = Column(String(100), comment="邮箱")
-
+class User(UserInterface):
     def _set_fields(self):
         self._exclude = ["delete_time", "create_time", "update_time"]
 
@@ -149,20 +119,9 @@ class User(InfoCrud):
         return user
 
 
-class UserGroup(BaseCrud):
-    __tablename__ = "lin_user_group"
-    __table_args__ = (Index("user_id_group_id", "user_id", "group_id"),)
-
-    id = Column(Integer(), primary_key=True)
-    user_id = Column(Integer(), nullable=False, comment="用户id")
-    group_id = Column(Integer(), nullable=False, comment="分组id")
+class UserGroup(UserGroupInterface):
+    pass
 
 
-class UserIdentity(InfoCrud):
-    __tablename__ = "lin_user_identity"
-
-    id = Column(Integer(), primary_key=True)
-    user_id = Column(Integer(), nullable=False, comment="用户id")
-    identity_type = Column(String(100), nullable=False, comment="认证类型")
-    identifier = Column(String(100), comment="标识")
-    credential = Column(String(100), comment="凭证")
+class UserIdentity(UserIdentityInterface):
+    pass

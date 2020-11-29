@@ -3,9 +3,9 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from . import get_token, write_token
 from app.app import create_app
 
+from . import get_token, write_token
 
 app = create_app()
 

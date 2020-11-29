@@ -4,9 +4,11 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
-from sqlalchemy import inspect, orm, func
 from contextlib import contextmanager
+
+from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
+from sqlalchemy import func, inspect, orm
 
 from .exception import NotFound
 

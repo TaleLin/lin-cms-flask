@@ -9,10 +9,10 @@
 """
 from importlib import import_module
 
-from .redprint import Redprint
+from . import lin_config
 from .db import db
 from .plugin import Plugin
-from . import lin_config
+from .redprint import Redprint
 
 
 class Loader(object):
