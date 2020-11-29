@@ -104,7 +104,7 @@ class Manager(object):
         )
         result = self.permission_model.query.filter_by(
             soft=True, module=meta.module, name=meta.auth, mount=True
-        ).filter(self.user_model.id.in_(query))
+        ).filter(self.permission_model.id.in_(query))
         permission = result.first()
         return True if permission else False
 
