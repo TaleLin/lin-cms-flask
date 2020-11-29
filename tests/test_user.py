@@ -14,7 +14,6 @@ def test_login():
     with app.test_client() as c:
         rv = c.post("/cms/user/login", json={"username": "root", "password": "123456"})
         json_data = rv.get_json()
-        print(json_data)
         write_token(json_data)
         assert json_data["access_token"] is not None
         assert rv.status_code == 200

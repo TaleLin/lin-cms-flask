@@ -31,8 +31,12 @@ def load_config(app):
     load_dotenv(".flaskenv")
     # 根据传入环境加载对应配置
     env = app.config.get("ENV")
-    load_dotenv(".{}.env".format(env))
-    app.config.from_object("app.config.setting.{}Config".format(env.capitalize()))
+    # 读取 .env
+    load_dotenv(".{env}.env".format(env=env))
+    # 读取配置类
+    app.config.from_object(
+        "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
+    )
     # 加载 code message
     app.config.from_object("app.config.codemsg")
 

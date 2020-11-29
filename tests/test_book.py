@@ -25,7 +25,6 @@ def test_create():
 def test_get_books():
     with app.test_client() as c:
         rv = c.get("/v1/book", headers={"Authorization": "Bearer " + get_token()})
-        print(rv.get_json())
         assert rv.status_code == 200
 
 
