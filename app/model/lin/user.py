@@ -3,6 +3,9 @@ from app.lin.model import db, func, manager
 
 
 class User(LinUser):
+    def _set_fields(self):
+        self._exclude = ["delete_time", "create_time", "update_time"]
+
     @classmethod
     def count_by_username(cls, username) -> int:
         result = db.session.query(func.count(cls.id)).filter(

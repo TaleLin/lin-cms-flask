@@ -67,6 +67,27 @@ class Manager(object):
         info = self.ep_meta.get(ep)
         return info if info.mount else None
 
+    def find_group_ids_by_user_id(self, user_id) -> list:
+        """
+        根据用户ID，通过User-Group关联表，获取所属用户组的Id列表
+        """
+        query = (
+            db.session.query(self.user_group_model.group_id)
+            .join(
+                self.user_model,
+                self.user_model.id == self.user_group_model.user_id,
+            )
+            .filter(self.user_model.delete_time == None, self.user_model.id == user_id)
+        )
+        result = (
+            db.session.query(self.group_model.id)
+            .filter(self.group_model.delete_time == None)
+            .filter(self.group_model.id.in_(query))
+        )
+        # [(1,),(2,),...] => [1,2,...]
+        group_ids = [x[0] for x in result.all()]
+        return group_ids
+
     def is_user_allowed(self, group_ids):
         """查看当前user有无权限访问该路由函数"""
         from flask import request
@@ -81,7 +102,7 @@ class Manager(object):
         query = db.session.query(self.group_permission_model.permission_id).filter(
             self.group_permission_model.group_id.in_(group_ids)
         )
-        result = self.user_model.query.filter_by(
+        result = self.permission_model.query.filter_by(
             soft=True, module=meta.module, name=meta.auth, mount=True
         ).filter(self.user_model.id.in_(query))
         permission = result.first()

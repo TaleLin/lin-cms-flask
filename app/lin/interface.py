@@ -28,7 +28,6 @@ from . import manager
 from .db import MixinJSONSerializer, db
 from .enums import GroupLevelEnum
 from .exception import NotFound, ParameterError, UnAuthentication
-from .interface import BaseCrud, InfoCrud
 from .utils import camel2line
 
 
@@ -238,11 +237,11 @@ class UserInterface(InfoCrud):
     def password(self, raw) -> None:
         raise NotImplementedError()
 
-    def check_password(self, raw) -> bool:
+    def check_password(self, raw):
         raise NotImplementedError()
 
     @classmethod
-    def verify(cls, username, password) -> UserInterface:
+    def verify(cls, username, password) -> InfoCrud:
         raise NotImplementedError()
 
 
