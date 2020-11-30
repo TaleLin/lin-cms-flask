@@ -11,7 +11,6 @@ from app.cli.db import fake as _db_fake
 from app.cli.db import init as _db_init
 from app.cli.plugin import generate as _plugin_generate
 from app.cli.plugin import init as _plugin_init
-from app.lin.enums import GroupLevelEnum
 from app.model.lin import (
     Group,
     GroupPermission,
