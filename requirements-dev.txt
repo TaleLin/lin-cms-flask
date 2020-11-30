@@ -5,5 +5,6 @@ Flask-SQLAlchemy
 wtforms
 oss2
 python-dotenv
+tablib
 # unit test
 pytest
