@@ -9,6 +9,7 @@
 """
 from collections import namedtuple
 from datetime import date, datetime
+from enum import Enum
 from functools import wraps
 
 from flask import Blueprint, Flask, current_app, json, jsonify, request
@@ -142,6 +143,8 @@ def find_auth_module(auth):
 def auto_response(func):
     @wraps(func)
     def make_lin_response(rv):
+        if isinstance(rv, Enum):
+            rv = rv.value
         if isinstance(rv, (MixinJSONSerializer, LinViewModel)):
             rv = jsonify(rv)
         elif isinstance(rv, (int, list, set)):
