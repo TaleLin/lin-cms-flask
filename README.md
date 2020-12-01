@@ -1,19 +1,19 @@
 <!-- # Lin-CMS-Flask -->
 
 <h1 align="center">
-  <a href="http://doc.cms.talelin.com/">
-  <img src="http://doc.cms.talelin.com/left-logo.png" width="250"/></a>
+  <a href="https://doc.cms.talelin.com/">
+  <img src="https://doc.cms.talelin.com/left-logo.png" width="250"/></a>
   <br>
   Lin-CMS-Flask
 </h1>
 
-<h4 align="center">一个简单易用的CMS后端项目 | <a href="http://doc.cms.talelin.com/" target="_blank">Lin-CMS-Flask</a></h4>
+<h4 align="center">一个简单易用的CMS后端项目 | <a href="https://doc.cms.talelin.com/" target="_blank">Lin-CMS-Flask</a></h4>
 
 <p align="center">
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
-  <img src="https://img.shields.io/badge/flask-%3D%3D1.0.2-yellow.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/flask-%3D%3D1.0.2-yellow.svg" style="max-width:100%;"></a>
-  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--cms-%3D%3D0.1.1-orange.svg" alt="lin-cms version" data-canonical-src="https://img.shields.io/badge/lin--cms-%3D%3D0.1.1-orange.svge" style="max-width:100%;"></a>
-  <a href="http://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
+  <img src="https://img.shields.io/badge/flask-1.1.2-green.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/flask-1.1.2-green.svg" style="max-width:100%;"></a>
+  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lincms-0.3.0a2-orange.svg" alt="lincms version" data-canonical-src="https://img.shields.io/badge/lincms-0.3.0a2-orange.svge" style="max-width:100%;"></a>
+  <a href="https://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
 </p>
 
 <blockquote align="center">
@@ -33,13 +33,9 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 本项目是 Lin CMS 后端的 Flask 实现，需要前端？请访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
 
-## 最新版本
-
-重构中，API 内部实现会出现变动，暂不建议将此版本用于生产。
-
 ### 文档地址
 
-[http://doc.cms.talelin.com/](http://doc.cms.talelin.com/)
+[https://doc.cms.talelin.com/](https://doc.cms.talelin.com/)
 
 ### 线上 demo
 
@@ -133,7 +129,9 @@ pip install -r requirements.txt
 
 #### 默认使用 Sqlite3
 
-Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我们提供了开发环境的`.development.env`和生成环境的`.production.env`)，配置其`SQLALCHEMY_DATABASE_URI`
+Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我们提供了开发环境的`.development.env`和生产环境的`.production.env`)，配置其`SQLALCHEMY_DATABASE_URI`
+
+> Tips: 下面我们用{env}指代配置对应的环境
 
 ```conf
 # 数据库配置示例
@@ -144,7 +142,7 @@ Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我�
     SQLALCHEMY_DATABASE_URI='sqlite:////absolute/path/to/file.db'
 ```
 
-这将在项目的最外层目录生成名为`lincms.db`的 Sqlite3 数据库文件。
+这将在项目的最外层目录生成名为`lincms{env}.db`的 Sqlite3 数据库文件。
 
 #### 使用 MySQL
 
@@ -152,7 +150,7 @@ Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我�
 
 Lin 需要您自己在 MySQL 中新建一个数据库，名字由您自己决定(例如`lincms`)。
 
-创建数据库后，打开项目根目录下的`.{环境}.env`文件，配置对应的`SQLALCHEMY_DATABASE_URI`。
+创建数据库后，打开项目根目录下的`.{env}.env`文件，配置对应的`SQLALCHEMY_DATABASE_URI`。
 
 如下所示：
 
@@ -193,4 +191,4 @@ flask run
 - [ ] 启用插件机制
 - [ ] 限流限频 功能
 - [ ] 图形验证码
-- [ ] 优化核心库逻辑&重构
+- [ ] 优化核心库逻辑
