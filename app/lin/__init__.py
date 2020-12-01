@@ -21,32 +21,12 @@ from werkzeug.local import LocalProxy
 from app.lin.syslogger import SysLogger
 
 from .config import Config
-from .db import MixinJSONSerializer, db
+from .db import Record, RecordCollection, db
 from .exception import APIException, InternalServerError
 from .jwt import jwt
 from .manager import Manager
 
 __version__ = "0.3.0"
-
-
-class LinViewModel:
-    # 提供自动序列化功能
-    def keys(self):
-        return self.__dict__.keys()
-
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-
-class JSONEncoder(_JSONEncoder):
-    def default(self, o):
-        if hasattr(o, "keys") and hasattr(o, "__getitem__"):
-            return dict(o)
-        if isinstance(o, datetime):
-            return o.strftime("%Y-%m-%dT%H:%M:%SZ")
-        if isinstance(o, date):
-            return o.strftime("%Y-%m-%d")
-        return JSONEncoder.default(self, o)
 
 
 # 路由函数的权限和模块信息(meta信息)
@@ -140,19 +120,36 @@ def find_auth_module(auth):
     return manager.find_auth_module(auth)
 
 
+class JSONEncoder(_JSONEncoder):
+    def default(self, o):
+        if hasattr(o, "keys") and hasattr(o, "__getitem__"):
+            return dict(o)
+        if isinstance(o, datetime):
+            return o.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if isinstance(o, date):
+            return o.strftime("%Y-%m-%d")
+        if isinstance(o, Enum):
+            return o.value
+        if isinstance(o, (RecordCollection, Record)):
+            return o.as_dict()
+        if isinstance(o, (int, list, set)):
+            return json.dumps(o, cls=JSONEncoder)
+        if isinstance(o, tuple):
+            if len(o) == 0 or len(o) > 0 and not isinstance(o[0], Response):
+                return json.dumps(o, cls=JSONEncoder)
+        return JSONEncoder.default(self, o)
+
+
 def auto_response(func):
     @wraps(func)
-    def make_lin_response(rv):
-        if isinstance(rv, Enum):
-            rv = rv.value
-        if isinstance(rv, (MixinJSONSerializer, LinViewModel)):
-            rv = jsonify(rv)
-        elif isinstance(rv, (int, list, set)):
-            rv = json.dumps(rv, cls=JSONEncoder)
-        elif isinstance(rv, (tuple)):
-            if len(rv) == 0 or len(rv) > 0 and not isinstance(rv[0], Response):
-                rv = json.dumps(rv, cls=JSONEncoder)
-        return func(rv)
+    def make_lin_response(o):
+        if isinstance(o, (RecordCollection, Record)) or (
+            hasattr(o, "keys") and hasattr(o, "__getitem__")
+        ):
+            o = jsonify(o)
+        elif isinstance(o, (Enum, int, list, set)):
+            o = json.dumps(o)
+        return func(o)
 
     return make_lin_response
 
@@ -167,10 +164,10 @@ class Lin(object):
         permission_model=None,  # permission model, default None
         group_permission_model=None,  # group permission 多对多关联模型
         user_group_model=None,  # user group 多对多关联模型
+        jsonencoder=None,  # 序列化器
         create_all=False,  # 是否创建所有数据库表, default true
         mount=True,  # 是否挂载默认的蓝图, default True
         handle=True,  # 是否使用全局异常处理, default True
-        auto_jsonify=True,  # 是否启用自动序列化，default True
         syslogger=True,  # 是否使用自定义系统运行日志，default True
     ):
         self.app = app
@@ -183,10 +180,10 @@ class Lin(object):
                 permission_model,
                 group_permission_model,
                 user_group_model,
+                jsonencoder,
                 create_all,
                 mount,
                 handle,
-                auto_jsonify,
                 syslogger,
             )
 
@@ -199,10 +196,10 @@ class Lin(object):
         permission_model=None,
         group_permission_model=None,
         user_group_model=None,
+        jsonencoder=None,
         create_all=False,
         mount=True,
         handle=True,
-        auto_jsonify=True,
         syslogger=True,
     ):
         # load default lin db model if None
@@ -244,7 +241,8 @@ class Lin(object):
                 "EXCLUDE": set([]),
             },
         )
-        auto_jsonify and self._enable_auto_jsonify(app)
+        self.jsonencoder = jsonencoder
+        self.enable_auto_jsonify(app)
         self.app = app
         # 初始化 manager
         self.manager = Manager(
@@ -308,8 +306,8 @@ class Lin(object):
                 else:
                     raise e
 
-    def _enable_auto_jsonify(self, app):
-        app.json_encoder = JSONEncoder
+    def enable_auto_jsonify(self, app):
+        app.json_encoder = self.jsonencoder or JSONEncoder
         app.make_response = auto_response(app.make_response)
 
     def _enable_create_all(self, app):

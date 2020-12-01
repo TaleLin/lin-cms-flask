@@ -15,6 +15,8 @@ from logging.handlers import BaseRotatingHandler
 
 from flask import g, json, request
 
+__all__ = ["SysLogger"]
+
 
 class SysLogger:
     """

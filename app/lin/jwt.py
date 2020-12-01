@@ -21,6 +21,8 @@ from flask_jwt_extended import (
 
 from .exception import NotFound, TokenExpired, TokenInvalid, UnAuthentication
 
+__all__ = ["login_required", "admin_required", "group_required"]
+
 SCOPE = "lin"
 jwt = JWTManager()
 identity = dict(uid=0, scope=SCOPE)

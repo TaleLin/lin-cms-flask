@@ -13,7 +13,7 @@ import tablib
 from flask import json
 from flask_sqlalchemy import BaseQuery
 from flask_sqlalchemy import Model as _Model
-from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc, func, inspect, orm, text
 from sqlalchemy.pool import QueuePool
 
@@ -48,37 +48,6 @@ class MixinJSONSerializer:
 
     def __getitem__(self, key):
         return getattr(self, key)
-
-
-class SQLAlchemy(_SQLAlchemy):
-    @contextmanager
-    def auto_commit(self):
-        try:
-            yield
-            self.session.commit()
-        except Exception as e:
-            self.session.rollback()
-            raise e
-
-
-class Query(BaseQuery):
-    def filter_by(self, soft=False, **kwargs):
-        # soft 应用软删除
-        if soft:
-            kwargs["delete_time"] = None
-        return super(Query, self).filter_by(**kwargs)
-
-    def get_or_404(self, ident):
-        rv = self.get(ident)
-        if not rv:
-            raise NotFound()
-        return rv
-
-    def first_or_404(self):
-        rv = self.first()
-        if not rv:
-            raise NotFound()
-        return rv
 
 
 class Record(object):
@@ -390,6 +359,12 @@ class Connection(object):
 
         self._conn.execute(text(query), *multiparams)
 
+    def transaction(self):
+        """Returns a transaction object. Call ``commit`` or ``rollback``
+        on the returned object as appropriate."""
+
+        return self._conn.begin()
+
 
 class RecordsException(Exception):
     """A records-specific exception."""
@@ -398,10 +373,6 @@ class RecordsException(Exception):
 
 
 class Database(SQLAlchemy):
-    """A Database. Encapsulates a url and an SQLAlchemy engine with a pool of
-    connections.
-    """
-
     def __init__(self, **kwargs):
         self.open = True
         super(Database, self).__init__(**kwargs)
@@ -458,7 +429,7 @@ class Database(SQLAlchemy):
 
         return Connection(self.engine.connect())
 
-    def sql(self, query, fetchall=False, **params):
+    def query(self, query, fetchall=False, **params):
         """Executes the given SQL query against the Database. Parameters can,
         optionally, be provided. Returns a RecordCollection, which can be
         iterated over to get result rows as dictionaries.
@@ -472,7 +443,7 @@ class Database(SQLAlchemy):
         conn = self.get_connection()
         conn.bulk_query(query, *multiparams)
 
-    def sql_file(self, path, fetchall=False, **params):
+    def query_file(self, path, fetchall=False, **params):
         """Like Database.query, but takes a filename to load a query from."""
 
         conn = self.get_connection()
@@ -483,6 +454,50 @@ class Database(SQLAlchemy):
 
         conn = self.get_connection()
         conn.bulk_query_file(path, *multiparams)
+
+    @contextmanager
+    def transaction(self):
+        """A context manager for executing a transaction on this Database."""
+
+        conn = self.get_connection()
+        tx = conn.transaction()
+        try:
+            yield conn
+            tx.commit()
+        except Exception as e:
+            tx.rollback()
+            raise e
+        finally:
+            conn.close()
+
+    @contextmanager
+    def auto_commit(self):
+        try:
+            yield
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            raise e
+
+
+class Query(BaseQuery):
+    def filter_by(self, soft=False, **kwargs):
+        # soft 应用软删除
+        if soft:
+            kwargs["delete_time"] = None
+        return super(Query, self).filter_by(**kwargs)
+
+    def get_or_404(self, ident):
+        rv = self.get(ident)
+        if not rv:
+            raise NotFound()
+        return rv
+
+    def first_or_404(self):
+        rv = self.first()
+        if not rv:
+            raise NotFound()
+        return rv
 
 
 class Model(_Model):
@@ -496,9 +511,6 @@ class Model(_Model):
         else:
             pk = ",".join(to_str(value) for value in identity)
         return "\n<{0} {1} {2}>\n".format(type(self).__name__, pk, detail)
-
-
-db = Database(query_class=Query, model_class=Model)
 
 
 def isexception(obj):
@@ -544,3 +556,6 @@ def to_str(x, charset="utf8", errors="strict"):
         return x.decode(charset, errors)
 
     return str(x)
+
+
+db = Database(query_class=Query, model_class=Model)

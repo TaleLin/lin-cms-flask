@@ -5,7 +5,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin import LinViewModel, permission_meta
+from app.lin.interface import LinViewModel
+from app.lin import permission_meta
 from app.lin.exception import Success
 from app.lin.jwt import group_required, login_required
 from app.lin.redprint import Redprint

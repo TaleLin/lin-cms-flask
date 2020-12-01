@@ -13,6 +13,8 @@ from sqlalchemy.exc import OperationalError
 
 from .db import db
 
+__all__ = ["Manager"]
+
 
 class Manager(object):
     """ manager for lin """

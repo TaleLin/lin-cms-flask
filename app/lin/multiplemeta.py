@@ -12,6 +12,8 @@
 import inspect
 import types
 
+__all__ = ["MultipleMeta"]
+
 
 class MultiMethod:
     """
