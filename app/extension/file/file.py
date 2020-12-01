@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Index, Integer, String, func, text
 
-from app.lin.db import db
-from app.lin.interface import InfoCrud
+from lin.db import db
+from lin.interface import InfoCrud
 
 
 class File(InfoCrud):

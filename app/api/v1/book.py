@@ -5,11 +5,11 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin import permission_meta
-from app.lin.exception import Success
-from app.lin.interface import LinViewModel
-from app.lin.jwt import group_required, login_required
-from app.lin.redprint import Redprint
+from lin import permission_meta
+from lin.exception import Success
+from lin.interface import LinViewModel
+from lin.jwt import group_required, login_required
+from lin.redprint import Redprint
 from app.model.v1.book import Book
 from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
 

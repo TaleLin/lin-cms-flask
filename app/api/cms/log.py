@@ -9,12 +9,12 @@ from flask import request
 from sqlalchemy import text
 
 from app.common.utils import get_page_from_query, paginate
-from app.lin import permission_meta
-from app.lin.db import db
-from app.lin.exception import NotFound, ParameterError
-from app.lin.jwt import group_required
-from app.lin.logger import Log
-from app.lin.redprint import Redprint
+from lin import permission_meta
+from lin.db import db
+from lin.exception import NotFound, ParameterError
+from lin.jwt import group_required
+from lin.logger import Log
+from lin.redprint import Redprint
 from app.validator.form import LogFindForm
 
 log_api = Redprint("log")

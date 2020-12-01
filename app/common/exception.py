@@ -3,7 +3,7 @@ common exception
 """
 
 
-from app.lin.exception import NotFound, ParameterError
+from lin.exception import NotFound, ParameterError
 
 
 class BookNotFound(NotFound):

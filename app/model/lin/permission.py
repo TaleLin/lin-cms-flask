@@ -1,5 +1,5 @@
-from app.lin.model import Permission as LinPermission
-from app.lin.model import db, manager
+from lin.model import Permission as LinPermission
+from lin.model import db, manager
 
 
 class Permission(LinPermission):

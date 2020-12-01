@@ -8,9 +8,9 @@ import time
 from wtforms import DateTimeField, FieldList, IntegerField, PasswordField, StringField
 from wtforms.validators import DataRequired, EqualTo, NumberRange, Regexp, length
 
-from app.lin import manager
-from app.lin.exception import ParameterError
-from app.lin.form import Form
+from lin import manager
+from lin.exception import ParameterError
+from lin.form import Form
 
 # 注册校验
 

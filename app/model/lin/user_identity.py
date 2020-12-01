@@ -1,4 +1,4 @@
-from app.lin.model import UserIdentity as LinUserIdentity
+from lin.model import UserIdentity as LinUserIdentity
 
 
 class UserIdentity(LinUserIdentity):

@@ -19,7 +19,7 @@ from flask.wrappers import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
 
-from app.lin.syslogger import SysLogger
+from lin.syslogger import SysLogger
 
 from .config import Config
 from .db import Record, RecordCollection, db

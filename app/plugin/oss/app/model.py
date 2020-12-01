@@ -1,6 +1,6 @@
 from sqlalchemy import Column, FetchedValue, Integer, String
 
-from app.lin.interface import BaseCrud
+from lin.interface import BaseCrud
 
 
 class Image(BaseCrud):

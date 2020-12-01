@@ -1,5 +1,5 @@
-from app.lin.model import GroupPermission as LinGroupPermission
-from app.lin.model import db, manager
+from lin.model import GroupPermission as LinGroupPermission
+from lin.model import db, manager
 
 
 class GroupPermission(LinGroupPermission):
