@@ -10,12 +10,13 @@
 import re
 from functools import wraps
 
-from . import find_info_by_ep
-from .db import db
-from .interface import InfoCrud
 from flask import Response, request
 from flask_jwt_extended import get_current_user
 from sqlalchemy import Column, Integer, String, func
+
+from . import find_info_by_ep
+from .db import db
+from .interface import InfoCrud
 
 
 class Log(InfoCrud):

@@ -262,3 +262,12 @@ class UserIdentityInterface(InfoCrud):
     identity_type = Column(String(100), nullable=False, comment="认证类型")
     identifier = Column(String(100), comment="标识")
     credential = Column(String(100), comment="凭证")
+
+
+class LinViewModel:
+    # 提供自动序列化功能
+    def keys(self):
+        return self.__dict__.keys()
+
+    def __getitem__(self, key):
+        return getattr(self, key)

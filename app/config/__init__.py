@@ -15,7 +15,7 @@ class BaseConfig(object):
     # 先读 env 环境变量中的配置
 
     # 指定加密KEY
-    SECRET_KEY = os.getenv("SECRET_KEY", "https://github.com/Talelin/lin-cms-flask")
+    SECRET_KEY = os.getenv("SECRET_KEY", "https://github.com/TaleLin/lin-cms-flask")
 
     # 指定数据库
     SQLALCHEMY_DATABASE_URI = os.getenv(
