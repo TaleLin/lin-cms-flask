@@ -2,10 +2,10 @@ import os
 
 from flask import jsonify, request
 
-from app.lin import lin_config
-from app.lin.db import db
-from app.lin.exception import Fail, ParameterError, Success
-from app.lin.redprint import Redprint
+from lin import lin_config
+from lin.db import db
+from lin.exception import Fail, ParameterError, Success
+from lin.redprint import Redprint
 
 from .enums import LocalOrCloud
 from .model import Image

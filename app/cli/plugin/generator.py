@@ -12,7 +12,7 @@ banner = """
 """
 
 controller = """
-from app.lin.redprint import Redprint
+from lin.redprint import Redprint
 
 {0}_api = Redprint("{0}")
 

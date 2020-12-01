@@ -15,9 +15,9 @@ from flask_jwt_extended import (
 )
 
 from app.common.utils import split_group
-from app.lin import manager, permission_meta
-from app.lin.db import db
-from app.lin.exception import (
+from lin import manager, permission_meta
+from lin.db import db
+from lin.exception import (
     Duplicated,
     Fail,
     NotFound,
@@ -25,9 +25,9 @@ from app.lin.exception import (
     RefreshFailed,
     Success,
 )
-from app.lin.jwt import admin_required, get_tokens, login_required
-from app.lin.logger import Log, Logger
-from app.lin.redprint import Redprint
+from lin.jwt import admin_required, get_tokens, login_required
+from lin.logger import Log, Logger
+from lin.redprint import Redprint
 from app.validator.form import (
     ChangePasswordForm,
     LoginForm,

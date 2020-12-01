@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, Text, text
 
-from app.lin import lin_config
-from app.lin.db import db
-from app.lin.exception import NotFound
-from app.lin.interface import InfoCrud as Base
+from lin import lin_config
+from lin.db import db
+from lin.exception import NotFound
+from lin.interface import InfoCrud as Base
 
 
 class Poem(Base):

@@ -1,8 +1,3 @@
-Flask
 Flask-Cors
-Flask-JWT-Extended
-Flask-SQLAlchemy
-wtforms
 oss2
-tablib
 python-dotenv

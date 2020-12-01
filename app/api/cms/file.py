@@ -5,8 +5,8 @@
 from flask import request
 
 from app.extension.file.local_uploader import LocalUploader
-from app.lin.jwt import login_required
-from app.lin.redprint import Redprint
+from lin.jwt import login_required
+from lin.redprint import Redprint
 
 file_api = Redprint("file")
 

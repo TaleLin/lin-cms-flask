@@ -2,9 +2,9 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.lin import manager
-from app.lin.db import db
-from app.lin.enums import GroupLevelEnum
+from lin import manager
+from lin.db import db
+from lin.enums import GroupLevelEnum
 
 
 def init(force=False):

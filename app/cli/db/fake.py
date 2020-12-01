@@ -3,7 +3,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.lin.db import db
+from lin.db import db
 from app.model.v1.book import Book
 
 
