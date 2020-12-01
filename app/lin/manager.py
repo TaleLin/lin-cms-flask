@@ -9,7 +9,7 @@
 """
 
 
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import DatabaseError
 
 from .db import db
 
@@ -175,7 +175,7 @@ class Manager(object):
                 _sync_permissions(
                     self, new_added_permissions, unmounted_ids, mounted_ids, deleted_ids
                 )
-        except OperationalError:
+        except DatabaseError:
             pass
 
 

@@ -7,12 +7,13 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import os
 from collections import namedtuple
 from datetime import date, datetime
 from enum import Enum
 from functools import wraps
 
-from flask import Blueprint, Flask, current_app, json, jsonify, request
+from flask import Blueprint, Flask, current_app, json, jsonify
 from flask.json import JSONEncoder as _JSONEncoder
 from flask.wrappers import Response
 from werkzeug.exceptions import HTTPException
@@ -27,7 +28,6 @@ from .jwt import jwt
 from .manager import Manager
 
 __version__ = "0.3.0"
-
 
 # 路由函数的权限和模块信息(meta信息)
 Meta = namedtuple("meta", ["auth", "module", "mount"])
@@ -259,8 +259,8 @@ class Lin(object):
         create_all and self._enable_create_all(app)
         jwt.init_app(app)
         mount and self.mount(app)
-        # 挂载后才能获取代码中的权限
-        self.sync_permissions(app)
+        # 挂载后才能获取代码中的权限, debugger进程跳过权限初始化
+        os.environ.get("WERKZEUG_RUN_MAIN") == "true" and self.sync_permissions(app)
         handle and self.handle_error(app)
         syslogger and SysLogger(app)
 
