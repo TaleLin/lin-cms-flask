@@ -15,8 +15,7 @@ from flask_jwt_extended import (
 )
 
 from app.common.utils import split_group
-from app.extension.log.log import Log
-from app.extension.log.logger import Logger
+from app.lin.logger import Log, Logger
 from app.lin import manager, permission_meta
 from app.lin.db import db
 from app.lin.exception import (
