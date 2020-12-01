@@ -1,5 +1,5 @@
-Flask-Cors
-oss2
-python-dotenv
+Flask-Cors==3.0.9
+oss2==2.13.1
+python-dotenv==0.15.0
 # unit test
-pytest
+pytest==6.1.2
