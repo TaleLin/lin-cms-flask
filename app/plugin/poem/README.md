@@ -1,7 +1,7 @@
 # 古诗词插件接口文档
 
 >本接口文档仅供插件开发者阅读，如果你想学习如何开发此插件，请阅读
-[插件开发](http://doc.cms.7yue.pro/lin/server/plugin_create.html)
+[插件开发](https://doc.cms.talelin.com/plugins/flask/be_develop.html)
 
 ## 获取所有诗词接口
 URL:

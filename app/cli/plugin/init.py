@@ -66,7 +66,7 @@ class PluginInit:
             filename = "requirements.txt"
             file_path = self.app.config.root_path + "/plugin/" + name + "/" + filename
             success_msg = "安装" + name + "插件的依赖成功"
-            fail_msg = name + "插件的依赖安装失败，请[手动安装依赖]: http://doc.7yue.pro/"
+            fail_msg = name + "插件的依赖安装失败，请[手动安装依赖]: https://doc.cms.talelin.com/"
             if os.path.exists(file_path):
                 if (os.path.getsize(file_path)) == 0:
                     continue
