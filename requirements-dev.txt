@@ -2,5 +2,4 @@ Lin-CMS==0.3.0a2
 Flask-Cors==3.0.9
 python-dotenv==0.15.0
 oss2==2.13.1
-# unit test
 pytest==6.1.2
