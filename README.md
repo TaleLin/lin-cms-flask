@@ -12,7 +12,7 @@
 <p align="center">
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
   <img src="https://img.shields.io/badge/flask-1.1.2-green.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/flask-1.1.2-green.svg" style="max-width:100%;"></a>
-  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lincms-0.3.0a2-orange.svg" alt="lincms version" data-canonical-src="https://img.shields.io/badge/lincms-0.3.0a2-orange.svge" style="max-width:100%;"></a>
+  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lincms-0.3.0a3-orange.svg" alt="lincms version" data-canonical-src="https://img.shields.io/badge/lincms-0.3.0a3-orange.svge" style="max-width:100%;"></a>
   <a href="https://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
 </p>
 
@@ -122,7 +122,7 @@ git clone https://github.com/TaleLin/lin-cms-flask.git starter
 进入项目目录，调用环境中的 pip 来安装依赖包:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-${env}.txt
 ```
 
 ### 数据库配置
@@ -142,7 +142,7 @@ Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我�
     SQLALCHEMY_DATABASE_URI='sqlite:////absolute/path/to/file.db'
 ```
 
-这将在项目的最外层目录生成名为`lincms{env}.db`的 Sqlite3 数据库文件。
+这将在项目的最外层目录生成名为`lincms${env}.db`的 Sqlite3 数据库文件。
 
 #### 使用 MySQL
 
@@ -150,7 +150,7 @@ Lin 默认启用 Sqlite3 数据库，打开项目根目录下的.env 文件(我�
 
 Lin 需要您自己在 MySQL 中新建一个数据库，名字由您自己决定(例如`lincms`)。
 
-创建数据库后，打开项目根目录下的`.{env}.env`文件，配置对应的`SQLALCHEMY_DATABASE_URI`。
+创建数据库后，打开项目根目录下的`.${env}.env`文件，配置对应的`SQLALCHEMY_DATABASE_URI`。
 
 如下所示：
 
