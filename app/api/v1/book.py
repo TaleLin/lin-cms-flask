@@ -11,7 +11,7 @@ from lin.interface import LinViewModel
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 from app.model.v1.book import Book
-from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
+from app.common.validator import BookSearchForm, CreateOrUpdateBookForm
 
 book_api = Redprint("book")
 
