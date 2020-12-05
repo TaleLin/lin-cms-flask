@@ -3,7 +3,7 @@ common exception
 """
 
 
-from lin.exception import NotFound, ParameterError
+from lin.exception import NotFound, ParameterError, Failed
 
 
 class BookNotFound(NotFound):
@@ -12,3 +12,10 @@ class BookNotFound(NotFound):
 
 class BookParameterError(ParameterError):
     message = "书籍参数错误"
+
+
+class RefreshFailed(Failed):
+    message = "令牌刷新失败"
+    message_code = 10052
+
+
