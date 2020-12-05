@@ -15,14 +15,14 @@ from flask_jwt_extended import (
 )
 
 from app.common.utils import split_group
+from app.common.exception import RefreshFailed
 from lin import manager, permission_meta
 from lin.db import db
 from lin.exception import (
     Duplicated,
-    Fail,
+    Failed,
     NotFound,
     ParameterError,
-    RefreshFailed,
     Success,
 )
 from lin.jwt import admin_required, get_tokens, login_required
@@ -109,7 +109,7 @@ def change_password():
         db.session.commit()
         return Success("密码修改成功")
     else:
-        return Fail("修改密码失败")
+        return Failed("修改密码失败")
 
 
 @user_api.route("/information", methods=["GET"])

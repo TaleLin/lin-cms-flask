@@ -4,7 +4,7 @@ from flask import jsonify, request
 
 from lin import lin_config
 from lin.db import db
-from lin.exception import Fail, ParameterError, Success
+from lin.exception import Failed, ParameterError, Success
 from lin.redprint import Redprint
 
 from .enums import LocalOrCloud
@@ -46,7 +46,7 @@ def upload_to_ali():
                 else:
                     res["id"] = exist.id
             return jsonify(res)
-    return Fail("上传图片失败，请检查图片路径")
+    return Failed("上传图片失败，请检查图片路径")
 
 
 @api.route("/upload_multiple", methods=["POST"])
