@@ -62,11 +62,11 @@ def login():
     Log.create_log(
         message=f"{user.username}登陆成功获取了令牌",
         user_id=user.id,
-        user_name=user.username,
+        username=user.username,
         status_code=200,
         method="post",
         path="/cms/user/login",
-        authority="无",
+        permission="",
         commit=True,
     )
     access_token, refresh_token = get_tokens(user)
