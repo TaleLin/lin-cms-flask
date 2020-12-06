@@ -83,3 +83,13 @@ def plugin_generate(name: str):
 
 app.cli.add_command(db_cli)
 app.cli.add_command(plugin_cli)
+
+if __name__ == "__main__":
+    app.logger.warning(
+        '''
+        ----------------------------
+        |  app.run() => flask run  |
+        ----------------------------
+        '''
+    )
+    app.run()

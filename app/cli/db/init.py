@@ -16,7 +16,6 @@ def init(force=False):
         manager.user_model.get(one=False)
         or manager.user_group_model.get(one=False)
         or manager.group_model.get(one=False)
-        or manager.permission_model.get(one=False)
     ):
         exit("表中存在数据，初始化失败")
     with db.auto_commit():
