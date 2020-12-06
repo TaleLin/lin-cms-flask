@@ -3,23 +3,23 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.app import create_app
 
-from . import get_token, write_token
-
-app = create_app()
+from . import get_token, write_token, app
 
 
-def test_login():
+def test_a_login():
     with app.test_client() as c:
-        rv = c.post("/cms/user/login", json={"username": "root", "password": "123456"})
+        rv = c.post("/cms/user/login", 
+                    headers={"Content-Type": "application/json"},
+                    json={"username": "root", "password": "123456"}
+                   )
         json_data = rv.get_json()
         write_token(json_data)
-        assert json_data["access_token"] is not None
+        assert json_data.get("access_token") is not None
         assert rv.status_code == 200
 
 
-def test_change_nickname():
+def test_b_change_nickname():
     with app.test_client() as c:
         rv = c.put(
             "/cms/user",
