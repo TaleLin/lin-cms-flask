@@ -2,14 +2,10 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from app.app import create_app
-
-from . import get_token
-
-app = create_app()
+from . import get_token, app
 
 
-def test_create():
+def test_a_create():
     with app.test_client() as c:
         rv = c.post(
             "/v1/book",
@@ -23,13 +19,13 @@ def test_create():
         assert rv.status_code == 201 or rv.get_json().get("code") == 10030
 
 
-def test_get_books():
+def test_b_get_books():
     with app.test_client() as c:
         rv = c.get("/v1/book", headers={"Authorization": "Bearer " + get_token()})
         assert rv.status_code == 200
 
 
-def test_update():
+def test_c_update():
     with app.test_client() as c:
         rv = c.put(
             "/v1/book/1",
@@ -43,7 +39,7 @@ def test_update():
         assert rv.status_code == 201
 
 
-def test_delete():
+def test_d_delete():
     with app.test_client() as c:
         rv = c.delete("/v1/book/1", headers={"Authorization": "Bearer " + get_token()})
         assert rv.status_code == 201

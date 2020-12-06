@@ -4,6 +4,7 @@
     """
 
 import click
+import subprocess
 from flask.cli import AppGroup
 
 from app.app import create_app
@@ -30,7 +31,6 @@ app = create_app(
 )
 
 db_cli = AppGroup("db")
-
 plugin_cli = AppGroup("plugin")
 
 
@@ -80,6 +80,12 @@ def plugin_generate(name: str):
     """
     _plugin_generate(name)
 
+@app.cli.command("test")
+def test():
+    """
+    run pytest
+    """
+    subprocess.run("pytest")
 
 app.cli.add_command(db_cli)
 app.cli.add_command(plugin_cli)
