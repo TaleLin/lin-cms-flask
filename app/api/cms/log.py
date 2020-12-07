@@ -8,14 +8,14 @@ import math
 from flask import request
 from sqlalchemy import text
 
-from app.common.utils import get_page_from_query, paginate
+from app.util.page import get_page_from_query, paginate
 from lin import permission_meta
 from lin.db import db
 from lin.exception import NotFound, ParameterError
 from lin.jwt import group_required
 from lin.logger import Log
 from lin.redprint import Redprint
-from app.common.validator import LogFindForm
+from app.validator.wtform import LogFindForm
 
 log_api = Redprint("log")
 
