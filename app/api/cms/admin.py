@@ -17,7 +17,7 @@ from lin.exception import Forbidden, NotFound, ParameterError, Success
 from lin.jwt import admin_required
 from lin.logger import Logger
 from lin.redprint import Redprint
-from app.validator.wtform import (
+from app.validator.form import (
     DispatchAuth,
     DispatchAuths,
     NewGroup,

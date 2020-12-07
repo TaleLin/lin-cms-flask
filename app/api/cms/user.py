@@ -28,7 +28,7 @@ from lin.exception import (
 from lin.jwt import admin_required, get_tokens, login_required
 from lin.logger import Log, Logger
 from lin.redprint import Redprint
-from app.validator.wtform import (
+from app.validator.form import (
     ChangePasswordForm,
     LoginForm,
     RegisterForm,
