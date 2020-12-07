@@ -14,8 +14,8 @@ from flask_jwt_extended import (
     verify_jwt_refresh_token_in_request,
 )
 
-from app.common.utils import split_group
-from app.common.exception import RefreshFailed
+from app.util.common import split_group
+from app.exception.token import RefreshFailed
 from lin import manager, permission_meta
 from lin.db import db
 from lin.exception import (
@@ -28,7 +28,7 @@ from lin.exception import (
 from lin.jwt import admin_required, get_tokens, login_required
 from lin.logger import Log, Logger
 from lin.redprint import Redprint
-from app.common.validator import (
+from app.validator.wtform import (
     ChangePasswordForm,
     LoginForm,
     RegisterForm,
