@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from lin import Lin
+from lin import Lin, __version__
 
 
 def register_blueprints(app):
@@ -17,6 +17,12 @@ def register_blueprints(app):
 
     app.register_blueprint(create_v1(), url_prefix="/v1")
     app.register_blueprint(create_cms(), url_prefix="/cms")
+
+def register_openapi(app):
+    from app.api import openapi
+    
+    openapi.register(app)
+
 
 
 def apply_cors(app):
@@ -48,4 +54,5 @@ def create_app(register_all=True, **kwargs):
         register_blueprints(app)
         Lin(app, **kwargs)
         apply_cors(app)
+        register_openapi(app)
     return app
