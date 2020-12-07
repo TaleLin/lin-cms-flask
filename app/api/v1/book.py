@@ -5,16 +5,20 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from flask.globals import current_app
 from lin import permission_meta
-from lin.exception import Success
+from lin.exception import NotFound, ParameterError, Success
 from lin.interface import LinViewModel
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 from app.model.v1.book import Book
 from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
+from app.validator.spectree import BookSchema, Query, BookResp,Data,Language,Cookie,Header, Response
+from app.api import openapi
+from flask import request
+from app.validator.spectree import BaseModel
 
 book_api = Redprint("book")
-
 
 class BookViewModel(LinViewModel):
     """
@@ -41,7 +45,7 @@ def get_book(bid):
 
 
 @book_api.route("", methods=["GET"])
-@login_required
+# @login_required
 def get_books():
     books = Book.get_all()
     return books
@@ -52,12 +56,36 @@ def search():
     form = BookSearchForm().validate_for_api()
     books = Book.search_by_keywords(form.q.data)
     return books
+    
 
+
+
+class SubRes(BaseModel):
+    message:str = "哈哈"
+    tt:int = 17
+
+class OuterRes(BaseModel):
+    http_status_code:int = 201
+    name:str= "haha"
+    age:int = 18
+    test:SubRes
 
 @book_api.route("", methods=["POST"])
+@openapi.validate(json=BookSchema, resp=Response(ParameterError, NotFound, OuterRes), tags=["book"])
 def create_book():
-    form = CreateOrUpdateBookForm().validate_for_api()
-    Book.new_book(form)
+    '''
+    create the book
+    '''
+    # form = CreateOrUpdateBookForm().validate_for_api()
+    # Book.new_book(request.context.json)
+    json=request.context.json
+    Book.create(
+        title=json.title,
+        author=json.author,
+        summary=json.summary,
+        image=json.image,
+        commit=True,
+    )
     return Success(12)
 
 
@@ -69,8 +97,8 @@ def update_book(bid):
 
 
 @book_api.route("/<bid>", methods=["DELETE"])
-@permission_meta(auth="删除图书", module="图书")
-@group_required
+# @permission_meta(auth="删除图书", module="图书")
+# @group_required
 def delete_book(bid):
     Book.remove_book(bid)
     return Success(14)
