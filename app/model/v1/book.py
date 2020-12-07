@@ -14,7 +14,7 @@ class Book(Base):
     title = Column(String(50), nullable=False)
     author = Column(String(30), default="未名")
     summary = Column(String(1000))
-    image = Column(String(50))
+    image = Column(String(100))
 
     @classmethod
     def get_detail(cls, bid):

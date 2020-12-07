@@ -15,7 +15,7 @@ from lin.exception import NotFound, ParameterError
 from lin.jwt import group_required
 from lin.logger import Log
 from lin.redprint import Redprint
-from app.validator.wtform import LogFindForm
+from app.validator.form import LogFindForm
 
 log_api = Redprint("log")
 
