@@ -15,7 +15,7 @@ from flask_jwt_extended import (
 )
 
 from app.util.common import split_group
-from app.exception.token import RefreshFailed
+from app.exception.api import RefreshFailed
 from lin import manager, permission_meta
 from lin.db import db
 from lin.exception import (
