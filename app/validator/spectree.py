@@ -1,10 +1,14 @@
 from enum import Enum
-from app.config.codemsg import MESSAGE
+from lin import JSONEncoder
+
+from lin.db import Record, RecordCollection
 from app.config.codedesc import DESC
 from pydantic import BaseModel as _BaseModel, Field
 from spectree import Response as _Response
 from pydantic.main import Any ,object_setattr,validate_model
 from lin.exception import APIException, ParameterError
+from flask import json
+import random
 
 class BaseModel(_BaseModel):
 
@@ -23,26 +27,46 @@ class BaseModel(_BaseModel):
 
 class Response(_Response):
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self.code_models = dict()
 
         for arg in args:
-            if issubclass(arg, BaseModel): 
-                fields = arg.__fields__
-                http_status_code = getattr(fields.get("http_status_code"),"default", None)
-                if http_status_code:
-                    del fields["http_status_code"]
-                else:
-                    http_status_code = 200
-                self.code_models[http_status_code]  = arg
-            elif issubclass(arg, APIException):
+            if  isinstance(arg, APIException) or issubclass(arg, APIException):
                 self.code_models[arg.code]  = type(
-                    arg.__name__ + 'BaseModel',
+                    "APIException{}BaseModel".format(str(random.randint(1,9999))),
                     (BaseModel,),
-                    dict(code=arg.message_code , message=MESSAGE.get(arg.message_code, arg.message))
+                    dict(code=arg.message_code , message=arg.message)
                     )
             else:
-                raise ValueError("只接受BaseModel和APIException的子类")
+                raise ValueError()
+
+        for http_status, response in kwargs.items():
+            http_status_code = int(http_status.split('_')[-1])
+            if isinstance(response, dict):
+                self.code_models[http_status_code]  = type(
+                    'Dict{}BaseModel'.format(str(random.randint(1, 9999))),
+                    (BaseModel,),
+                    response 
+                    )
+            elif isinstance(response, (RecordCollection, Record)) or (
+                hasattr(response, "keys") and hasattr(response, "__getitem__")
+            ):
+                response = json.loads(json.dumps(response, cls=JSONEncoder))
+                self.code_models[http_status_code]  = type(
+                    'Json{}BaseModel'.format(str(random.randint(1,9999))),
+                    (BaseModel,),
+                    response
+                    )
+            elif issubclass(response, BaseModel): 
+                tmpdict = dict()
+                print("======================add this to JSONencoder and auto_response")
+                for k, v in response.__fields__.items():
+                    tmpdict[k] = v.default
+                print(tmpdict,2222, "add this to JSONencoder and auto_response=========")
+                self.code_models[http_status_code]  = response
+            else:
+                raise ValueError()
+
 
     def generate_spec(self):
         """
@@ -53,7 +77,7 @@ class Response(_Response):
         responses = {}
         for code, base_model in self.code_models.items():
             responses[code] = {
-                "description": DESC[code],
+                "description": DESC.get(code,"No Desc" ),
                 "content": {
                     "application/json": {
                         "schema": {"$ref": f"#/components/schemas/{base_model.__name__}"}
