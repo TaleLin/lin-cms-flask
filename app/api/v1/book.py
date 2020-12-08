@@ -24,7 +24,6 @@ class BookViewModel(LinViewModel):
     """
     继承LinModel类可以自动序列化
     """
-
     def __init__(self, book):
         self.title = book.title
         self.author = book.author
@@ -64,14 +63,25 @@ class SubRes(BaseModel):
     message:str = "哈哈"
     tt:int = 17
 
+
+lbook = Book()
+lbook.author = "aa"
+lbook.title ="bb"
+lbook.summary = "cc"
+bv = BookViewModel(lbook)
+
 class OuterRes(BaseModel):
     http_status_code:int = 201
     name:str= "haha"
     age:int = 18
     test:SubRes
+    t:str = ParameterError("hello").message
+    # tttt:bv
+
+
 
 @book_api.route("", methods=["POST"])
-@openapi.validate(json=BookSchema, resp=Response(ParameterError, NotFound, OuterRes), tags=["book"])
+@openapi.validate(json=BookSchema, resp=Response(ParameterError("你好，出错了"), NotFound, http_323={"a":1},http_333=OuterRes, http_213=bv), tags=["book"],)
 def create_book():
     '''
     create the book
