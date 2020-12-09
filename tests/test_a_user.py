@@ -4,18 +4,19 @@
 """
 
 
-from . import get_token, write_token, app
+from . import app, get_token, write_token
 
 
 def test_a_login():
     with app.test_client() as c:
-        rv = c.post("/cms/user/login", 
-                    headers={"Content-Type": "application/json"},
-                    json={"username": "root", "password": "123456"}
-                   )
+        rv = c.post(
+            "/cms/user/login",
+            headers={"Content-Type": "application/json"},
+            json={"username": "root", "password": "123456"},
+        )
         json_data = rv.get_json()
         write_token(json_data)
-        assert json_data.get("access_token") is not None
+        assert json_data.get("access_token") != None
         assert rv.status_code == 200
 
 

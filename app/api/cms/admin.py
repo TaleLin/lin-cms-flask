@@ -7,9 +7,6 @@
 import math
 
 from flask import request
-from sqlalchemy import func
-
-from app.util.page import get_page_from_query, paginate
 from lin import find_user, get_ep_infos, manager, permission_meta
 from lin.db import db
 from lin.enums import GroupLevelEnum
@@ -17,6 +14,9 @@ from lin.exception import Forbidden, NotFound, ParameterError, Success
 from lin.jwt import admin_required
 from lin.logger import Logger
 from lin.redprint import Redprint
+from sqlalchemy import func
+
+from app.util.page import get_page_from_query, paginate
 from app.validator.form import (
     DispatchAuth,
     DispatchAuths,

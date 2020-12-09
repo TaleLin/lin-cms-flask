@@ -3,8 +3,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import os
-
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
@@ -18,11 +16,11 @@ def register_blueprints(app):
     app.register_blueprint(create_v1(), url_prefix="/v1")
     app.register_blueprint(create_cms(), url_prefix="/cms")
 
+
 def register_openapi(app):
     from app.api import openapi
-    
-    openapi.register(app)
 
+    openapi.register(app)
 
 
 def apply_cors(app):
@@ -41,8 +39,8 @@ def load_app_config(app):
     app.config.from_object(
         "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
     )
-    # 加载 code message
-    app.config.from_object("app.config.codemsg")
+    # 生产环境不启用 openapi
+    env != "production" and register_openapi(app)
 
 
 def create_app(register_all=True, **kwargs):
@@ -51,8 +49,7 @@ def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder="./assets")
     load_app_config(app)
     if register_all:
-        register_blueprints(app)
         Lin(app, **kwargs)
+        register_blueprints(app)
         apply_cors(app)
-        register_openapi(app)
     return app

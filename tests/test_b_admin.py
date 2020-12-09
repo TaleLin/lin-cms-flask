@@ -2,7 +2,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from . import get_token, app
+from . import app, get_token
 
 
 def test_a_authority():

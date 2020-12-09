@@ -5,110 +5,135 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask.globals import current_app
-from lin import permission_meta
-from lin.exception import NotFound, ParameterError, Success
-from lin.interface import LinViewModel
+from flask import request
+from lin import DocResponse, permission_meta
+from lin.exception import DocParameterError, NotFound, Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
-from app.model.v1.book import Book
-from app.validator.form import BookSearchForm, CreateOrUpdateBookForm
-from app.validator.spectree import BookSchema, Query, BookResp,Data,Language,Cookie,Header, Response
+
 from app.api import openapi
-from flask import request
-from app.validator.spectree import BaseModel
+from app.exception.api import BookNotFound
+from app.model.v1.book import Book
+from app.validator.schema import (
+    AccessTokenSchema,
+    BookListSchema,
+    BookSchema,
+    SearchBookSchema,
+)
 
 book_api = Redprint("book")
 
-class BookViewModel(LinViewModel):
+
+@book_api.route("/<int:id>", methods=["GET"])
+@openapi.validate(
+    resp=DocResponse(BookNotFound, http_200=BookSchema),
+    tags=["图书"],
+)
+def get_book(id: int):
     """
-    继承LinModel类可以自动序列化
+    获取id指定图书的信息
     """
-    def __init__(self, book):
-        self.title = book.title
-        self.author = book.author
-        self.summary = book.summary
-
-
-@book_api.route("/<bid>/base", methods=["GET"])
-def get_book_base(bid):
-    book = Book.get_detail(bid)
-    return BookViewModel(book)
-
-
-@book_api.route("/<bid>", methods=["GET"])
-@login_required
-def get_book(bid):
-    book = Book.get_detail(bid)
-    return book
+    book = Book.query.filter_by(id=id, delete_time=None).first()
+    if not book:
+        raise BookNotFound
+    return BookSchema.parse_obj(book)
 
 
 @book_api.route("", methods=["GET"])
-# @login_required
+@openapi.validate(
+    resp=DocResponse(http_200=BookListSchema),
+    tags=["图书"],
+)
 def get_books():
-    books = Book.get_all()
+    """
+    获取图书列表
+    """
+    books = Book.query.filter_by(delete_time=None).all()
+    # TODO JSON
+    # return BookListSchema.parse_obj({"books":books})
     return books
 
 
 @book_api.route("/search", methods=["GET"])
+@openapi.validate(
+    query=SearchBookSchema,
+    resp=DocResponse(BookNotFound, DocParameterError),
+    tags=["图书"],
+)
 def search():
-    form = BookSearchForm().validate_for_api()
-    books = Book.search_by_keywords(form.q.data)
+    """
+    关键字搜索图书
+    """
+    keyword = request.context.query.q
+    books = Book.query.filter(
+        Book.title.like("%" + keyword + "%"), Book.delete_time == None
+    ).all()
+    if not books:
+        raise BookNotFound
+    # TODO JSON
+    # return BookListSchema.parse_obj({"books":books})
     return books
-    
-
-
-
-class SubRes(BaseModel):
-    message:str = "哈哈"
-    tt:int = 17
-
-
-lbook = Book()
-lbook.author = "aa"
-lbook.title ="bb"
-lbook.summary = "cc"
-bv = BookViewModel(lbook)
-
-class OuterRes(BaseModel):
-    http_status_code:int = 201
-    name:str= "haha"
-    age:int = 18
-    test:SubRes
-    t:str = ParameterError("hello").message
-    # tttt:bv
-
 
 
 @book_api.route("", methods=["POST"])
-@openapi.validate(json=BookSchema, resp=Response(ParameterError("你好，出错了"), NotFound, http_323={"a":1},http_333=OuterRes, http_213=bv), tags=["book"],)
+@login_required
+@openapi.validate(
+    headers=AccessTokenSchema,
+    json=BookSchema,
+    resp=DocResponse(DocParameterError, Success(12)),
+    tags=["图书"],
+)
 def create_book():
-    '''
-    create the book
-    '''
-    # form = CreateOrUpdateBookForm().validate_for_api()
-    # Book.new_book(request.context.json)
-    json=request.context.json
+    """
+    创建图书
+    """
+    book_schema = request.context.json
     Book.create(
-        title=json.title,
-        author=json.author,
-        summary=json.summary,
-        image=json.image,
+        **book_schema.dict(),
         commit=True,
     )
     return Success(12)
 
 
-@book_api.route("/<bid>", methods=["PUT"])
-def update_book(bid):
-    form = CreateOrUpdateBookForm().validate_for_api()
-    Book.edit_book(bid, form)
+@book_api.route("/<int:id>", methods=["PUT"])
+@login_required
+@openapi.validate(
+    headers=AccessTokenSchema,
+    json=BookSchema,
+    resp=DocResponse(DocParameterError, Success(13)),
+    tags=["图书"],
+)
+def update_book(id: int):
+    """
+    更新图书信息
+    """
+    book_schema = request.context.json
+    book = Book.query.filter_by(id=id, delete_time=None).first()
+    if book is None:
+        raise BookNotFound
+    book.update(
+        id=id,
+        commit=True,
+        **book_schema.dict(),
+    )
     return Success(13)
 
 
-@book_api.route("/<bid>", methods=["DELETE"])
-# @permission_meta(auth="删除图书", module="图书")
-# @group_required
-def delete_book(bid):
-    Book.remove_book(bid)
+@book_api.route("/<int:id>", methods=["DELETE"])
+@permission_meta(auth="删除图书", module="图书")
+@group_required
+@openapi.validate(
+    headers=AccessTokenSchema,
+    resp=DocResponse(BookNotFound, Success(14)),
+    tags=["图书"],
+)
+def delete_book(id: int):
+    """
+    传入id删除对应图书
+    """
+    book = Book.query.filter_by(id=id, delete_time=None).first()
+    if book is None:
+        raise BookNotFound
+    # 删除图书，软删除
+    book.delete(commit=True)
     return Success(14)
