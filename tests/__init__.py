@@ -1,7 +1,7 @@
 import json
 import os
-from app.app import create_app
 
+from app.app import create_app
 from app.model.lin import (
     Group,
     GroupPermission,

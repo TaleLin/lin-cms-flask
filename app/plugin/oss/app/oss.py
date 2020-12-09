@@ -1,6 +1,5 @@
 import oss2
-
-from lin import lin_config
+from lin.config import lin_config
 from lin.utils import get_random_str
 
 

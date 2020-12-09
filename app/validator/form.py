@@ -5,12 +5,11 @@
 import re
 import time
 
-from wtforms import DateTimeField, FieldList, IntegerField, PasswordField, StringField
-from wtforms.validators import DataRequired, EqualTo, NumberRange, Regexp, length
-
 from lin import manager
 from lin.exception import ParameterError
 from lin.form import Form
+from wtforms import DateTimeField, FieldList, IntegerField, PasswordField, StringField
+from wtforms.validators import DataRequired, EqualTo, NumberRange, Regexp, length
 
 # 注册校验
 

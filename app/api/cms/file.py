@@ -3,10 +3,10 @@
     :license: MIT, see LICENSE for more details.
 """
 from flask import request
-
-from app.extension.file.local_uploader import LocalUploader
 from lin.jwt import login_required
 from lin.redprint import Redprint
+
+from app.extension.file.local_uploader import LocalUploader
 
 file_api = Redprint("file")
 

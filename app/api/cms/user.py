@@ -13,21 +13,15 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_refresh_token_in_request,
 )
-
-from app.util.common import split_group
-from app.exception.api import RefreshFailed
 from lin import manager, permission_meta
 from lin.db import db
-from lin.exception import (
-    Duplicated,
-    Failed,
-    NotFound,
-    ParameterError,
-    Success,
-)
+from lin.exception import Duplicated, Failed, NotFound, ParameterError, Success
 from lin.jwt import admin_required, get_tokens, login_required
 from lin.logger import Log, Logger
 from lin.redprint import Redprint
+
+from app.exception.api import RefreshFailed
+from app.util.common import split_group
 from app.validator.form import (
     ChangePasswordForm,
     LoginForm,

@@ -312,7 +312,7 @@ class DependenciesResolve:
             required_version = dependence["required_version"]
             dep_name = dependence["key"]
 
-            if required_version is not None:
+            if required_version != None:
                 version_infos = required_version.split(",")
                 for version_info in version_infos:
                     pattern = "(>=|<=|!=|==|<|>)(.*)"

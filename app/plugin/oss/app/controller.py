@@ -1,8 +1,7 @@
 import os
 
 from flask import jsonify, request
-
-from lin import lin_config
+from lin.config import lin_config
 from lin.db import db
 from lin.exception import Failed, ParameterError, Success
 from lin.redprint import Redprint
