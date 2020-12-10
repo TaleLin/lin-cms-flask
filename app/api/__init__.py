@@ -5,6 +5,6 @@
 from lin import __version__
 from spectree import SpecTree
 
-openapi = SpecTree(
+apidoc = SpecTree(
     backend_name="flask", title="Lin-CMS API", mode="strict", version=__version__
 )
