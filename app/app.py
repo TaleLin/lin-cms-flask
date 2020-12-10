@@ -17,10 +17,10 @@ def register_blueprints(app):
     app.register_blueprint(create_cms(), url_prefix="/cms")
 
 
-def register_openapi(app):
-    from app.api import openapi
+def register_apidoc(app):
+    from app.api import apidoc
 
-    openapi.register(app)
+    apidoc.register(app)
 
 
 def apply_cors(app):
@@ -39,8 +39,6 @@ def load_app_config(app):
     app.config.from_object(
         "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
     )
-    # 生产环境不启用 openapi
-    env != "production" and register_openapi(app)
 
 
 def create_app(register_all=True, **kwargs):
@@ -51,5 +49,6 @@ def create_app(register_all=True, **kwargs):
     if register_all:
         Lin(app, **kwargs)
         register_blueprints(app)
+        register_apidoc(app)
         apply_cors(app)
     return app

@@ -11,21 +11,21 @@ from lin.exception import DocParameterError, NotFound, Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 
-from app.api import openapi
+from app.api import apidoc
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
     AccessTokenSchema,
     BookListSchema,
     BookSchema,
-    SearchBookSchema,
+    QuerySearchSchema,
 )
 
 book_api = Redprint("book")
 
 
 @book_api.route("/<int:id>", methods=["GET"])
-@openapi.validate(
+@apidoc.validate(
     resp=DocResponse(BookNotFound, http_200=BookSchema),
     tags=["图书"],
 )
@@ -40,7 +40,7 @@ def get_book(id: int):
 
 
 @book_api.route("", methods=["GET"])
-@openapi.validate(
+@apidoc.validate(
     resp=DocResponse(http_200=BookListSchema),
     tags=["图书"],
 )
@@ -50,13 +50,13 @@ def get_books():
     """
     books = Book.query.filter_by(delete_time=None).all()
     # TODO JSON
-    # return BookListSchema.parse_obj({"books":books})
+    # return BookListSchema(books=books)
     return books
 
 
 @book_api.route("/search", methods=["GET"])
-@openapi.validate(
-    query=SearchBookSchema,
+@apidoc.validate(
+    query=QuerySearchSchema,
     resp=DocResponse(BookNotFound, DocParameterError),
     tags=["图书"],
 )
@@ -71,13 +71,13 @@ def search():
     if not books:
         raise BookNotFound
     # TODO JSON
-    # return BookListSchema.parse_obj({"books":books})
+    # return BookListSchema(books=books)
     return books
 
 
 @book_api.route("", methods=["POST"])
 @login_required
-@openapi.validate(
+@apidoc.validate(
     headers=AccessTokenSchema,
     json=BookSchema,
     resp=DocResponse(DocParameterError, Success(12)),
@@ -97,7 +97,7 @@ def create_book():
 
 @book_api.route("/<int:id>", methods=["PUT"])
 @login_required
-@openapi.validate(
+@apidoc.validate(
     headers=AccessTokenSchema,
     json=BookSchema,
     resp=DocResponse(DocParameterError, Success(13)),
@@ -122,7 +122,7 @@ def update_book(id: int):
 @book_api.route("/<int:id>", methods=["DELETE"])
 @permission_meta(auth="删除图书", module="图书")
 @group_required
-@openapi.validate(
+@apidoc.validate(
     headers=AccessTokenSchema,
     resp=DocResponse(BookNotFound, Success(14)),
     tags=["图书"],
