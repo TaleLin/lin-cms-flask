@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from lin import Lin, __version__
+from lin.config import global_config
 
 
 def register_blueprints(app):
@@ -29,7 +30,7 @@ def apply_cors(app):
 
 def load_app_config(app):
     """
-    根据指定配置环境自动加载对应环境变量和配置类
+    根据指定配置环境自动加载对应环境变量和配置类到app config
     """
     # 根据传入环境加载对应配置
     env = app.config.get("ENV")
@@ -40,6 +41,12 @@ def load_app_config(app):
         "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
     )
 
+def set_global_config(**kwargs):
+    # 获取config_*参数对象并挂载到脱离上下文的global config
+    for k, v in kwargs.items():
+        if k.startswith("config_"):
+            global_config[k[7:]] = v
+
 
 def create_app(register_all=True, **kwargs):
     # http wsgi server托管启动需指定读取环境配置
@@ -47,8 +54,9 @@ def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder="./assets")
     load_app_config(app)
     if register_all:
-        Lin(app, **kwargs)
+        set_global_config(**kwargs)
         register_blueprints(app)
         register_apidoc(app)
         apply_cors(app)
+        Lin(app, **kwargs)
     return app
