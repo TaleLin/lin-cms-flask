@@ -9,11 +9,12 @@ from pydantic import Field
 
 datetime_regex = "^((([1-9][0-9][0-9][0-9]-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|(20[0-3][0-9]-(0[2469]|11)-(0[1-9]|[12][0-9]|30))) (20|21|22|23|[0-1][0-9]):[0-5][0-9]:[0-5][0-9])$"
 
-
-class QuerySearchSchema(BaseModel):
-    name: Optional[str] = None
+class BookQuerySearchSchema(BaseModel):
     q: Optional[str] = None
-    # 2018-11-01 09:39:35
+    
+class LogQuerySearchSchema(BaseModel):
+    keyword: Optional[str] = None
+    name: Optional[str] = None
     start: Optional[str] = Field(
         None, regex=datetime_regex, description="YY-MM-DD HH:MM:SS"
     )
@@ -23,16 +24,9 @@ class QuerySearchSchema(BaseModel):
     count: int = Field(5, gt=0, lt=16, description="0 < count < 16")
     page: int = 0
 
-def g_params_handler(req, resp, req_validation_error, instance):
-    schemas = ["cookies","headers","query","json"]
-    for schema in schemas:
-        params = getattr(req.context, schema)
-        if params:
-            for k, v in params:
-                if hasattr(g, k):
-                    raise ParameterError("parameter name {k} in {schema} is Duplicated ".format(schema=schema,k=k))
-                setattr(g, k, v)
-    g.offset = req.context.query.count * req.context.query.page
+    @staticmethod
+    def offset_handler(req, resp, req_validation_error, instance):
+        g.offset = req.context.query.count * req.context.query.page
 
 
 class LogSchema(BaseModel):
