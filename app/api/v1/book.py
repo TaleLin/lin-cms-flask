@@ -5,7 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import request
+from flask import request, g
 from lin import DocResponse, permission_meta
 from lin.exception import DocParameterError, NotFound, Success
 from lin.jwt import group_required, login_required
@@ -18,7 +18,7 @@ from app.validator.schema import (
     AccessTokenSchema,
     BookListSchema,
     BookSchema,
-    QuerySearchSchema,
+    BookQuerySearchSchema,
 )
 
 book_api = Redprint("book")
@@ -33,10 +33,10 @@ def get_book(id: int):
     """
     获取id指定图书的信息
     """
-    book = Book.query.filter_by(id=id, delete_time=None).first()
-    if not book:
-        raise BookNotFound
-    return BookSchema.parse_obj(book)
+    book = Book.get(id=id)
+    if book:
+        return BookSchema.parse_obj(book)
+    raise BookNotFound
 
 
 @book_api.route("", methods=["GET"])
@@ -48,7 +48,7 @@ def get_books():
     """
     获取图书列表
     """
-    books = Book.query.filter_by(delete_time=None).all()
+    books = Book.get(one=False)
     # TODO JSON
     # return BookListSchema(items=books)
     return books
@@ -56,7 +56,7 @@ def get_books():
 
 @book_api.route("/search", methods=["GET"])
 @apidoc.validate(
-    query=QuerySearchSchema,
+    query=BookQuerySearchSchema,
     resp=DocResponse(BookNotFound, DocParameterError),
     tags=["图书"],
 )
@@ -64,15 +64,14 @@ def search():
     """
     关键字搜索图书
     """
-    keyword = request.context.query.q
     books = Book.query.filter(
-        Book.title.like("%" + keyword + "%"), Book.delete_time == None
+        Book.title.like("%" + g.q + "%"), Book.delete_time == None
     ).all()
-    if not books:
-        raise BookNotFound
+    if books:
+        return books
+    raise BookNotFound
     # TODO JSON
     # return BookListSchema(items=books)
-    return books
 
 
 @book_api.route("", methods=["POST"])
@@ -88,10 +87,7 @@ def create_book():
     创建图书
     """
     book_schema = request.context.json
-    Book.create(
-        **book_schema.dict(),
-        commit=True,
-    )
+    Book.create(**book_schema.dict(), commit=True)
     return Success(12)
 
 
@@ -109,14 +105,14 @@ def update_book(id: int):
     """
     book_schema = request.context.json
     book = Book.query.filter_by(id=id, delete_time=None).first()
-    if book is None:
-        raise BookNotFound
-    book.update(
-        id=id,
-        commit=True,
-        **book_schema.dict(),
-    )
-    return Success(13)
+    if book:
+        book.update(
+            id=id,
+            **book_schema.dict(),
+            commit=True,
+        )
+        return Success(13)
+    raise BookNotFound
 
 
 @book_api.route("/<int:id>", methods=["DELETE"])
@@ -124,16 +120,16 @@ def update_book(id: int):
 @group_required
 @apidoc.validate(
     headers=AccessTokenSchema,
-    resp=DocResponse(BookNotFound, Success(14)),
+    resp=DocResponse(DocParameterError,BookNotFound, Success(14)),
     tags=["图书"],
 )
 def delete_book(id: int):
     """
     传入id删除对应图书
     """
-    book = Book.query.filter_by(id=id, delete_time=None).first()
-    if book is None:
-        raise BookNotFound
-    # 删除图书，软删除
-    book.delete(commit=True)
-    return Success(14)
+    book = Book.get(id=id)
+    if book:
+        # 删除图书，软删除
+        book.delete(commit=True)
+        return Success(14)
+    raise BookNotFound
