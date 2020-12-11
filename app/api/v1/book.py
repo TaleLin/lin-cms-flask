@@ -50,7 +50,7 @@ def get_books():
     """
     books = Book.query.filter_by(delete_time=None).all()
     # TODO JSON
-    # return BookListSchema(books=books)
+    # return BookListSchema(items=books)
     return books
 
 
@@ -71,7 +71,7 @@ def search():
     if not books:
         raise BookNotFound
     # TODO JSON
-    # return BookListSchema(books=books)
+    # return BookListSchema(items=books)
     return books
 
 
