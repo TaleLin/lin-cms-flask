@@ -13,12 +13,7 @@ from lin.redprint import Redprint
 
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
-from app.validator.schema import (
-    AccessTokenSchema,
-    BookListSchema,
-    BookQuerySearchSchema,
-    BookSchema,
-)
+from app.validator.schema import BookListSchema, BookQuerySearchSchema, BookSchema
 
 book_api = Redprint("book")
 
@@ -76,7 +71,6 @@ def search():
 @book_api.route("", methods=["POST"])
 @login_required
 @lindoc.validate(
-    headers=AccessTokenSchema,
     json=BookSchema,
     resp=DocResponse(Success(12)),
     tags=["图书"],
@@ -93,7 +87,6 @@ def create_book():
 @book_api.route("/<int:id>", methods=["PUT"])
 @login_required
 @lindoc.validate(
-    headers=AccessTokenSchema,
     json=BookSchema,
     resp=DocResponse(Success(13)),
     tags=["图书"],
@@ -118,7 +111,6 @@ def update_book(id: int):
 @permission_meta(auth="删除图书", module="图书")
 @group_required
 @lindoc.validate(
-    headers=AccessTokenSchema,
     resp=DocResponse(BookNotFound, Success(14)),
     tags=["图书"],
 )
