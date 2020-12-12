@@ -8,7 +8,12 @@ from lin.logger import Log
 from lin.redprint import Redprint
 from sqlalchemy import text
 
-from app.validator.schema import LogListSchema, LogQuerySearchSchema, NameListSchema
+from app.validator.schema import (
+    AuthorizationSchema,
+    LogListSchema,
+    LogQuerySearchSchema,
+    NameListSchema,
+)
 
 log_api = Redprint("log")
 
@@ -18,6 +23,7 @@ log_api = Redprint("log")
 @permission_meta(auth="查询日志", module="日志")
 @group_required
 @lindoc.validate(
+    headers=AuthorizationSchema,
     query=LogQuerySearchSchema,
     resp=DocResponse(http_200=LogListSchema),
     before=LogQuerySearchSchema.offset_handler,
@@ -51,6 +57,7 @@ def get_logs():
 @permission_meta(auth="查询日志记录的用户", module="日志")
 @group_required
 @lindoc.validate(
+    headers=AuthorizationSchema,
     resp=DocResponse(http_200=NameListSchema),
     tags=["日志"],
 )
