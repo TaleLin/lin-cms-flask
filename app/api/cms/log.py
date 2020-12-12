@@ -1,13 +1,14 @@
 import math
 
 from flask import g
-from lin import DocResponse, lindoc, permission_meta
+from lin import DocResponse, permission_meta
 from lin.db import db
 from lin.jwt import group_required
 from lin.logger import Log
 from lin.redprint import Redprint
 from sqlalchemy import text
 
+from app.api import lindoc
 from app.validator.schema import (
     AuthorizationSchema,
     LogListSchema,
@@ -65,13 +66,11 @@ def get_users_for_log():
     """
     获取所有记录行为日志的用户名
     """
-    usernames_dict = db.query(
-        """
-    SELECT l.username
-    FROM lin_log l
-    WHERE l.delete_time IS NULL
-    GROUP BY l.username
-    HAVING COUNT(l.username) > 0
-    """
-    ).as_dict()
-    return NameListSchema(items=[ud.get("username") for ud in usernames_dict])
+    usernames = (
+        db.session.query(Log.username)
+        .filter_by(soft=False)
+        .group_by(text("username"))
+        .having(text("count(username) > 0"))
+        .all()
+    )
+    return NameListSchema(items=[u.username for u in usernames])
