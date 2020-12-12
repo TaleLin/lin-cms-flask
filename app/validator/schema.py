@@ -9,9 +9,15 @@ from pydantic import Field
 
 datetime_regex = "^((([1-9][0-9][0-9][0-9]-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|(20[0-3][0-9]-(0[2469]|11)-(0[1-9]|[12][0-9]|30))) (20|21|22|23|[0-1][0-9]):[0-5][0-9]:[0-5][0-9])$"
 
+
 class BookQuerySearchSchema(BaseModel):
     q: Optional[str] = None
-    
+
+
+class NameListSchema(BaseModel):
+    items: List[str] = list()
+
+
 class LogQuerySearchSchema(BaseModel):
     keyword: Optional[str] = None
     name: Optional[str] = None
@@ -30,26 +36,28 @@ class LogQuerySearchSchema(BaseModel):
 
 
 class LogSchema(BaseModel):
-    id:int
-    message :str
-    user_id :int
-    username :str
-    status_code :int
-    method :str
-    path :str
-    permission :str
+    id: int
+    message: str
+    user_id: int
+    username: str
+    status_code: int
+    method: str
+    path: str
+    permission: str
+
 
 class BaseListSchema(BaseModel):
-    page:int
-    count:int
-    total:int
-    total_page:int
-    items:List[Any]
+    page: int
+    count: int
+    total: int
+    total_page: int
+    items: List[Any]
+
 
 class LogListSchema(BaseListSchema):
-    items:List[LogSchema]
-    
-    
+    items: List[LogSchema]
+
+
 class AccessTokenSchema(BaseModel):
     Authorization: str
 
