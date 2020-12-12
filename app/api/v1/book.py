@@ -5,27 +5,26 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import request, g
-from lin import DocResponse, permission_meta
-from lin.exception import DocParameterError, NotFound, Success
+from flask import g, request
+from lin import DocResponse, lindoc, permission_meta
+from lin.exception import Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 
-from app.api import apidoc
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
     AccessTokenSchema,
     BookListSchema,
-    BookSchema,
     BookQuerySearchSchema,
+    BookSchema,
 )
 
 book_api = Redprint("book")
 
 
 @book_api.route("/<int:id>", methods=["GET"])
-@apidoc.validate(
+@lindoc.validate(
     resp=DocResponse(BookNotFound, http_200=BookSchema),
     tags=["图书"],
 )
@@ -40,7 +39,7 @@ def get_book(id: int):
 
 
 @book_api.route("", methods=["GET"])
-@apidoc.validate(
+@lindoc.validate(
     resp=DocResponse(http_200=BookListSchema),
     tags=["图书"],
 )
@@ -55,9 +54,9 @@ def get_books():
 
 
 @book_api.route("/search", methods=["GET"])
-@apidoc.validate(
+@lindoc.validate(
     query=BookQuerySearchSchema,
-    resp=DocResponse(BookNotFound, DocParameterError),
+    resp=DocResponse(BookNotFound),
     tags=["图书"],
 )
 def search():
@@ -76,10 +75,10 @@ def search():
 
 @book_api.route("", methods=["POST"])
 @login_required
-@apidoc.validate(
+@lindoc.validate(
     headers=AccessTokenSchema,
     json=BookSchema,
-    resp=DocResponse(DocParameterError, Success(12)),
+    resp=DocResponse(Success(12)),
     tags=["图书"],
 )
 def create_book():
@@ -93,10 +92,10 @@ def create_book():
 
 @book_api.route("/<int:id>", methods=["PUT"])
 @login_required
-@apidoc.validate(
+@lindoc.validate(
     headers=AccessTokenSchema,
     json=BookSchema,
-    resp=DocResponse(DocParameterError, Success(13)),
+    resp=DocResponse(Success(13)),
     tags=["图书"],
 )
 def update_book(id: int):
@@ -118,9 +117,9 @@ def update_book(id: int):
 @book_api.route("/<int:id>", methods=["DELETE"])
 @permission_meta(auth="删除图书", module="图书")
 @group_required
-@apidoc.validate(
+@lindoc.validate(
     headers=AccessTokenSchema,
-    resp=DocResponse(DocParameterError,BookNotFound, Success(14)),
+    resp=DocResponse(BookNotFound, Success(14)),
     tags=["图书"],
 )
 def delete_book(id: int):

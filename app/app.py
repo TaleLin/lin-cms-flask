@@ -5,9 +5,6 @@
 
 from dotenv import load_dotenv
 from flask import Flask
-from flask_cors import CORS
-from lin import Lin, __version__
-from lin.config import global_config
 
 
 def register_blueprints(app):
@@ -18,13 +15,15 @@ def register_blueprints(app):
     app.register_blueprint(create_cms(), url_prefix="/cms")
 
 
-def register_apidoc(app):
-    from app.api import apidoc
+def register_lindoc(app):
+    from lin import lindoc
 
-    apidoc.register(app)
+    lindoc.register(app)
 
 
 def apply_cors(app):
+    from flask_cors import CORS
+
     CORS(app)
 
 
@@ -41,7 +40,10 @@ def load_app_config(app):
         "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
     )
 
+
 def set_global_config(**kwargs):
+    from lin.config import global_config
+
     # 获取config_*参数对象并挂载到脱离上下文的global config
     for k, v in kwargs.items():
         if k.startswith("config_"):
@@ -54,9 +56,11 @@ def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder="./assets")
     load_app_config(app)
     if register_all:
+        from lin import Lin
+
         set_global_config(**kwargs)
         register_blueprints(app)
-        register_apidoc(app)
+        register_lindoc(app)
         apply_cors(app)
         Lin(app, **kwargs)
     return app
