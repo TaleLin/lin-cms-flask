@@ -58,10 +58,6 @@ class LogListSchema(BaseListSchema):
     items: List[LogSchema]
 
 
-class AccessTokenSchema(BaseModel):
-    Authorization: str
-
-
 class BookResp(BaseModel):
     label: int
     score: float = Field(
