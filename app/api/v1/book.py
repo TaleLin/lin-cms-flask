@@ -6,11 +6,12 @@
 """
 
 from flask import g, request
-from lin import DocResponse, lindoc, permission_meta
+from lin import DocResponse, permission_meta
 from lin.exception import Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 
+from app.api import lindoc
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (

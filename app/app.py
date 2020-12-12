@@ -16,7 +16,7 @@ def register_blueprints(app):
 
 
 def register_lindoc(app):
-    from lin import lindoc
+    from app.api import lindoc
 
     lindoc.register(app)
 
