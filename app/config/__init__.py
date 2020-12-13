@@ -16,6 +16,9 @@ class BaseConfig(object):
 
     # 指定加密KEY
     SECRET_KEY = os.getenv("SECRET_KEY", "https://github.com/TaleLin/lin-cms-flask")
+    
+    # 指定访问api服务的url, 用于文件上传
+    # SITE_DOMAIN="https://lincms.example.com"
 
     # 指定数据库
     SQLALCHEMY_DATABASE_URI = os.getenv(
