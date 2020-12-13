@@ -123,6 +123,8 @@ git clone https://github.com/TaleLin/lin-cms-flask.git starter
 > 我们以 `starter` 作为工程名，当然您也可以以任意您喜爱的名字作为工程名。
 > 如果您想以某个版本，如`0.0.1`版，作为起始项目，那么请在 github 上的版本页下载相应的版本即可。
 
+> **Tips:** 切换到当前分支`git checkout 0.3.x`
+
 ### 安装依赖包
 
 进入项目目录，调用环境中的 pip 来安装依赖包:
