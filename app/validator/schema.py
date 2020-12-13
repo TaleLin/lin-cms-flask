@@ -73,7 +73,7 @@ class BookSchema(BaseModel):
 
 
 class BookListSchema(BaseModel):
-    items: List[BookSchema] = list()
+    items: List[BookSchema]
 
 
 class Language(str, Enum):
