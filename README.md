@@ -117,13 +117,14 @@ Lin 的服务端框架是基于 Python Flask 的，所以如果您比较熟悉 F
 打开您的命令行工具（terminal），在其中键入:
 
 ```bash
-git clone https://github.com/TaleLin/lin-cms-flask.git starter
+git clone https://github.com/TaleLin/lin-cms-flask.git -b 0.3.x starter
 ```
 
+> **Tips:** 当前分支不是默认分支，所以需要分支切换到`0.3.x`
+>
 > 我们以 `starter` 作为工程名，当然您也可以以任意您喜爱的名字作为工程名。
+>
 > 如果您想以某个版本，如`0.0.1`版，作为起始项目，那么请在 github 上的版本页下载相应的版本即可。
-
-> **Tips:** 切换到当前分支`git checkout 0.3.x`
 
 ### 安装依赖包
 
@@ -190,7 +191,9 @@ flask run
 
 “心上无垢，林间有风"
 
-这证明您已经成功的将 Lin 运行起来了，Congratulations！
+点击“心上无垢”，将跳转到`Redoc`页面；点击“林间有风”，跳转到`Swagger`页面。
+
+这证明您已经成功的将服务运行起来了，Congratulations！
 
 ## 后续开发计划
 

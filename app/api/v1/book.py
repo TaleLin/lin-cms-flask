@@ -57,7 +57,7 @@ def get_books():
 @book_api.route("/search", methods=["GET"])
 @lindoc.validate(
     query=BookQuerySearchSchema,
-    resp=DocResponse(BookNotFound),
+    resp=DocResponse(BookNotFound, http_200=BookListSchema),
     tags=["图书"],
 )
 def search():
