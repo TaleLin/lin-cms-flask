@@ -30,60 +30,60 @@ app = create_app(
 app.cli.add_command(db_cli)
 app.cli.add_command(plugin_cli)
 
-
-@app.route("/")
-def slogan():
-    return """
-    <style type="text/css">
-        * {
-            padding: 0;
-            margin: 0;
-        }
-
-        div {
-            padding: 4px 48px;
-        }
-
-        a {
-            color: black;
-            cursor: pointer;
-            text-decoration: none
-        }
-
-        a:hover {
-            text-decoration: None;
-        }
-
-        body {
-            background: #fff;
-            font-family:
-                "Century Gothic", "Microsoft yahei";
-            color: #333;
-            font-size: 18px;
-        }
-
-        h1 {
-            font-size: 100px;
-            font-weight: normal;
-            margin-bottom: 12px;
-        }
-
-        p {
-            line-height: 1.6em;
-            font-size: 42px
-        }
-    </style>
-    <div style="padding: 24px 48px;">
-        <p>
-            <a href="https://www.talelin.com" target="_Blank">Lin</a>
-            <br />
-            <span style="font-size:30px">
-                <a href="/apidoc/redoc">心上无垢</a>，<a href="/apidoc/swagger">林间有风</a>。
-            </span>
-        </p>
-    </div>
-    """
-
+if app.config.get("ENV") != "production":
+    @app.route("/")
+    def slogan():
+        return """
+        <style type="text/css">
+            * {
+                padding: 0;
+                margin: 0;
+            }
+    
+            div {
+                padding: 4px 48px;
+            }
+    
+            a {
+                color: black;
+                cursor: pointer;
+                text-decoration: none
+            }
+    
+            a:hover {
+                text-decoration: None;
+            }
+    
+            body {
+                background: #fff;
+                font-family:
+                    "Century Gothic", "Microsoft yahei";
+                color: #333;
+                font-size: 18px;
+            }
+    
+            h1 {
+                font-size: 100px;
+                font-weight: normal;
+                margin-bottom: 12px;
+            }
+    
+            p {
+                line-height: 1.6em;
+                font-size: 42px
+            }
+        </style>
+        <div style="padding: 24px 48px;">
+            <p>
+                <a href="https://www.talelin.com" target="_Blank">Lin</a>
+                <br />
+                <span style="font-size:30px">
+                    <a href="/apidoc/redoc">心上无垢</a>，<a href="/apidoc/swagger">林间有风</a>。
+                </span>
+            </p>
+        </div>
+        """
+    
 
 if __name__ == "__main__":
     app.logger.warning(
