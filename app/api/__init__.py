@@ -9,7 +9,7 @@ from lin import SpecTree
 
 if os.getenv("FLASK_ENV", "production") == "production":
     # spectree 暂未提供关闭文档功能，production部署变更随机路径
-    lindoc = SpecTree(
+    api = SpecTree(
         backend_name="flask",
         title="Lin-CMS API",
         mode="strict",
@@ -17,7 +17,7 @@ if os.getenv("FLASK_ENV", "production") == "production":
         path="/".join(str(uuid4()).split("-")),
     )
 else:
-    lindoc = SpecTree(
+    api = SpecTree(
         backend_name="flask",
         title="Lin-CMS API",
         mode="strict",

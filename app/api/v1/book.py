@@ -11,7 +11,7 @@ from lin.exception import Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 
-from app.api import lindoc
+from app.api import api
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
@@ -25,7 +25,7 @@ book_api = Redprint("book")
 
 
 @book_api.route("/<int:id>", methods=["GET"])
-@lindoc.validate(
+@api.validate(
     resp=DocResponse(BookNotFound, r=BookSchema),
     tags=["图书"],
 )
@@ -40,7 +40,7 @@ def get_book(id: int):
 
 
 @book_api.route("", methods=["GET"])
-@lindoc.validate(
+@api.validate(
     resp=DocResponse(r=BookSchemaList),
     tags=["图书"],
 )
@@ -53,7 +53,7 @@ def get_books():
 
 
 @book_api.route("/search", methods=["GET"])
-@lindoc.validate(
+@api.validate(
     query=BookQuerySearchSchema,
     resp=DocResponse(BookNotFound, r=BookSchemaList),
     tags=["图书"],
@@ -72,7 +72,7 @@ def search():
 
 @book_api.route("", methods=["POST"])
 @login_required
-@lindoc.validate(
+@api.validate(
     headers=AuthorizationSchema,
     json=BookSchema,
     resp=DocResponse(Success(12)),
@@ -89,7 +89,7 @@ def create_book():
 
 @book_api.route("/<int:id>", methods=["PUT"])
 @login_required
-@lindoc.validate(
+@api.validate(
     headers=AuthorizationSchema,
     json=BookSchema,
     resp=DocResponse(Success(13)),
@@ -114,7 +114,7 @@ def update_book(id: int):
 @book_api.route("/<int:id>", methods=["DELETE"])
 @permission_meta(auth="删除图书", module="图书")
 @group_required
-@lindoc.validate(
+@api.validate(
     headers=AuthorizationSchema,
     resp=DocResponse(BookNotFound, Success(14)),
     tags=["图书"],
