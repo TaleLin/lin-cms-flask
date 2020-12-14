@@ -16,7 +16,7 @@ from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
     AuthorizationSchema,
-    BookListSchema,
+    BookSchemaList,
     BookQuerySearchSchema,
     BookSchema,
 )
@@ -41,7 +41,7 @@ def get_book(id: int):
 
 @book_api.route("", methods=["GET"])
 @lindoc.validate(
-    resp=DocResponse(http_200=BookListSchema),
+    resp=DocResponse(http_200=BookSchemaList),
     tags=["图书"],
 )
 def get_books():
@@ -49,15 +49,13 @@ def get_books():
     获取图书列表
     """
     books = Book.get(one=False)
-    # TODO JSON
-    # return BookListSchema(items=books)
-    return books
+    return BookSchemaList.parse_obj(books)
 
 
 @book_api.route("/search", methods=["GET"])
 @lindoc.validate(
     query=BookQuerySearchSchema,
-    resp=DocResponse(BookNotFound, http_200=BookListSchema),
+    resp=DocResponse(BookNotFound, http_200=BookSchemaList),
     tags=["图书"],
 )
 def search():
@@ -68,10 +66,8 @@ def search():
         Book.title.like("%" + g.q + "%"), Book.delete_time == None
     ).all()
     if books:
-        return books
+        return BookSchemaList.parse_obj(books)
     raise BookNotFound
-    # TODO JSON
-    # return BookListSchema(items=books)
 
 
 @book_api.route("", methods=["POST"])

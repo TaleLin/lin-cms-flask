@@ -11,9 +11,9 @@ from sqlalchemy import text
 from app.api import lindoc
 from app.validator.schema import (
     AuthorizationSchema,
-    LogListSchema,
+    LogPageSchema,
     LogQuerySearchSchema,
-    NameListSchema,
+    StringList,
 )
 
 log_api = Redprint("log")
@@ -26,7 +26,7 @@ log_api = Redprint("log")
 @lindoc.validate(
     headers=AuthorizationSchema,
     query=LogQuerySearchSchema,
-    resp=DocResponse(http_200=LogListSchema),
+    resp=DocResponse(http_200=LogPageSchema),
     before=LogQuerySearchSchema.offset_handler,
     tags=["日志"],
 )
@@ -49,7 +49,7 @@ def get_logs():
     )
     total_page = math.ceil(total / g.count)
 
-    return LogListSchema(
+    return LogPageSchema(
         page=g.page, count=g.count, total=total, items=items, total_page=total_page
     )
 
@@ -59,7 +59,7 @@ def get_logs():
 @group_required
 @lindoc.validate(
     headers=AuthorizationSchema,
-    resp=DocResponse(http_200=NameListSchema),
+    resp=DocResponse(http_200=StringList),
     tags=["日志"],
 )
 def get_users_for_log():
@@ -73,4 +73,4 @@ def get_users_for_log():
         .having(text("count(username) > 0"))
         .all()
     )
-    return NameListSchema(items=[u.username for u in usernames])
+    return StringList.parse_obj([u.username for u in usernames])

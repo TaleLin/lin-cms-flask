@@ -16,11 +16,11 @@ class AuthorizationSchema(BaseModel):
 
 
 class BookQuerySearchSchema(BaseModel):
-    q: Optional[str] = None
+    q: Optional[str] = str()
 
 
-class NameListSchema(BaseModel):
-    items: List[str] = list()
+class StringList(BaseModel):
+    __root__: List[str]
 
 
 class LogQuerySearchSchema(BaseModel):
@@ -53,7 +53,7 @@ class LogSchema(BaseModel):
     permission: str
 
 
-class BaseListSchema(BaseModel):
+class BasePageSchema(BaseModel):
     page: int
     count: int
     total: int
@@ -61,7 +61,7 @@ class BaseListSchema(BaseModel):
     items: List[Any]
 
 
-class LogListSchema(BaseListSchema):
+class LogPageSchema(BasePageSchema):
     items: List[LogSchema]
 
 
@@ -72,8 +72,8 @@ class BookSchema(BaseModel):
     summary: str
 
 
-class BookListSchema(BaseModel):
-    items: List[BookSchema]
+class BookSchemaList(BaseModel):
+    __root__: List[BookSchema]
 
 
 class Language(str, Enum):
