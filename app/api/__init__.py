@@ -13,7 +13,7 @@ if os.getenv("FLASK_ENV", "production") == "production":
         backend_name="flask",
         title="Lin-CMS API",
         mode="strict",
-        version="0.3.0a5",
+        version="0.3.0a6",
         path="/".join(str(uuid4()).split("-")),
     )
 else:
@@ -21,5 +21,5 @@ else:
         backend_name="flask",
         title="Lin-CMS API",
         mode="strict",
-        version="0.3.0a5",
+        version="0.3.0a6",
     )
