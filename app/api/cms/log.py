@@ -26,7 +26,7 @@ log_api = Redprint("log")
 @lindoc.validate(
     headers=AuthorizationSchema,
     query=LogQuerySearchSchema,
-    resp=DocResponse(http_200=LogPageSchema),
+    resp=DocResponse(r=LogPageSchema),
     before=LogQuerySearchSchema.offset_handler,
     tags=["日志"],
 )
@@ -59,7 +59,7 @@ def get_logs():
 @group_required
 @lindoc.validate(
     headers=AuthorizationSchema,
-    resp=DocResponse(http_200=StringList),
+    resp=DocResponse(r=StringList),
     tags=["日志"],
 )
 def get_users_for_log():

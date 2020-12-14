@@ -26,7 +26,7 @@ book_api = Redprint("book")
 
 @book_api.route("/<int:id>", methods=["GET"])
 @lindoc.validate(
-    resp=DocResponse(BookNotFound, http_200=BookSchema),
+    resp=DocResponse(BookNotFound, r=BookSchema),
     tags=["图书"],
 )
 def get_book(id: int):
@@ -41,7 +41,7 @@ def get_book(id: int):
 
 @book_api.route("", methods=["GET"])
 @lindoc.validate(
-    resp=DocResponse(http_200=BookSchemaList),
+    resp=DocResponse(r=BookSchemaList),
     tags=["图书"],
 )
 def get_books():
@@ -55,7 +55,7 @@ def get_books():
 @book_api.route("/search", methods=["GET"])
 @lindoc.validate(
     query=BookQuerySearchSchema,
-    resp=DocResponse(BookNotFound, http_200=BookSchemaList),
+    resp=DocResponse(BookNotFound, r=BookSchemaList),
     tags=["图书"],
 )
 def search():
