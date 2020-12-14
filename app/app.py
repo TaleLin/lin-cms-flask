@@ -15,10 +15,10 @@ def register_blueprints(app):
     app.register_blueprint(create_cms(), url_prefix="/cms")
 
 
-def register_lindoc(app):
-    from app.api import lindoc
+def register_api(app):
+    from app.api import api
 
-    lindoc.register(app)
+    api.register(app)
 
 
 def apply_cors(app):
@@ -60,7 +60,7 @@ def create_app(register_all=True, **kwargs):
 
         set_global_config(**kwargs)
         register_blueprints(app)
-        register_lindoc(app)
+        register_api(app)
         apply_cors(app)
         Lin(app, **kwargs)
     return app
