@@ -34,7 +34,7 @@ class BaseConfig(object):
 
     # 默认文件上传配置
     FILE = {
-        "STORE_DIR": "app/assets",
+        "STORE_DIR": "assets",
         "SINGLE_LIMIT": 1024 * 1024 * 2,
         "TOTAL_LIMIT": 1024 * 1024 * 20,
         "NUMS": 10,
