@@ -31,14 +31,14 @@ admin_api = Redprint("admin")
 
 
 @admin_api.route("/permission", methods=["GET"])
-@permission_meta(auth="查询所有可分配的权限", module="管理员", mount=False)
+@permission_meta(name="查询所有可分配的权限", module="管理员", mount=False)
 @admin_required
-def authority():
+def permissions():
     return get_ep_infos()
 
 
 @admin_api.route("/users", methods=["GET"])
-@permission_meta(auth="查询所有用户", module="管理员", mount=False)
+@permission_meta(name="查询所有用户", module="管理员", mount=False)
 @admin_required
 def get_admin_users():
     start, count = paginate()
@@ -116,7 +116,7 @@ def get_admin_users():
 
 
 @admin_api.route("/user/<int:uid>/password", methods=["PUT"])
-@permission_meta(auth="修改用户密码", module="管理员", mount=False)
+@permission_meta(name="修改用户密码", module="管理员", mount=False)
 @admin_required
 def change_user_password(uid):
     form = ResetPasswordForm().validate_for_api()
@@ -132,7 +132,7 @@ def change_user_password(uid):
 
 
 @admin_api.route("/user/<int:uid>", methods=["DELETE"])
-@permission_meta(auth="删除用户", module="管理员", mount=False)
+@permission_meta(name="删除用户", module="管理员", mount=False)
 @Logger(template="管理员删除了一个用户")
 @admin_required
 def delete_user(uid):
@@ -152,7 +152,7 @@ def delete_user(uid):
 
 
 @admin_api.route("/user/<int:uid>", methods=["PUT"])
-@permission_meta(auth="管理员更新用户信息", module="管理员", mount=False)
+@permission_meta(name="管理员更新用户信息", module="管理员", mount=False)
 @admin_required
 def update_user(uid):
     form = UpdateUserInfoForm().validate_for_api()
@@ -186,7 +186,7 @@ def update_user(uid):
 
 
 @admin_api.route("/group", methods=["GET"])
-@permission_meta(auth="查询所有分组及其权限", module="管理员", mount=False)
+@permission_meta(name="查询所有分组及其权限", module="管理员", mount=False)
 @admin_required
 def get_admin_groups():
     start, count = paginate()
@@ -228,7 +228,7 @@ def get_admin_groups():
 
 
 @admin_api.route("/group/all", methods=["GET"])
-@permission_meta(auth="查询所有分组", module="管理员", mount=False)
+@permission_meta(name="查询所有分组", module="管理员", mount=False)
 @admin_required
 def get_all_group():
     groups = manager.group_model.query.filter(
@@ -241,7 +241,7 @@ def get_all_group():
 
 
 @admin_api.route("/group/<int:gid>", methods=["GET"])
-@permission_meta(auth="查询一个分组及其权限", module="管理员", mount=False)
+@permission_meta(name="查询一个分组及其权限", module="管理员", mount=False)
 @admin_required
 def get_group(gid):
     group = manager.group_model.get(id=gid, one=True, soft=False)
@@ -254,7 +254,7 @@ def get_group(gid):
 
 
 @admin_api.route("/group", methods=["POST"])
-@permission_meta(auth="新建分组", module="管理员", mount=False)
+@permission_meta(name="新建分组", module="管理员", mount=False)
 @Logger(template="管理员新建了一个分组")  # 记录日志
 @admin_required
 def create_group():
@@ -279,7 +279,7 @@ def create_group():
 
 
 @admin_api.route("/group/<int:gid>", methods=["PUT"])
-@permission_meta(auth="更新一个分组", module="管理员", mount=False)
+@permission_meta(name="更新一个分组", module="管理员", mount=False)
 @admin_required
 def update_group(gid):
     form = UpdateGroup().validate_for_api()
@@ -291,7 +291,7 @@ def update_group(gid):
 
 
 @admin_api.route("/group/<int:gid>", methods=["DELETE"])
-@permission_meta(auth="删除一个分组", module="管理员", mount=False)
+@permission_meta(name="删除一个分组", module="管理员", mount=False)
 @Logger(template="管理员删除一个分组")  # 记录日志
 @admin_required
 def delete_group(gid):
@@ -315,7 +315,7 @@ def delete_group(gid):
 
 
 @admin_api.route("/permission/dispatch", methods=["POST"])
-@permission_meta(auth="分配单个权限", module="管理员", mount=False)
+@permission_meta(name="分配单个权限", module="管理员", mount=False)
 @admin_required
 def dispatch_auth():
     form = DispatchAuth().validate_for_api()
@@ -331,7 +331,7 @@ def dispatch_auth():
 
 
 @admin_api.route("/permission/dispatch/batch", methods=["POST"])
-@permission_meta(auth="分配多个权限", module="管理员", mount=False)
+@permission_meta(name="分配多个权限", module="管理员", mount=False)
 @admin_required
 def dispatch_auths():
     form = DispatchAuths().validate_for_api()
@@ -349,7 +349,7 @@ def dispatch_auths():
 
 
 @admin_api.route("/permission/remove", methods=["POST"])
-@permission_meta(auth="删除多个权限", module="管理员", mount=False)
+@permission_meta(name="删除多个权限", module="管理员", mount=False)
 @admin_required
 def remove_auths():
     form = RemoveAuths().validate_for_api()

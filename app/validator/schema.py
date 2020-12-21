@@ -65,15 +65,21 @@ class LogPageSchema(BasePageSchema):
     items: List[LogSchema]
 
 
-class BookSchema(BaseModel):
+class BookInSchema(BaseModel):
     title: str
     author: str
     image: str
     summary: str
 
+class BookOutSchema(BaseModel):
+    id: int
+    title: str
+    author: str
+    image: str
+    summary: str
 
 class BookSchemaList(BaseModel):
-    __root__: List[BookSchema]
+    __root__: List[BookOutSchema]
 
 
 class Language(str, Enum):

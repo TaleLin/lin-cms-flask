@@ -18,7 +18,8 @@ from app.validator.schema import (
     AuthorizationSchema,
     BookSchemaList,
     BookQuerySearchSchema,
-    BookSchema,
+    BookInSchema,
+    BookOutSchema,
 )
 
 book_api = Redprint("book")
@@ -26,7 +27,7 @@ book_api = Redprint("book")
 
 @book_api.route("/<int:id>", methods=["GET"])
 @api.validate(
-    resp=DocResponse(BookNotFound, r=BookSchema),
+    resp=DocResponse(BookNotFound, r=BookOutSchema),
     tags=["图书"],
 )
 def get_book(id: int):
@@ -35,7 +36,7 @@ def get_book(id: int):
     """
     book = Book.get(id=id)
     if book:
-        return BookSchema.parse_obj(book)
+        return BookOutSchema.parse_obj(book)
     raise BookNotFound
 
 
@@ -74,7 +75,7 @@ def search():
 @login_required
 @api.validate(
     headers=AuthorizationSchema,
-    json=BookSchema,
+    json=BookInSchema,
     resp=DocResponse(Success(12)),
     tags=["图书"],
 )
@@ -91,7 +92,7 @@ def create_book():
 @login_required
 @api.validate(
     headers=AuthorizationSchema,
-    json=BookSchema,
+    json=BookInSchema,
     resp=DocResponse(Success(13)),
     tags=["图书"],
 )
@@ -100,7 +101,7 @@ def update_book(id: int):
     更新图书信息
     """
     book_schema = request.context.json
-    book = Book.query.filter_by(id=id, delete_time=None).first()
+    book = Book.get(id=id)
     if book:
         book.update(
             id=id,
@@ -112,7 +113,7 @@ def update_book(id: int):
 
 
 @book_api.route("/<int:id>", methods=["DELETE"])
-@permission_meta(auth="删除图书", module="图书")
+@permission_meta(name="删除图书", module="图书")
 @group_required
 @api.validate(
     headers=AuthorizationSchema,
