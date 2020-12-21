@@ -16,10 +16,10 @@ from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
     AuthorizationSchema,
-    BookSchemaList,
-    BookQuerySearchSchema,
     BookInSchema,
     BookOutSchema,
+    BookQuerySearchSchema,
+    BookSchemaList,
 )
 
 book_api = Redprint("book")
