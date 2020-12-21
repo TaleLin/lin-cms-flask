@@ -6,7 +6,7 @@
 .vscode
 *.pytest_cache/
 *.pyc
-app/assets/*
+assets
 logs
 
 # Created by https://www.toptal.com/developers/gitignore/api/python

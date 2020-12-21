@@ -53,7 +53,7 @@ def set_global_config(**kwargs):
 def create_app(register_all=True, **kwargs):
     # http wsgi server托管启动需指定读取环境配置
     load_dotenv(".flaskenv")
-    app = Flask(__name__, static_folder="./assets")
+    app = Flask(__name__, static_folder="../assets")
     load_app_config(app)
     if register_all:
         from lin import Lin
