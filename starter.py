@@ -31,6 +31,7 @@ app.cli.add_command(db_cli)
 app.cli.add_command(plugin_cli)
 
 if app.config.get("ENV") != "production":
+
     @app.route("/")
     def slogan():
         return """
@@ -83,7 +84,7 @@ if app.config.get("ENV") != "production":
             </p>
         </div>
         """
-    
+
 
 if __name__ == "__main__":
     app.logger.warning(
