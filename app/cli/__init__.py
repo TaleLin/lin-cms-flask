@@ -40,9 +40,8 @@ def plugin_init():
 
 
 @plugin_cli.command("generate", with_appcontext=False)
-@click.argument("name")
-def plugin_generate(name: str):
+def plugin_generate():
     """
     generate plugin
     """
-    _plugin_generate(name)
+    _plugin_generate()

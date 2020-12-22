@@ -62,5 +62,6 @@ def create_plugin(name: str):
     open(os.path.join(appdir, "model.py"), mode="x", encoding="utf-8")
 
 
-def generate(name):
-    create_plugin(name)
+def generate():
+    plugin_name = input("请输入要创建的插件名:\n")
+    create_plugin(plugin_name)
