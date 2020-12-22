@@ -8,21 +8,21 @@ from .model import Poem
 api = Redprint("poem")
 
 
-@api.route("/all", methods=["GET"])
+@api.route("/all")
 def get_list():
     form = PoemListForm().validate_for_api()
     poems = Poem().get_all(form)
     return jsonify(poems)
 
 
-@api.route("/search", methods=["GET"])
+@api.route("/search")
 def search():
     form = PoemSearchForm().validate_for_api()
     poems = Poem().search(form.q.data)
     return jsonify(poems)
 
 
-@api.route("/authors", methods=["GET"])
+@api.route("/authors")
 def get_authors():
     authors = Poem.get_authors()
     return jsonify(authors)

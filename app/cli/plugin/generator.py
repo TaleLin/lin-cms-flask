@@ -17,7 +17,7 @@ from lin.redprint import Redprint
 {0}_api = Redprint("{0}")
 
 
-@{0}_api.route("/", methods=["GET"])
+@{0}_api.route("/")
 def test():
     return "hi, guy!"
 """
