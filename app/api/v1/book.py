@@ -25,12 +25,12 @@ from app.validator.schema import (
 book_api = Redprint("book")
 
 
-@book_api.route("/<int:id>", methods=["GET"])
+@book_api.route("/<int:id>")
 @api.validate(
     resp=DocResponse(BookNotFound, r=BookOutSchema),
     tags=["图书"],
 )
-def get_book(id: int):
+def get_book(id):
     """
     获取id指定图书的信息
     """
@@ -40,7 +40,7 @@ def get_book(id: int):
     raise BookNotFound
 
 
-@book_api.route("", methods=["GET"])
+@book_api.route("")
 @api.validate(
     resp=DocResponse(r=BookSchemaList),
     tags=["图书"],
@@ -53,7 +53,7 @@ def get_books():
     return BookSchemaList.parse_obj(books)
 
 
-@book_api.route("/search", methods=["GET"])
+@book_api.route("/search")
 @api.validate(
     query=BookQuerySearchSchema,
     resp=DocResponse(BookNotFound, r=BookSchemaList),
@@ -96,7 +96,7 @@ def create_book():
     resp=DocResponse(Success(13)),
     tags=["图书"],
 )
-def update_book(id: int):
+def update_book(id):
     """
     更新图书信息
     """
@@ -120,7 +120,7 @@ def update_book(id: int):
     resp=DocResponse(BookNotFound, Success(14)),
     tags=["图书"],
 )
-def delete_book(id: int):
+def delete_book(id):
     """
     传入id删除对应图书
     """

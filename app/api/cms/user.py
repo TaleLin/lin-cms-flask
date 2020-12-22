@@ -106,7 +106,7 @@ def change_password():
         return Failed("修改密码失败")
 
 
-@user_api.route("/information", methods=["GET"])
+@user_api.route("/information")
 @permission_meta(name="查询自己信息", module="用户", mount=False)
 @login_required
 def get_information():
@@ -114,7 +114,7 @@ def get_information():
     return current_user
 
 
-@user_api.route("/refresh", methods=["GET"])
+@user_api.route("/refresh")
 @permission_meta(name="刷新令牌", module="用户", mount=False)
 def refresh():
     try:
@@ -131,7 +131,7 @@ def refresh():
     return NotFound("refresh_token未被识别")
 
 
-@user_api.route("/permissions", methods=["GET"])
+@user_api.route("/permissions")
 @permission_meta(name="查询自己拥有的权限", module="用户", mount=False)
 @login_required
 def get_allowed_apis():

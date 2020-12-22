@@ -30,14 +30,14 @@ from app.validator.form import (
 admin_api = Redprint("admin")
 
 
-@admin_api.route("/permission", methods=["GET"])
+@admin_api.route("/permission")
 @permission_meta(name="查询所有可分配的权限", module="管理员", mount=False)
 @admin_required
 def permissions():
     return get_ep_infos()
 
 
-@admin_api.route("/users", methods=["GET"])
+@admin_api.route("/users")
 @permission_meta(name="查询所有用户", module="管理员", mount=False)
 @admin_required
 def get_admin_users():
@@ -185,7 +185,7 @@ def update_user(uid):
     return Success("操作成功")
 
 
-@admin_api.route("/group", methods=["GET"])
+@admin_api.route("/group")
 @permission_meta(name="查询所有分组及其权限", module="管理员", mount=False)
 @admin_required
 def get_admin_groups():
@@ -227,7 +227,7 @@ def get_admin_groups():
     }
 
 
-@admin_api.route("/group/all", methods=["GET"])
+@admin_api.route("/group/all")
 @permission_meta(name="查询所有分组", module="管理员", mount=False)
 @admin_required
 def get_all_group():
@@ -240,7 +240,7 @@ def get_all_group():
     return groups
 
 
-@admin_api.route("/group/<int:gid>", methods=["GET"])
+@admin_api.route("/group/<int:gid>")
 @permission_meta(name="查询一个分组及其权限", module="管理员", mount=False)
 @admin_required
 def get_group(gid):

@@ -54,7 +54,7 @@ def get_logs():
     )
 
 
-@log_api.route("/users", methods=["GET"])
+@log_api.route("/users")
 @permission_meta(name="查询日志记录的用户", module="日志")
 @group_required
 @api.validate(

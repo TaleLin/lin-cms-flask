@@ -2,7 +2,6 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-import json
 import os
 import re
 import subprocess
@@ -13,8 +12,8 @@ from app.app import create_app
 """
 插件初始化流程:
 1、输入要初始化的插件名称。（多个用空格隔开，*表示初始化所有）
-2、python依赖的自动检测和安装
-2、将插件的配置写入到项目setting.py中
+2、python依赖的安装
+2、将插件的配置写入到项目app/config/__init__.py中
 3、将model中的模型插入到数据库中
 4、如果有需要，将初始数据插入到数据表中
 """
@@ -55,12 +54,6 @@ class PluginInit:
             }
 
     def auto_install_rely(self):
-        try:
-            DependenciesResolve(app, self.path_info)
-        except Exception as e:
-            raise Exception("安装插件依赖时发生错误！\nError:" + str(e))
-        from subprocess import CalledProcessError
-
         for name in self.path_info:
             print("正在初始化插件" + name + "...")
             filename = "requirements.txt"
@@ -70,31 +63,14 @@ class PluginInit:
             if os.path.exists(file_path):
                 if (os.path.getsize(file_path)) == 0:
                     continue
-                print("正在安装" + name + "插件的依赖...")
+                print("正在安装" + name + "插件的依赖，请耐心等待...")
 
-                try:
-                    # 使用try except来判断使用pip管理包还是pipenv管理包，首选pipenv
-                    ret = self.__execute_cmd(cmd="pipenv install -r " + file_path)
+                ret = self.__execute_cmd(cmd="pip install -r " + file_path)
 
-                    if ret:
-                        print(success_msg)
-                    else:
-                        exit(fail_msg)
-
-                except CalledProcessError:
-                    try:
-                        ret = self.__execute_cmd(cmd="pip install -r " + file_path)
-
-                        if ret:
-                            print(success_msg)
-                        else:
-                            exit(fail_msg)
-
-                    except Exception as e:
-                        exit((str(e)) + "\n" + fail_msg)
-
-                except Exception as e:
-                    exit((str(e)) + "\n" + fail_msg)
+                if ret:
+                    print(success_msg)
+                else:
+                    exit(fail_msg)
 
     def auto_write_setting(self):
         print("正在自动写入配置文件...")
@@ -146,15 +122,19 @@ class PluginInit:
 
     def __update_setting(self, new_setting):
         # 得到现存的插件配置
-        old_setting = self.app.config.get("PLUGIN_PATH")
+        old_setting = self.app.config.get("PLUGIN_PATH", dict())
         final_setting = self.__cal_setting(new_setting, old_setting)
 
         sub_str = "PLUGIN_PATH = " + self.__format_setting(final_setting)
 
-        setting_path = self.app.config.root_path + "/config/setting.py"
+        setting_path = self.app.config.root_path + "/config/__init__.py"
         with open(setting_path, "r", encoding="UTF-8") as f:
             content = f.read()
             pattern = "PLUGIN_PATH = \{([\s\S]*)\}+.*?"
+            if len(re.findall(pattern, content)) == 0:
+                content += """
+    PLUGIN_PATH = {}
+                """
             result = re.sub(pattern, sub_str, content)
 
         with open(setting_path, "w+", encoding="UTF-8") as f:
@@ -217,159 +197,6 @@ class PluginInit:
                         final_setting[key] = new_setting[key]
 
         return final_setting
-
-
-class DependenciesResolve:
-    def __init__(self, app_obj, path):
-        self.app = app_obj
-        self.path_info = path
-        # 主项目的依赖关系列表
-        self.root_graph = []
-        # 所有插件的依赖关系列表
-        self.plugin_graph = []
-        # 生成主项目和插件依赖关系列表
-        self.generate_graph()
-        self.check_dependencies()
-
-    def generate_graph(self):
-        try:
-            p = subprocess.Popen(["pipenv", "graph", "--json"], stdout=subprocess.PIPE)
-
-            r = p.communicate()[0].decode("utf-8")
-            self.root_graph = json.loads(r)
-
-        except subprocess.CalledProcessError as e:
-            exit("pipenv指令未安装，请先使用pip安装命令\nError" + str(e))
-
-        except Exception as e:
-            exit("pipenv 错误，请检测你的pipenv配置！\nError：" + str(e))
-
-        self.__generate_plugin_graph()
-
-    def check_dependencies(self):
-        for package in self.root_graph:
-            # 验证顶级包是否符合规范
-            self.__check_top_dependencies(package["package"])
-
-            # 验证子包是否符合规范
-            self.__check_sub_dependencies(package["dependencies"])
-
-    def __generate_plugin_graph(self):
-        for name, val in self.path_info.items():
-            # 首先去校验插件依赖于住项目的依赖是否存在冲突
-            plugin_path = (
-                self.path_info[name]["plugin_path"].replace(".", "/").replace("app", "")
-            )
-            requirements_path = (
-                self.app.config.root_path + plugin_path + "/requirements.txt"
-            )
-            with open(requirements_path, "r", encoding="UTF-8") as f:
-                while True:
-
-                    # 正则匹配requirements的每一行的信息
-                    line = f.readline()
-                    if not line:
-                        break
-
-                    pattern = "(.*?)(==|<=|>=|!=|>|<)(.*)"
-                    search_obj = re.search(pattern, line)
-                    if search_obj:
-
-                        package_name = search_obj.group(1)
-                        condition = search_obj.group(2)
-                        version = search_obj.group(3)
-                        key = search_obj.group(1).lower()
-
-                        plugin_package = dict({"package": {}})
-                        plugin_package["package"]["key"] = key
-                        plugin_package["package"]["package_name"] = package_name
-                        plugin_package["package"]["version"] = version
-                        plugin_package["package"]["condition"] = condition
-                        plugin_package["package"]["plugin_name"] = name
-                        self.plugin_graph.append(plugin_package)
-
-    def __check_top_dependencies(self, top_package):
-        for plugin_package in self.plugin_graph:
-            top_version = top_package["installed_version"]
-            plugin_version = plugin_package["package"]["version"]
-            if (
-                top_package["key"] == plugin_package["package"]["key"]
-                and top_version != plugin_version
-            ):
-                err_msg = (
-                    "由于项目主目录已经存在在包"
-                    ""
-                    + top_package["package_name"]
-                    + "，但 "
-                    + plugin_package["package"]["plugin_name"]
-                    + " 插件尝试重复安装不同版本，请尝试手动去掉该插件的requirements.txt中的包"
-                )
-                raise Exception(err_msg)
-
-    def __check_sub_dependencies(self, dep_package):
-        # 判断插件中要安装的依赖，是否符合主项目已安装的依赖规定的范围
-        for dependence in dep_package:
-            required_version = dependence["required_version"]
-            dep_name = dependence["key"]
-
-            if required_version != None:
-                version_infos = required_version.split(",")
-                for version_info in version_infos:
-                    pattern = "(>=|<=|!=|==|<|>)(.*)"
-                    search_obj = re.search(pattern, version_info)
-                    condition = search_obj.group(1)
-                    version = int(search_obj.group(2).replace(".", ""))
-
-                    for plugin_package in self.plugin_graph:
-                        name = plugin_package["package"]["key"]
-                        if dep_name == name:
-                            plugin_package_version = int(
-                                plugin_package["package"]["version"].replace(".", "")
-                            )
-                            err_msg = (
-                                plugin_package["package"]["plugin_name"]
-                                + "插件的依赖 "
-                                + name
-                                + " 与主项目依赖版本发生冲突! 请自行手动解决"
-                            )
-                            if condition == ">=":
-                                if plugin_package_version >= version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-
-                            elif condition == "==":
-                                if plugin_package_version == version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-
-                            elif condition == "!=":
-                                if plugin_package_version != version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-
-                            elif condition == "<=":
-                                if plugin_package_version <= version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-
-                            elif condition == "<":
-                                if plugin_package_version < version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-
-                            elif condition == ">":
-                                if plugin_package_version > version:
-                                    pass
-                                else:
-                                    raise Exception(err_msg)
-            else:
-                pass
-
 
 def init():
     plugin_name = input("请输入要初始化的插件名，如果多个插件请使用空格分隔插件名，输入*表示初始化所有插件:\n")
