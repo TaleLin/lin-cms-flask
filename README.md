@@ -41,7 +41,7 @@ lin-cms(核心库) ：0.3.0a7
 
 ### 文档地址
 
-[https://doc.cms.talelin.com/](https://doc.cms.talelin.com/)
+[https://doc.cms.talelin.com/start/flask/](https://doc.cms.talelin.com/start/flask/)
 
 ### 线上 demo
 
