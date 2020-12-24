@@ -27,9 +27,9 @@ from .controller import {0}_api
 """
 
 info = """
-__name__ = '{0}'
-__version__ = '0.1.0'
-__author__ = 'Team Lin'
+__name__ = "{0}"
+__version__ = "0.1.0"
+__author__ = "Team Lin"
 """
 
 readme = """# {0}"""
