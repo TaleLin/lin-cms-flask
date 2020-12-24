@@ -1,14 +1,14 @@
 import os
 
+import oss2
 from flask import jsonify, request
 from lin.config import lin_config
 from lin.db import db
 from lin.exception import Failed, ParameterError, Success
 from lin.redprint import Redprint
+from lin.utils import get_random_str
 
-from .enums import LocalOrCloud
-from .model import Image
-from .oss import upload_image_bytes
+from .model import OSS
 
 api = Redprint("oss")
 
@@ -36,10 +36,10 @@ def upload_to_ali():
         if url:
             res = {"url": url}
             with db.auto_commit():
-                exist = Image.get(url=url)
+                exist = OSS.get(url=url)
                 if not exist:
-                    data = {"from": LocalOrCloud.CLOUD.value, "url": url}
-                    one = Image.create(**data)
+                    data = {"url": url}
+                    one = OSS.create(**data)
                     db.session.flush()
                     res["id"] = one.id
                 else:
@@ -60,10 +60,10 @@ def upload_multiple_to_ali():
             if url:
                 # 每上传成功一次图片需记录到数据库
                 with db.auto_commit():
-                    exist = Image.get(url=url)
+                    exist = OSS.get(url=url)
                     if not exist:
-                        data = {"from": LocalOrCloud.CLOUD.value, "url": url}
-                        res = Image.create(**data)
+                        data = {"url": url}
+                        res = OSS.create(**data)
                         db.session.flush()
                         imgs.append({"key": item, "url": url, "id": res.id})
                     else:
@@ -75,3 +75,20 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1] in lin_config.get_config(
         "oss.allowed_extensions", []
     )
+
+
+def upload_image_bytes(name: str, data: bytes):
+    access_key_id = lin_config.get_config("oss.access_key_id")
+    access_key_secret = lin_config.get_config("oss.access_key_secret")
+    auth = oss2.Auth(access_key_id, access_key_secret)
+    bucket = oss2.Bucket(
+        auth,
+        lin_config.get_config("oss.endpoint"),
+        lin_config.get_config("oss.bucket_name"),
+    )
+    suffix = name.split(".")[-1]
+    rand_name = get_random_str(15) + "." + suffix
+    res = bucket.put_object(rand_name, data)
+    if res.resp.status == 200:
+        return res.resp.response.url
+    return None

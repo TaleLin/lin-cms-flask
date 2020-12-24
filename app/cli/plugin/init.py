@@ -198,6 +198,7 @@ class PluginInit:
 
         return final_setting
 
+
 def init():
     plugin_name = input("请输入要初始化的插件名，如果多个插件请使用空格分隔插件名，输入*表示初始化所有插件:\n")
     PluginInit(plugin_name)
