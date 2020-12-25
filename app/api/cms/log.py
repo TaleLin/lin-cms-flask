@@ -2,7 +2,7 @@ import math
 
 from flask import g
 from lin import permission_meta
-from lin.apidoc import api, DocResponse
+from lin.apidoc import DocResponse, api
 from lin.db import db
 from lin.jwt import group_required
 from lin.logger import Log
@@ -13,7 +13,7 @@ from app.validator.schema import (
     AuthorizationSchema,
     LogPageSchema,
     LogQuerySearchSchema,
-    StringList,
+    UsernameListSchema,
 )
 
 log_api = Redprint("log")
@@ -59,7 +59,7 @@ def get_logs():
 @group_required
 @api.validate(
     headers=AuthorizationSchema,
-    resp=DocResponse(r=StringList),
+    resp=DocResponse(r=UsernameListSchema),
     tags=["日志"],
 )
 def get_users_for_log():
@@ -73,4 +73,4 @@ def get_users_for_log():
         .having(text("count(username) > 0"))
         .all()
     )
-    return [u.username for u in usernames]
+    return UsernameListSchema(items=[u.username for u in usernames])

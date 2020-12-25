@@ -17,8 +17,8 @@ class BookQuerySearchSchema(BaseModel):
     q: Optional[str] = str()
 
 
-class StringList(BaseModel):
-    __root__: List[str]
+class UsernameListSchema(BaseModel):
+    items: List[str]
 
 
 class LogQuerySearchSchema(BaseModel):
