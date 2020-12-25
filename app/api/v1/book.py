@@ -7,7 +7,7 @@
 
 from flask import g, request
 from lin import permission_meta
-from lin.apidoc import api, DocResponse
+from lin.apidoc import DocResponse, api
 from lin.exception import Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
