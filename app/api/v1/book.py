@@ -6,12 +6,12 @@
 """
 
 from flask import g, request
-from lin import DocResponse, permission_meta
+from lin import permission_meta
+from lin.apidoc import api, DocResponse
 from lin.exception import Success
 from lin.jwt import group_required, login_required
 from lin.redprint import Redprint
 
-from app.api import api
 from app.exception.api import BookNotFound
 from app.model.v1.book import Book
 from app.validator.schema import (
@@ -56,7 +56,7 @@ def get_books():
 @book_api.route("/search")
 @api.validate(
     query=BookQuerySearchSchema,
-    resp=DocResponse(BookNotFound, r=BookSchemaList),
+    resp=DocResponse(r=BookSchemaList),
     tags=["图书"],
 )
 def search():
@@ -68,7 +68,6 @@ def search():
     ).all()
     if books:
         return BookSchemaList.parse_obj(books)
-    raise BookNotFound
 
 
 @book_api.route("", methods=["POST"])
