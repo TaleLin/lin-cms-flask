@@ -1,4 +1,4 @@
-Lin-CMS==0.3.0a7
+Lin-CMS==0.3.0a8
 Flask-Cors==3.0.9
 python-dotenv==0.15.0
 pytest==6.1.2
