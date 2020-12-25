@@ -16,7 +16,7 @@ def register_blueprints(app):
 
 
 def register_api(app):
-    from app.api import api
+    from lin.apidoc import api
 
     api.register(app)
 

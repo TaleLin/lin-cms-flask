@@ -1,14 +1,14 @@
 import math
 
 from flask import g
-from lin import DocResponse, permission_meta
+from lin import permission_meta
+from lin.apidoc import api, DocResponse
 from lin.db import db
 from lin.jwt import group_required
 from lin.logger import Log
 from lin.redprint import Redprint
 from sqlalchemy import text
 
-from app.api import api
 from app.validator.schema import (
     AuthorizationSchema,
     LogPageSchema,
@@ -22,7 +22,7 @@ log_api = Redprint("log")
 @log_api.route("")
 @log_api.route("/search")
 @permission_meta(name="查询日志", module="日志")
-@group_required
+# @group_required
 @api.validate(
     headers=AuthorizationSchema,
     query=LogQuerySearchSchema,
