@@ -73,4 +73,4 @@ def get_users_for_log():
         .having(text("count(username) > 0"))
         .all()
     )
-    return StringList.parse_obj([u.username for u in usernames])
+    return [u.username for u in usernames]

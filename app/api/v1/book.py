@@ -36,7 +36,7 @@ def get_book(id):
     """
     book = Book.get(id=id)
     if book:
-        return BookOutSchema.parse_obj(book)
+        return book
     raise BookNotFound
 
 
@@ -49,8 +49,7 @@ def get_books():
     """
     获取图书列表
     """
-    books = Book.get(one=False)
-    return BookSchemaList.parse_obj(books)
+    return Book.get(one=False)
 
 
 @book_api.route("/search")
@@ -63,11 +62,9 @@ def search():
     """
     关键字搜索图书
     """
-    books = Book.query.filter(
+    return Book.query.filter(
         Book.title.like("%" + g.q + "%"), Book.delete_time == None
     ).all()
-    if books:
-        return BookSchemaList.parse_obj(books)
 
 
 @book_api.route("", methods=["POST"])
