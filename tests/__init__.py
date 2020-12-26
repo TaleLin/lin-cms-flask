@@ -1,6 +1,8 @@
 import json
 import os
 
+import pytest
+
 from app.app import create_app
 from app.model.lin import (
     Group,
@@ -11,6 +13,8 @@ from app.model.lin import (
     UserIdentity,
 )
 
+from .config import password, username
+
 app = create_app(
     group_model=Group,
     user_model=User,
@@ -19,6 +23,20 @@ app = create_app(
     identity_model=UserIdentity,
     user_group_model=UserGroup,
 )
+
+
+@pytest.fixture()
+def fixtureFunc():
+    with app.test_client() as c:
+        rv = c.post(
+            "/cms/user/login",
+            headers={"Content-Type": "application/json"},
+            json={"username": username, "password": password},
+        )
+        json_data = rv.get_json()
+        assert json_data.get("access_token") != None
+        assert rv.status_code == 200
+        write_token(json_data)
 
 
 def get_file_path():
