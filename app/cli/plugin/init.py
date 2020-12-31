@@ -7,7 +7,7 @@ import re
 import subprocess
 from importlib import import_module
 
-from app.app import create_app
+from app import create_app
 
 """
 插件初始化流程:

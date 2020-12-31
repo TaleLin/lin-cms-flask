@@ -3,7 +3,7 @@
         :license: MIT, see LICENSE for more details.
     """
 
-from app.app import create_app
+from app import create_app
 from app.cli import db_cli, plugin_cli
 from app.config.code_message import MESSAGE
 from app.config.http_status_desc import DESC
