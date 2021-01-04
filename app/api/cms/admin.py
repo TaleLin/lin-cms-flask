@@ -325,7 +325,7 @@ def dispatch_auth():
     if one:
         raise Forbidden("已有权限，不可重复添加")
     manager.group_permission_model.create(
-        group_id=form.group_id.data, permission=form.permission_id.data, commit=True
+        group_id=form.group_id.data, permission_id=form.permission_id.data, commit=True
     )
     return Success("添加权限成功")
 
