@@ -15,6 +15,13 @@ def register_blueprints(app):
     app.register_blueprint(create_cms(), url_prefix="/cms")
 
 
+def register_cli(app):
+    from app.cli import db_cli, plugin_cli
+
+    app.cli.add_command(db_cli)
+    app.cli.add_command(plugin_cli)
+
+
 def register_api(app):
     from lin.apidoc import api
 
@@ -63,4 +70,5 @@ def create_app(register_all=True, **kwargs):
         register_api(app)
         apply_cors(app)
         Lin(app, **kwargs)
+        register_cli(app)
     return app

@@ -4,7 +4,6 @@
     """
 
 from app import create_app
-from app.cli import db_cli, plugin_cli
 from app.config.code_message import MESSAGE
 from app.config.http_status_desc import DESC
 from app.model.lin import (
@@ -27,8 +26,6 @@ app = create_app(
     config_DESC=DESC,
 )
 
-app.cli.add_command(db_cli)
-app.cli.add_command(plugin_cli)
 
 if app.config.get("ENV") != "production":
 
