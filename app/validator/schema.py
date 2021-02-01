@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
 
@@ -49,6 +50,7 @@ class LogSchema(BaseModel):
     method: str
     path: str
     permission: str
+    time: datetime
 
 
 class BasePageSchema(BaseModel):
