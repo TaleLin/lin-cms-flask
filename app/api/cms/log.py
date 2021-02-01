@@ -20,9 +20,8 @@ log_api = Redprint("log")
 
 
 @log_api.route("")
-@log_api.route("/search")
 @permission_meta(name="查询日志", module="日志")
-# @group_required
+@group_required
 @api.validate(
     headers=AuthorizationSchema,
     query=LogQuerySearchSchema,
@@ -33,6 +32,36 @@ log_api = Redprint("log")
 def get_logs():
     """
     日志浏览查询（人员，时间, 关键字），分页展示
+    """
+    logs = Log.query.filter()
+    total = logs.count()
+    items = (
+        logs.order_by(text("create_time desc")).offset(g.offset).limit(g.count).all()
+    )
+    total_page = math.ceil(total / g.count)
+
+    return LogPageSchema(
+        page=g.page,
+        count=g.count,
+        total=total,
+        items=get_items_with_time_field(items),
+        total_page=total_page,
+    )
+
+
+@log_api.route("/search")
+@permission_meta(name="搜索日志", module="日志")
+@group_required
+@api.validate(
+    headers=AuthorizationSchema,
+    query=LogQuerySearchSchema,
+    resp=DocResponse(r=LogPageSchema),
+    before=LogQuerySearchSchema.offset_handler,
+    tags=["日志"],
+)
+def search_logs():
+    """
+    日志搜索（人员，时间, 关键字），分页展示
     """
     if g.keyword:
         logs = Log.query.filter(Log.message.like(f"%{g.keyword}%"))
@@ -50,7 +79,11 @@ def get_logs():
     total_page = math.ceil(total / g.count)
 
     return LogPageSchema(
-        page=g.page, count=g.count, total=total, items=items, total_page=total_page
+        page=g.page,
+        count=g.count,
+        total=total,
+        items=get_items_with_time_field(items),
+        total_page=total_page,
     )
 
 
@@ -74,3 +107,13 @@ def get_users_for_log():
         .all()
     )
     return UsernameListSchema(items=[u.username for u in usernames])
+
+
+# TODO：临时time字段, 等待lin 核心库中调整后移除
+def get_items_with_time_field(items):
+    new_items = list()
+    for item in items:
+        item = dict(item)
+        item["time"] = item["create_time"]
+        new_items.append(item)
+    return new_items
