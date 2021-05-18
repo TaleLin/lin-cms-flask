@@ -12,7 +12,7 @@
 <p align="center">
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
   <img src="https://img.shields.io/badge/flask-1.1.2-green.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/flask-1.1.2-green.svg" style="max-width:100%;"></a>
-  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--cms-0.3.0a10-orange.svg" alt="lin--cms version" data-canonical-src="https://img.shields.io/badge/lin--cms-0.3.0a10-orange.svge" style="max-width:100%;"></a>
+  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--cms-0.3.1-orange.svg" alt="lin--cms version" data-canonical-src="https://img.shields.io/badge/lin--cms-0.3.1-orange.svge" style="max-width:100%;"></a>
   <a href="https://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
 </p>
 
@@ -35,9 +35,9 @@ Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内�
 
 ### 当前最新版本
 
-lin-cms-flask(当前示例工程)：0.3.0a10
+lin-cms-flask(当前示例工程)：0.3.1
 
-lin-cms(核心库) ：0.3.0a10
+lin-cms(核心库) ：0.3.1
 
 ### 文档地址
 
