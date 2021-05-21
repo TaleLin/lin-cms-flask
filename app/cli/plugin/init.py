@@ -13,7 +13,7 @@ from app import create_app
 插件初始化流程:
 1、输入要初始化的插件名称。（多个用空格隔开，*表示初始化所有）
 2、python依赖的安装
-2、将插件的配置写入到项目app/config/__init__.py中
+2、将插件的配置写入到项目app/config/base.py中
 3、将model中的模型插入到数据库中
 4、如果有需要，将初始数据插入到数据表中
 """
@@ -127,7 +127,7 @@ class PluginInit:
 
         sub_str = "PLUGIN_PATH = " + self.__format_setting(final_setting)
 
-        setting_path = self.app.config.root_path + "/config/__init__.py"
+        setting_path = self.app.config.root_path + "/config/base.py"
         with open(setting_path, "r", encoding="UTF-8") as f:
             content = f.read()
             pattern = "PLUGIN_PATH = \{([\s\S]*)\}+.*?"
