@@ -4,8 +4,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from operator import and_
-
+from flask import current_app, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -13,6 +12,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_refresh_token_in_request,
 )
+from itsdangerous import JSONWebSignatureSerializer as JWSSerializer
 from lin import manager, permission_meta
 from lin.db import db
 from lin.exception import Duplicated, Failed, NotFound, ParameterError, Success
@@ -21,6 +21,7 @@ from lin.logger import Log, Logger
 from lin.redprint import Redprint
 
 from app.exception.api import RefreshFailed
+from app.util.captcha import CaptchaTool
 from app.util.common import split_group
 from app.validator.form import (
     ChangePasswordForm,
@@ -48,13 +49,20 @@ def register():
 
 
 @user_api.route("/login", methods=["POST"])
-@permission_meta(name="登录", module="用户", mount=False)
 def login():
     form = LoginForm().validate_for_api()
+    # 校对验证码
+    if current_app.config.get("LOGIN_CAPTCHA"):
+        tag = request.headers.get("tag")
+        secret_key = current_app.config.get("SECRET_KEY")
+        serializer = JWSSerializer(secret_key)
+        if form.captcha.data != serializer.loads(tag):
+            raise Failed("验证码校验失败")
+
     user = manager.user_model.verify(form.username.data, form.password.data)
     # 用户未登录，此处不能用装饰器记录日志
     Log.create_log(
-        message=f"{user.username}登陆成功获取了令牌",
+        message=f"{user.username}登录成功获取了令牌",
         user_id=user.id,
         username=user.username,
         status_code=200,
@@ -169,3 +177,17 @@ def _register_user(form: RegisterForm):
             user_group.user_id = user.id
             user_group.group_id = group_id
             db.session.add(user_group)
+
+
+@user_api.route("/captcha", methods=["GET", "POST"])
+def get_captcha():
+    """
+    获取图形验证码
+    """
+    if not current_app.config.get("LOGIN_CAPTCHA"):
+        return {"tag": "", "image": ""}
+    image, code = CaptchaTool().get_verify_code()
+    secret_key = current_app.config.get("SECRET_KEY")
+    serializer = JWSSerializer(secret_key)
+    tag = serializer.dumps(code)
+    return {"tag": tag, "image": image}
