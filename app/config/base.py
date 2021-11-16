@@ -32,6 +32,8 @@ class BaseConfig(object):
     # 令牌配置
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
+    # 启用验证码登录
+    LOGIN_CAPTCHA = True
     # 默认文件上传配置
     FILE = {
         "STORE_DIR": "assets",
