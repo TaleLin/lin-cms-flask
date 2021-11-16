@@ -66,6 +66,7 @@ class RegisterForm(EmailForm):
 class LoginForm(Form):
     username = StringField(validators=[DataRequired()])
     password = PasswordField("密码", validators=[DataRequired(message="密码不可为空")])
+    captcha = StringField()
 
 
 # 重置密码校验
