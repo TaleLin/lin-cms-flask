@@ -2,3 +2,4 @@ Lin-CMS==0.3.1
 Flask-Cors==3.0.9
 python-dotenv==0.15.0
 pytest-ordering==0.6
+Pillow==8.4.0

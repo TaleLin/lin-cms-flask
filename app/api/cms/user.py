@@ -189,5 +189,6 @@ def get_captcha():
     image, code = CaptchaTool().get_verify_code()
     secret_key = current_app.config.get("SECRET_KEY")
     serializer = JWSSerializer(secret_key)
-    tag = serializer.dumps(code)
+    tag = str(serializer.dumps(code), encoding="utf-8")
+    image = str(image, encoding="utf-8")
     return {"tag": tag, "image": image}
