@@ -14,7 +14,7 @@ def get_page_from_query():
 
 
 def paginate():
-    from lin.exception import ParameterError
+    from lin import ParameterError
 
     count = int(
         request.args.get(

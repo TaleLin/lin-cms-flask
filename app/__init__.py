@@ -3,8 +3,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import os
+
 from dotenv import load_dotenv
 from flask import Flask
+
+from app.util.common import basedir
 
 
 def register_blueprints(app):
@@ -23,7 +27,7 @@ def register_cli(app):
 
 
 def register_api(app):
-    from lin.apidoc import api
+    from app.api import api
 
     api.register(app)
 
@@ -34,6 +38,12 @@ def apply_cors(app):
     CORS(app)
 
 
+def init_socketio(app):
+    from app.extension.notify.socketio import socketio
+
+    socketio.init_app(app, cors_allowed_origins="*")
+
+
 def load_app_config(app):
     """
     根据指定配置环境自动加载对应环境变量和配置类到app config
@@ -41,7 +51,7 @@ def load_app_config(app):
     # 根据传入环境加载对应配置
     env = app.config.get("ENV")
     # 读取 .env
-    load_dotenv(".{env}.env".format(env=env))
+    load_dotenv(os.path.join(basedir, ".{env}.env").format(env=env))
     # 读取配置类
     app.config.from_object(
         "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
@@ -49,7 +59,7 @@ def load_app_config(app):
 
 
 def set_global_config(**kwargs):
-    from lin.config import global_config
+    from lin import global_config
 
     # 获取config_*参数对象并挂载到脱离上下文的global config
     for k, v in kwargs.items():
@@ -58,17 +68,19 @@ def set_global_config(**kwargs):
 
 
 def create_app(register_all=True, **kwargs):
+    # 全局配置优先生效
+    set_global_config(**kwargs)
     # http wsgi server托管启动需指定读取环境配置
-    load_dotenv(".flaskenv")
-    app = Flask(__name__, static_folder="../assets")
+    load_dotenv(os.path.join(basedir, ".flaskenv"))
+    app = Flask(__name__, static_folder=os.path.join(basedir, "assets"))
     load_app_config(app)
     if register_all:
         from lin import Lin
 
-        set_global_config(**kwargs)
         register_blueprints(app)
         register_api(app)
         apply_cors(app)
+        init_socketio(app)
         Lin(app, **kwargs)
         register_cli(app)
     return app

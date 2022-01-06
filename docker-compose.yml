@@ -1,0 +1,16 @@
+version: "3"
+services:
+    lin-cms-flask:
+      build:
+          context: .
+          dockerfile: ./Dockerfile
+      container_name: lin_cms_flask
+      restart: always
+      hostname: avatar
+      environment:
+            - TZ=Asia/Shanghai
+      ports:
+          - "5000:5000"
+      working_dir: /app
+      tty: true
+      command: ["sh", "docker-deploy.sh"]

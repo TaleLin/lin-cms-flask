@@ -4,14 +4,12 @@ import os
 import pytest
 
 from app import create_app
-from app.model.lin import (
-    Group,
-    GroupPermission,
-    Permission,
-    User,
-    UserGroup,
-    UserIdentity,
-)
+from app.api.cms.model.group import Group
+from app.api.cms.model.group_permission import GroupPermission
+from app.api.cms.model.permission import Permission
+from app.api.cms.model.user import User
+from app.api.cms.model.user_group import UserGroup
+from app.api.cms.model.user_identity import UserIdentity
 
 from .config import password, username
 

@@ -1,21 +1,12 @@
 import re
 from datetime import datetime
-from enum import Enum
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from flask import g
-from lin.apidoc import BaseModel
 from pydantic import Field, validator
 
-datetime_regex = "^((([1-9][0-9][0-9][0-9]-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|(20[0-3][0-9]-(0[2469]|11)-(0[1-9]|[12][0-9]|30))) (20|21|22|23|[0-1][0-9]):[0-5][0-9]:[0-5][0-9])$"
-
-
-class AuthorizationSchema(BaseModel):
-    Authorization: str
-
-
-class BookQuerySearchSchema(BaseModel):
-    q: Optional[str] = str()
+from lin import BaseModel
+from app.schema import BasePageSchema, datetime_regex
 
 
 class UsernameListSchema(BaseModel):
@@ -42,7 +33,6 @@ class LogQuerySearchSchema(BaseModel):
 
 
 class LogSchema(BaseModel):
-    id: int
     message: str
     user_id: int
     username: str
@@ -50,40 +40,27 @@ class LogSchema(BaseModel):
     method: str
     path: str
     permission: str
-    time: datetime
-
-
-class BasePageSchema(BaseModel):
-    page: int
-    count: int
-    total: int
-    total_page: int
-    items: List[Any]
+    time: datetime = Field(alias="create_time")
 
 
 class LogPageSchema(BasePageSchema):
     items: List[LogSchema]
 
 
-class BookInSchema(BaseModel):
-    title: str
-    author: str
-    image: str
-    summary: str
+class LoginSchema(BaseModel):
+    username: str = Field(description="用户名")
+    password: str = Field(description="密码")
+    captcha: Optional[str] = Field(description="验证码")
 
 
-class BookOutSchema(BaseModel):
-    id: int
-    title: str
-    author: str
-    image: str
-    summary: str
+class AccessTokenSchema(BaseModel):
+    __root__: str = Field(description="access_token")
 
 
-class BookSchemaList(BaseModel):
-    __root__: List[BookOutSchema]
+class RefreshTokenSchema(BaseModel):
+    __root__: str = Field(description="refresh_token")
 
 
-class Language(str, Enum):
-    en = "en-US"
-    zh = "zh-CN"
+class LoginTokenSchema(BaseModel):
+    access_token: AccessTokenSchema
+    refresh_token: RefreshTokenSchema

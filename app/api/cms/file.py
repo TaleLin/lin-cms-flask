@@ -2,13 +2,12 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from flask import request
-from lin.jwt import login_required
-from lin.redprint import Redprint
+from flask import Blueprint, request
 
+from lin import login_required
 from app.extension.file.local_uploader import LocalUploader
 
-file_api = Redprint("file")
+file_api = Blueprint("file", __name__)
 
 
 @file_api.route("", methods=["POST"])
