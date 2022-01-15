@@ -4,33 +4,45 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from flask import current_app, request
+from flask import Blueprint, current_app, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     get_current_user,
     get_jwt_identity,
-    verify_jwt_refresh_token_in_request,
+    verify_jwt_in_request,
 )
 from itsdangerous import JSONWebSignatureSerializer as JWSSerializer
-from lin import manager, permission_meta
-from lin.db import db
-from lin.exception import Duplicated, Failed, NotFound, ParameterError, Success
-from lin.jwt import admin_required, get_tokens, login_required
-from lin.logger import Log, Logger
-from lin.redprint import Redprint
 
-from app.exception.api import RefreshFailed
-from app.util.captcha import CaptchaTool
-from app.util.common import split_group
-from app.validator.form import (
+from app.api import api
+from app.api.cms.exception import RefreshFailed
+from app.api.cms.schema import LoginSchema, LoginTokenSchema
+from app.api.cms.validator import (
     ChangePasswordForm,
     LoginForm,
     RegisterForm,
     UpdateInfoForm,
 )
+from lin import (
+    DocResponse,
+    Duplicated,
+    Failed,
+    Log,
+    Logger,
+    NotFound,
+    ParameterError,
+    Success,
+    admin_required,
+    db,
+    get_tokens,
+    login_required,
+    manager,
+    permission_meta,
+)
+from app.util.captcha import CaptchaTool
+from app.util.common import split_group
 
-user_api = Redprint("user")
+user_api = Blueprint("user", __name__)
 
 
 @user_api.route("/register", methods=["POST"])
@@ -40,16 +52,20 @@ user_api = Redprint("user")
 def register():
     form = RegisterForm().validate_for_api()
     if manager.user_model.count_by_username(form.username.data) > 0:
-        raise Duplicated("用户名重复，请重新输入")
+        raise Duplicated("用户名重复，请重新输入")  # type: ignore
     if form.email.data and form.email.data.strip() != "":
         if manager.user_model.count_by_email(form.email.data) > 0:
-            raise Duplicated("注册邮箱重复，请重新输入")
+            raise Duplicated("注册邮箱重复，请重新输入")  # type: ignore
     _register_user(form)
-    return Success("用户创建成功")
+    return Success("用户创建成功")  # type: ignore
 
 
 @user_api.route("/login", methods=["POST"])
-def login():
+@api.validate(resp=DocResponse(Failed("验证码校验失败"), r=LoginTokenSchema), tags=["用户"])
+def login(json: LoginSchema):
+    """
+    用户登录， 返回 access_token 和 refresh_token
+    """
     form = LoginForm().validate_for_api()
     # 校对验证码
     if current_app.config.get("LOGIN_CAPTCHA"):
@@ -57,7 +73,7 @@ def login():
         secret_key = current_app.config.get("SECRET_KEY")
         serializer = JWSSerializer(secret_key)
         if form.captcha.data != serializer.loads(tag):
-            raise Failed("验证码校验失败")
+            raise Failed("验证码校验失败")  # type: ignore
 
     user = manager.user_model.verify(form.username.data, form.password.data)
     # 用户未登录，此处不能用装饰器记录日志
@@ -126,7 +142,7 @@ def get_information():
 @permission_meta(name="刷新令牌", module="用户", mount=False)
 def refresh():
     try:
-        verify_jwt_refresh_token_in_request()
+        verify_jwt_in_request(refresh=True)
     except Exception:
         return RefreshFailed()
 

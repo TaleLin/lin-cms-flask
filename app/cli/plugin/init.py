@@ -130,7 +130,7 @@ class PluginInit:
         setting_path = self.app.config.root_path + "/config/base.py"
         with open(setting_path, "r", encoding="UTF-8") as f:
             content = f.read()
-            pattern = "PLUGIN_PATH = \{([\s\S]*)\}+.*?"
+            pattern = "PLUGIN_PATH = \{([\s\S]*)\}+.*?"  # type: ignore
             if len(re.findall(pattern, content)) == 0:
                 content += """
     PLUGIN_PATH = {}

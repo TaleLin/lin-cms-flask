@@ -1,8 +1,7 @@
-from lin.config import lin_config
-from lin.db import db
-from lin.exception import NotFound
-from lin.interface import InfoCrud as Base
 from sqlalchemy import Column, Integer, String, Text, text
+
+from lin import InfoCrud as Base
+from lin import NotFound, db, lin_config
 
 
 class Poem(Base):
@@ -25,7 +24,7 @@ class Poem(Base):
         return ret
 
     def get_all(self, form):
-        query = self.query.filter_by(delete_time=None)
+        query = self.query.filter_by(is_deleted=False)
 
         if form.author.data:
             query = query.filter_by(author=form.author.data)

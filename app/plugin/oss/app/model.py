@@ -1,5 +1,6 @@
-from lin.interface import BaseCrud
 from sqlalchemy import Column, Integer, String
+
+from lin import BaseCrud
 
 
 class OSS(BaseCrud):

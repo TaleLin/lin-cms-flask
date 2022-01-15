@@ -10,13 +10,13 @@ from flask import Blueprint
 
 def create_cms():
     cms = Blueprint("cms", __name__)
-    from .admin import admin_api
-    from .file import file_api
-    from .log import log_api
-    from .user import user_api
+    from app.api.cms.admin import admin_api
+    from app.api.cms.file import file_api
+    from app.api.cms.log import log_api
+    from app.api.cms.user import user_api
 
-    admin_api.register(cms)
-    user_api.register(cms)
-    log_api.register(cms)
-    file_api.register(cms)
+    cms.register_blueprint(admin_api, url_prefix="/admin")
+    cms.register_blueprint(user_api, url_prefix="/user")
+    cms.register_blueprint(log_api, url_prefix="/log")
+    cms.register_blueprint(file_api, url_prefix="/file")
     return cms

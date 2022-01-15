@@ -20,7 +20,7 @@ def test_create(fixtureFunc):
                 "image": "https://img3.doubanio.com/lpic/s1470003.jpg",
             },
         )
-        assert rv.status_code == 201 or rv.get_json().get("code") == 10030
+        assert rv.status_code == 200 or rv.get_json().get("code") == 10030
 
 
 @pytest.mark.run(order=2)
@@ -48,7 +48,7 @@ def test_update(fixtureFunc):
                 "image": "https://img3.doubanio.com/lpic/s1470003.jpg",
             },
         )
-        assert rv.status_code == 201
+        assert rv.status_code == 200
 
 
 @pytest.mark.run(order=4)
@@ -62,4 +62,4 @@ def test_delete():
         rv = c.delete(
             "/v1/book/{}".format(id), headers={"Authorization": "Bearer " + get_token()}
         )
-        assert rv.status_code == 201
+        assert rv.status_code == 200

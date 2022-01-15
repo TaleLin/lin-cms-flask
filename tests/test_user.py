@@ -4,7 +4,7 @@
 """
 
 
-from . import app, fixtureFunc, get_token
+from . import app, fixtureFunc, get_token  # type: ignore
 
 
 def test_change_nickname(fixtureFunc):
@@ -14,4 +14,4 @@ def test_change_nickname(fixtureFunc):
             headers={"Authorization": "Bearer " + get_token()},
             json={"nickname": "tester"},
         )
-        assert rv.status_code == 201
+        assert rv.status_code == 200

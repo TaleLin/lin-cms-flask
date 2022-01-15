@@ -6,18 +6,10 @@
 """
 import math
 
-from flask import request
-from lin import find_user, get_ep_infos, manager, permission_meta
-from lin.db import db
-from lin.enums import GroupLevelEnum
-from lin.exception import Forbidden, NotFound, ParameterError, Success
-from lin.jwt import admin_required
-from lin.logger import Logger
-from lin.redprint import Redprint
+from flask import Blueprint, request
 from sqlalchemy import func
 
-from app.util.page import get_page_from_query, paginate
-from app.validator.form import (
+from app.api.cms.validator import (
     DispatchAuth,
     DispatchAuths,
     NewGroup,
@@ -26,15 +18,28 @@ from app.validator.form import (
     UpdateGroup,
     UpdateUserInfoForm,
 )
+from lin import (
+    Forbidden,
+    GroupLevelEnum,
+    Logger,
+    NotFound,
+    ParameterError,
+    Success,
+    admin_required,
+    db,
+    manager,
+    permission_meta,
+)
+from app.util.page import get_page_from_query, paginate
 
-admin_api = Redprint("admin")
+admin_api = Blueprint("admin", __name__)
 
 
 @admin_api.route("/permission")
 @permission_meta(name="查询所有可分配的权限", module="管理员", mount=False)
 @admin_required
 def permissions():
-    return get_ep_infos()
+    return manager.get_ep_infos()
 
 
 @admin_api.route("/users")
@@ -121,7 +126,7 @@ def get_admin_users():
 def change_user_password(uid):
     form = ResetPasswordForm().validate_for_api()
 
-    user = find_user(id=uid)
+    user = manager.find_user(id=uid)
     if user is None:
         raise NotFound("用户不存在")
 
@@ -211,7 +216,7 @@ def get_admin_groups():
         db.session.query(func.count(manager.group_model.id))
         .filter(
             manager.group_model.level != GroupLevelEnum.ROOT.value,
-            manager.group_model.delete_time == None,
+            manager.group_model.is_deleted == False,
         )
         .scalar()
     )
@@ -232,7 +237,7 @@ def get_admin_groups():
 @admin_required
 def get_all_group():
     groups = manager.group_model.query.filter(
-        manager.group_model.delete_time == None,
+        manager.group_model.is_deleted == False,
         manager.group_model.level != GroupLevelEnum.ROOT.value,
     ).all()
     if groups is None:
