@@ -2,6 +2,7 @@ import base64
 import io
 import random
 import string
+from typing import Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -33,7 +34,7 @@ class CaptchaTool:
             y2 = random.randint(self.height / 2, self.height)
             self.draw.line(((x1, y1), (x2, y2)), fill="black", width=1)
 
-    def get_verify_code(self):
+    def get_verify_code(self) -> Tuple[bytes, str]:
         """
         生成验证码图形
         """
@@ -54,9 +55,9 @@ class CaptchaTool:
         # 划线
         # self.draw_lines()
         # 重新设置图片大小
-        self.im = self.im.resize((100, 24))
+        self.im = self.im.resize((80, 30))
         # 图片转为base64字符串
         buffered = io.BytesIO()
-        self.im.save(buffered, format="JPEG")
-        img_str = b"data:image/png;base64," + base64.b64encode(buffered.getvalue())
-        return img_str, code
+        self.im.save(buffered, format="webp")
+        img = b"data:image/png;base64," + base64.b64encode(buffered.getvalue())
+        return img, code
