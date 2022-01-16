@@ -3,9 +3,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from spectree import SecurityScheme
-
 from lin import SpecTree
+from spectree import SecurityScheme
 
 api = SpecTree(
     backend_name="flask",
