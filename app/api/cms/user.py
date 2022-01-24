@@ -13,16 +13,6 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
 )
 from itsdangerous import JSONWebSignatureSerializer as JWSSerializer
-
-from app.api import api
-from app.api.cms.exception import RefreshFailed
-from app.api.cms.schema import LoginSchema, LoginTokenSchema
-from app.api.cms.validator import (
-    ChangePasswordForm,
-    LoginForm,
-    RegisterForm,
-    UpdateInfoForm,
-)
 from lin import (
     DocResponse,
     Duplicated,
@@ -39,6 +29,16 @@ from lin import (
     manager,
     permission_meta,
 )
+
+from app.api import AuthorizationBearerSecurity, api
+from app.api.cms.exception import RefreshFailed
+from app.api.cms.schema.user import CaptchaSchema, LoginSchema, LoginTokenSchema
+from app.api.cms.validator import (
+    ChangePasswordForm,
+    LoginForm,
+    RegisterForm,
+    UpdateInfoForm,
+)
 from app.util.captcha import CaptchaTool
 from app.util.common import split_group
 
@@ -49,7 +49,15 @@ user_api = Blueprint("user", __name__)
 @permission_meta(name="注册", module="用户", mount=False)
 @Logger(template="管理员新建了一个用户")  # 记录日志
 @admin_required
+@api.validate(
+    tags=["用户"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(Success("用户创建成功")),
+)
 def register():
+    """
+    注册新用户
+    """
     form = RegisterForm().validate_for_api()
     if manager.user_model.count_by_username(form.username.data) > 0:
         raise Duplicated("用户名重复，请重新输入")  # type: ignore
@@ -64,7 +72,7 @@ def register():
 @api.validate(resp=DocResponse(Failed("验证码校验失败"), r=LoginTokenSchema), tags=["用户"])
 def login(json: LoginSchema):
     """
-    用户登录， 返回 access_token 和 refresh_token
+    用户登录
     """
     form = LoginForm().validate_for_api()
     # 校对验证码
@@ -88,13 +96,20 @@ def login(json: LoginSchema):
         commit=True,
     )
     access_token, refresh_token = get_tokens(user)
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return LoginTokenSchema(access_token=access_token, refresh_token=refresh_token)
 
 
 @user_api.route("", methods=["PUT"])
 @permission_meta(name="用户更新信息", module="用户", mount=False)
 @login_required
+@api.validate(
+    tags=["用户"],
+    security=[AuthorizationBearerSecurity],
+)
 def update():
+    """
+    更新用户信息
+    """
     form = UpdateInfoForm().validate_for_api()
     user = get_current_user()
     email = form.email.data
@@ -119,7 +134,14 @@ def update():
 @permission_meta(name="修改密码", module="用户", mount=False)
 @Logger(template="{user.username}修改了自己的密码")  # 记录日志
 @login_required
+@api.validate(
+    tags=["用户"],
+    security=[AuthorizationBearerSecurity],
+)
 def change_password():
+    """
+    修改密码
+    """
     form = ChangePasswordForm().validate_for_api()
     user = get_current_user()
     ok = user.change_password(form.old_password.data, form.new_password.data)
@@ -133,24 +155,38 @@ def change_password():
 @user_api.route("/information")
 @permission_meta(name="查询自己信息", module="用户", mount=False)
 @login_required
+@api.validate(
+    tags=["用户"],
+    security=[AuthorizationBearerSecurity],
+)
 def get_information():
+    """
+    获取用户信息
+    """
     current_user = get_current_user()
     return current_user
 
 
 @user_api.route("/refresh")
 @permission_meta(name="刷新令牌", module="用户", mount=False)
+@api.validate(
+    resp=DocResponse(RefreshFailed, NotFound("refresh_token未被识别"), r=LoginTokenSchema),
+    tags=["用户"],
+)
 def refresh():
+    """
+    刷新令牌
+    """
     try:
         verify_jwt_in_request(refresh=True)
     except Exception:
-        return RefreshFailed()
+        return RefreshFailed
 
     identity = get_jwt_identity()
     if identity:
         access_token = create_access_token(identity=identity)
         refresh_token = create_refresh_token(identity=identity)
-        return {"access_token": access_token, "refresh_token": refresh_token}
+        return LoginTokenSchema(access_token=access_token, refresh_token=refresh_token)
 
     return NotFound("refresh_token未被识别")
 
@@ -158,7 +194,14 @@ def refresh():
 @user_api.route("/permissions")
 @permission_meta(name="查询自己拥有的权限", module="用户", mount=False)
 @login_required
+@api.validate(
+    tags=["用户"],
+    security=[AuthorizationBearerSecurity],
+)
 def get_allowed_apis():
+    """
+    获取用户拥有的权限
+    """
     user = get_current_user()
     groups = manager.group_model.select_by_user_id(user.id)
     group_ids = [group.id for group in groups]
@@ -185,9 +228,11 @@ def _register_user(form: RegisterForm):
         db.session.flush()
         user.password = form.password.data
         group_ids = form.group_ids.data
-        # 如果没传分组数据，则将其设定为 id 2 的 guest 分组
+        # 如果没传分组数据，则将其设定为 guest 分组
         if len(group_ids) == 0:
-            group_ids = [2]
+            from lin import GroupLevelEnum
+
+            group_ids = [GroupLevelEnum.GUEST.value]
         for group_id in group_ids:
             user_group = manager.user_group_model()
             user_group.user_id = user.id
@@ -196,12 +241,16 @@ def _register_user(form: RegisterForm):
 
 
 @user_api.route("/captcha", methods=["GET", "POST"])
+@api.validate(
+    resp=DocResponse(r=CaptchaSchema),
+    tags=["用户"],
+)
 def get_captcha():
     """
     获取图形验证码
     """
     if not current_app.config.get("LOGIN_CAPTCHA"):
-        return {"tag": "", "image": ""}
+        return CaptchaSchema()  # type: ignore
     image, code = CaptchaTool().get_verify_code()
     secret_key = current_app.config.get("SECRET_KEY")
     serializer = JWSSerializer(secret_key)
