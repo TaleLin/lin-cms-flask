@@ -7,8 +7,9 @@ from .model import Poem
 
 
 def initial_data():
-    from app import create_app
     from lin import db
+
+    from app import create_app
 
     app = create_app()
     with app.app_context():

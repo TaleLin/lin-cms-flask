@@ -3,8 +3,9 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from app.api.v1.model.book import Book
 from lin import db
+
+from app.api.v1.model.book import Book
 
 
 def fake():

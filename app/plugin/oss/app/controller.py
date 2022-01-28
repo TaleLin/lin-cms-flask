@@ -2,7 +2,6 @@ import os
 
 import oss2
 from flask import jsonify, request
-
 from lin import (
     Failed,
     ParameterError,

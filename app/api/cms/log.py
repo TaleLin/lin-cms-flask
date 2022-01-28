@@ -1,11 +1,15 @@
 import math
 
 from flask import Blueprint, g
+from lin import DocResponse, Log, db, group_required, permission_meta
 from sqlalchemy import text
 
 from app.api import AuthorizationBearerSecurity, api
-from app.api.cms.schema import LogPageSchema, LogQuerySearchSchema, UsernameListSchema
-from lin import DocResponse, Log, db, group_required, permission_meta
+from app.api.cms.schema.log import (
+    LogPageSchema,
+    LogQuerySearchSchema,
+    UsernameListSchema,
+)
 
 log_api = Blueprint("log", __name__)
 

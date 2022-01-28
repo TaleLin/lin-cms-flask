@@ -3,9 +3,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from sqlalchemy import Column, Integer, String
-
 from lin import InfoCrud as Base
+from sqlalchemy import Column, Integer, String
 
 
 class Book(Base):

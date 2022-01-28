@@ -6,6 +6,7 @@
 """
 
 from flask import Blueprint, g
+from lin import DocResponse, Success, group_required, login_required, permission_meta
 
 from app.api import AuthorizationBearerSecurity, api
 from app.api.v1.exception import BookNotFound
@@ -15,13 +16,6 @@ from app.api.v1.schema import (
     BookOutSchema,
     BookQuerySearchSchema,
     BookSchemaList,
-)
-from lin import (
-    DocResponse,
-    Success,
-    group_required,
-    login_required,
-    permission_meta,
 )
 
 book_api = Blueprint("book", __name__)

@@ -1,66 +1,33 @@
-import re
-from datetime import datetime
 from typing import List, Optional
 
-from flask import g
-from pydantic import Field, validator
-
-from lin import BaseModel
-from app.schema import BasePageSchema, datetime_regex
+from lin import BaseModel, ParameterError
+from pydantic import EmailStr, Field, validator
 
 
-class UsernameListSchema(BaseModel):
-    items: List[str]
+class EmailSchema(BaseModel):
+    email: Optional[str] = Field(description="用户邮箱")
+
+    @validator("email")
+    def check_email(cls, v, values, **kwargs):
+        return EmailStr.validate(v) if v else ""
 
 
-class LogQuerySearchSchema(BaseModel):
-    keyword: Optional[str] = None
-    name: Optional[str] = None
-    start: Optional[str] = Field(None, description="YY-MM-DD HH:MM:SS")
-    end: Optional[str] = Field(None, description="YY-MM-DD HH:MM:SS")
-    count: int = Field(5, gt=0, lt=16, description="0 < count < 16")
-    page: int = 0
+class ResetPasswordSchema(BaseModel):
+    new_password: str = Field(description="新密码", min_length=6, max_length=22)
+    confirm_password: str = Field(description="确认密码", min_length=6, max_length=22)
 
-    @validator("start", "end")
-    def datetime_match(cls, v, values, **kwargs):
-        if re.match(datetime_regex, v):
-            return v
-        raise ValueError("时间格式有误")
-
-    @staticmethod
-    def offset_handler(req, resp, req_validation_error, instance):
-        g.offset = req.context.query.count * req.context.query.page
+    @validator("confirm_password")
+    def passwords_match(cls, v, values, **kwargs):
+        if v != values["new_password"]:
+            raise ParameterError("两次输入的密码不一致，请输入相同的密码")
+        return v
 
 
-class LogSchema(BaseModel):
-    message: str
-    user_id: int
-    username: str
-    status_code: int
-    method: str
-    path: str
-    permission: str
-    time: datetime = Field(alias="create_time")
+class GroupIdListSchema(BaseModel):
+    group_ids: List[int] = Field(description="用户组ID列表")
 
-
-class LogPageSchema(BasePageSchema):
-    items: List[LogSchema]
-
-
-class LoginSchema(BaseModel):
-    username: str = Field(description="用户名")
-    password: str = Field(description="密码")
-    captcha: Optional[str] = Field(description="验证码")
-
-
-class AccessTokenSchema(BaseModel):
-    __root__: str = Field(description="access_token")
-
-
-class RefreshTokenSchema(BaseModel):
-    __root__: str = Field(description="refresh_token")
-
-
-class LoginTokenSchema(BaseModel):
-    access_token: AccessTokenSchema
-    refresh_token: RefreshTokenSchema
+    @validator("group_ids", each_item=True)
+    def check_group_id(cls, v, values, **kwargs):
+        if v <= 0:
+            raise ParameterError("用户组ID必须大于0")
+        return v
