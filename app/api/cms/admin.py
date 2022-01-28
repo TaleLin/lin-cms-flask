@@ -23,16 +23,16 @@ from lin import (
 from sqlalchemy import func
 
 from app.api import AuthorizationBearerSecurity, api
+from app.api.cms.schema import ResetPasswordSchema
 from app.api.cms.schema.admin import (
     AdminGroupListSchema,
     AdminGroupPermissionSchema,
     AdminUserPageSchema,
-    GroupQuerySearchSchema,
-    ResetPasswordSchema,
-    UpdateUserInfoSchema,
     CreateGroupSchema,
     GroupBaseSchema,
     GroupIdWithPermissionIdListSchema,
+    GroupQuerySearchSchema,
+    UpdateUserInfoSchema,
 )
 from app.util.page import get_page_from_query
 

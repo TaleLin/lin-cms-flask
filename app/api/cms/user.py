@@ -4,7 +4,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
-from flask import Blueprint, current_app, request
+from flask import Blueprint, current_app, g, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -32,12 +32,15 @@ from lin import (
 
 from app.api import AuthorizationBearerSecurity, api
 from app.api.cms.exception import RefreshFailed
-from app.api.cms.schema.user import CaptchaSchema, LoginSchema, LoginTokenSchema
-from app.api.cms.validator import (
-    ChangePasswordForm,
-    LoginForm,
-    RegisterForm,
-    UpdateInfoForm,
+from app.api.cms.schema.user import (
+    CaptchaSchema,
+    ChangePasswordSchema,
+    LoginSchema,
+    LoginTokenSchema,
+    UserBaseInfoSchema,
+    UserPermissionSchema,
+    UserRegisterSchema,
+    UserSchema,
 )
 from app.util.captcha import CaptchaTool
 from app.util.common import split_group
@@ -52,19 +55,38 @@ user_api = Blueprint("user", __name__)
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
-    resp=DocResponse(Success("用户创建成功")),
+    resp=DocResponse(Success("用户创建成功"), Duplicated("字段重复，请重新输入")),
 )
-def register():
+def register(json: UserRegisterSchema):
     """
     注册新用户
     """
-    form = RegisterForm().validate_for_api()
-    if manager.user_model.count_by_username(form.username.data) > 0:
+    if manager.user_model.count_by_username(g.username) > 0:
         raise Duplicated("用户名重复，请重新输入")  # type: ignore
-    if form.email.data and form.email.data.strip() != "":
-        if manager.user_model.count_by_email(form.email.data) > 0:
+    if g.email and g.email.strip() != "":
+        if manager.user_model.count_by_email(g.email) > 0:
             raise Duplicated("注册邮箱重复，请重新输入")  # type: ignore
-    _register_user(form)
+    # create a user
+    with db.auto_commit():
+        user = manager.user_model()
+        user.username = g.username
+        if g.email and g.email.strip() != "":
+            user.email = g.email
+        db.session.add(user)
+        db.session.flush()
+        user.password = g.password
+        group_ids = g.group_ids
+        # 如果没传分组数据，则将其设定为 guest 分组
+        if len(group_ids) == 0:
+            from lin import GroupLevelEnum
+
+            group_ids = [GroupLevelEnum.GUEST.value]
+        for group_id in group_ids:
+            user_group = manager.user_group_model()
+            user_group.user_id = user.id
+            user_group.group_id = group_id
+            db.session.add(user_group)
+
     return Success("用户创建成功")  # type: ignore
 
 
@@ -74,16 +96,15 @@ def login(json: LoginSchema):
     """
     用户登录
     """
-    form = LoginForm().validate_for_api()
     # 校对验证码
     if current_app.config.get("LOGIN_CAPTCHA"):
         tag = request.headers.get("tag")
         secret_key = current_app.config.get("SECRET_KEY")
         serializer = JWSSerializer(secret_key)
-        if form.captcha.data != serializer.loads(tag):
+        if g.captcha != serializer.loads(tag):
             raise Failed("验证码校验失败")  # type: ignore
 
-    user = manager.user_model.verify(form.username.data, form.password.data)
+    user = manager.user_model.verify(g.username, g.password)
     # 用户未登录，此处不能用装饰器记录日志
     Log.create_log(
         message=f"{user.username}登录成功获取了令牌",
@@ -105,29 +126,26 @@ def login(json: LoginSchema):
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
+    resp=DocResponse(Success("用户信息更新成功"), ParameterError("邮箱已被注册，请重新输入邮箱")),
 )
-def update():
+def update(json: UserBaseInfoSchema):
     """
     更新用户信息
     """
-    form = UpdateInfoForm().validate_for_api()
     user = get_current_user()
-    email = form.email.data
-    nickname = form.nickname.data
-    avatar = form.avatar.data
 
-    if email and user.email != email:
-        exists = manager.user_model.get(email=form.email.data)
+    if g.email and user.email != g.email:
+        exists = manager.user_model.get(email=g.email)
         if exists:
             raise ParameterError("邮箱已被注册，请重新输入邮箱")
     with db.auto_commit():
-        if email:
-            user.email = form.email.data
-        if nickname:
-            user.nickname = form.nickname.data
-        if avatar:
-            user._avatar = form.avatar.data
-    return Success("操作成功")
+        if g.email:
+            user.email = g.email
+        if g.nickname:
+            user.nickname = g.nickname
+        if g.avatar:
+            user._avatar = g.avatar
+    return Success("用户信息更新成功")
 
 
 @user_api.route("/change_password", methods=["PUT"])
@@ -137,14 +155,14 @@ def update():
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
+    resp=DocResponse(Success("密码修改成功"), Failed("密码修改失败")),
 )
-def change_password():
+def change_password(json: ChangePasswordSchema):
     """
     修改密码
     """
-    form = ChangePasswordForm().validate_for_api()
     user = get_current_user()
-    ok = user.change_password(form.old_password.data, form.new_password.data)
+    ok = user.change_password(g.old_password, g.new_password)
     if ok:
         db.session.commit()
         return Success("密码修改成功")
@@ -158,6 +176,7 @@ def change_password():
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
+    resp=DocResponse(r=UserSchema),
 )
 def get_information():
     """
@@ -197,6 +216,7 @@ def refresh():
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
+    resp=DocResponse(r=UserPermissionSchema),
 )
 def get_allowed_apis():
     """
@@ -216,28 +236,6 @@ def get_allowed_apis():
     user._fields.extend(["admin", "permissions"])
 
     return user
-
-
-def _register_user(form: RegisterForm):
-    with db.auto_commit():
-        user = manager.user_model()
-        user.username = form.username.data
-        if form.email.data and form.email.data.strip() != "":
-            user.email = form.email.data
-        db.session.add(user)
-        db.session.flush()
-        user.password = form.password.data
-        group_ids = form.group_ids.data
-        # 如果没传分组数据，则将其设定为 guest 分组
-        if len(group_ids) == 0:
-            from lin import GroupLevelEnum
-
-            group_ids = [GroupLevelEnum.GUEST.value]
-        for group_id in group_ids:
-            user_group = manager.user_group_model()
-            user_group.user_id = user.id
-            user_group.group_id = group_id
-            db.session.add(user_group)
 
 
 @user_api.route("/captcha", methods=["GET", "POST"])
