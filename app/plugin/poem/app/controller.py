@@ -1,5 +1,5 @@
 from flask import jsonify
-from lin.redprint import Redprint
+from lin import Redprint
 
 from app.plugin.poem.app.form import PoemListForm, PoemSearchForm
 

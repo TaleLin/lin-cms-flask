@@ -5,24 +5,20 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import g, request
-from lin import permission_meta
-from lin.apidoc import DocResponse, api
-from lin.exception import Success
-from lin.jwt import group_required, login_required
-from lin.redprint import Redprint
+from flask import Blueprint, g
+from lin import DocResponse, Success, group_required, login_required, permission_meta
 
-from app.exception.api import BookNotFound
-from app.model.v1.book import Book
-from app.validator.schema import (
-    AuthorizationSchema,
+from app.api import AuthorizationBearerSecurity, api
+from app.api.v1.exception import BookNotFound
+from app.api.v1.model.book import Book
+from app.api.v1.schema import (
     BookInSchema,
     BookOutSchema,
     BookQuerySearchSchema,
     BookSchemaList,
 )
 
-book_api = Redprint("book")
+book_api = Blueprint("book", __name__)
 
 
 @book_api.route("/<int:id>")
@@ -54,54 +50,49 @@ def get_books():
 
 @book_api.route("/search")
 @api.validate(
-    query=BookQuerySearchSchema,
     resp=DocResponse(r=BookSchemaList),
     tags=["图书"],
 )
-def search():
+def search(query: BookQuerySearchSchema):
     """
     关键字搜索图书
     """
     return Book.query.filter(
-        Book.title.like("%" + g.q + "%"), Book.delete_time == None
+        Book.title.like("%" + g.q + "%"), Book.is_deleted == False
     ).all()
 
 
 @book_api.route("", methods=["POST"])
 @login_required
 @api.validate(
-    headers=AuthorizationSchema,
-    json=BookInSchema,
     resp=DocResponse(Success(12)),
+    security=[AuthorizationBearerSecurity],
     tags=["图书"],
 )
-def create_book():
+def create_book(json: BookInSchema):
     """
     创建图书
     """
-    book_schema = request.context.json
-    Book.create(**book_schema.dict(), commit=True)
+    Book.create(**json.dict(), commit=True)
     return Success(12)
 
 
 @book_api.route("/<int:id>", methods=["PUT"])
 @login_required
 @api.validate(
-    headers=AuthorizationSchema,
-    json=BookInSchema,
     resp=DocResponse(Success(13)),
+    security=[AuthorizationBearerSecurity],
     tags=["图书"],
 )
-def update_book(id):
+def update_book(id, json: BookInSchema):
     """
     更新图书信息
     """
-    book_schema = request.context.json
     book = Book.get(id=id)
     if book:
         book.update(
             id=id,
-            **book_schema.dict(),
+            **json.dict(),
             commit=True,
         )
         return Success(13)
@@ -112,8 +103,8 @@ def update_book(id):
 @permission_meta(name="删除图书", module="图书")
 @group_required
 @api.validate(
-    headers=AuthorizationSchema,
     resp=DocResponse(BookNotFound, Success(14)),
+    security=[AuthorizationBearerSecurity],
     tags=["图书"],
 )
 def delete_book(id):

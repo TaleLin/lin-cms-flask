@@ -1,3 +1,4 @@
+import os
 from itertools import groupby
 from operator import itemgetter
 
@@ -9,3 +10,6 @@ def split_group(dict_list, key):
     for key, group in tmps:
         result.append({key: list(group)})
     return result
+
+
+basedir = os.getcwd()

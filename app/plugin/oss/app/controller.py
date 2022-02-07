@@ -2,11 +2,15 @@ import os
 
 import oss2
 from flask import jsonify, request
-from lin.config import lin_config
-from lin.db import db
-from lin.exception import Failed, ParameterError, Success
-from lin.redprint import Redprint
-from lin.utils import get_random_str
+from lin import (
+    Failed,
+    ParameterError,
+    Redprint,
+    Success,
+    db,
+    get_random_str,
+    lin_config,
+)
 
 from .model import OSS
 

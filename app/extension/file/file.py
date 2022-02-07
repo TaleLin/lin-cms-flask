@@ -1,5 +1,4 @@
-from lin.db import db
-from lin.interface import InfoCrud
+from lin import InfoCrud, db
 from sqlalchemy import Column, Index, Integer, String, func, text
 
 
@@ -29,7 +28,7 @@ class File(InfoCrud):
     @classmethod
     def count_by_md5(cls, md5):
         result = db.session.query(func.count(cls.id)).filter(
-            cls.delete_time == None, cls.md5 == md5
+            cls.is_deleted == False, cls.md5 == md5
         )
         count = result.scalar()
         return count

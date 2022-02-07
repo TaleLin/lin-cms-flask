@@ -6,43 +6,66 @@
 """
 import math
 
-from flask import request
-from lin import find_user, get_ep_infos, manager, permission_meta
-from lin.db import db
-from lin.enums import GroupLevelEnum
-from lin.exception import Forbidden, NotFound, ParameterError, Success
-from lin.jwt import admin_required
-from lin.logger import Logger
-from lin.redprint import Redprint
+from flask import Blueprint, g
+from lin import (
+    DocResponse,
+    Forbidden,
+    GroupLevelEnum,
+    Logger,
+    NotFound,
+    ParameterError,
+    Success,
+    admin_required,
+    db,
+    manager,
+    permission_meta,
+)
 from sqlalchemy import func
 
-from app.util.page import get_page_from_query, paginate
-from app.validator.form import (
-    DispatchAuth,
-    DispatchAuths,
-    NewGroup,
-    RemoveAuths,
-    ResetPasswordForm,
-    UpdateGroup,
-    UpdateUserInfoForm,
+from app.api import AuthorizationBearerSecurity, api
+from app.api.cms.schema import ResetPasswordSchema
+from app.api.cms.schema.admin import (
+    AdminGroupListSchema,
+    AdminGroupPermissionSchema,
+    AdminUserPageSchema,
+    CreateGroupSchema,
+    GroupBaseSchema,
+    GroupIdWithPermissionIdListSchema,
+    GroupQuerySearchSchema,
+    UpdateUserInfoSchema,
 )
+from app.util.page import get_page_from_query
 
-admin_api = Redprint("admin")
+admin_api = Blueprint("admin", __name__)
 
 
 @admin_api.route("/permission")
 @permission_meta(name="查询所有可分配的权限", module="管理员", mount=False)
 @admin_required
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+)
 def permissions():
-    return get_ep_infos()
+    """
+    查询所有可分配的权限
+    """
+    return manager.get_ep_infos()
 
 
 @admin_api.route("/users")
 @permission_meta(name="查询所有用户", module="管理员", mount=False)
 @admin_required
-def get_admin_users():
-    start, count = paginate()
-    group_id = request.args.get("group_id")
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(r=AdminUserPageSchema),
+    before=GroupQuerySearchSchema.offset_handler,
+)
+def get_admin_users(query: GroupQuerySearchSchema):
+    """
+    查询所有用户
+    """
     # 根据筛选条件和分页，获取 用户id 与 用户组id 的一对多 数据
     # 过滤root 分组
     query_root_group_id = db.session.query(manager.group_model.id).filter(
@@ -52,14 +75,14 @@ def get_admin_users():
         manager.user_group_model.user_id.label("user_id"),
         func.group_concat(manager.user_group_model.group_id).label("group_ids"),
     ).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
-    if group_id:
+    if g.group_id:
         _user_groups_list = _user_groups_list.filter(
-            manager.user_group_model.group_id == group_id
+            manager.user_group_model.group_id == g.group_id
         )
     user_groups_list = (
         _user_groups_list.group_by(manager.user_group_model.user_id)
-        .offset(start)
-        .limit(count)
+        .offset(g.offset)
+        .limit(g.count)
         .all()
     )
 
@@ -68,8 +91,8 @@ def get_admin_users():
     _total = db.session.query(
         func.count(func.distinct(manager.user_group_model.user_id))
     ).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
-    if group_id:
-        _total = _total.filter(manager.user_group_model.group_id == group_id)
+    if g.group_id:
+        _total = _total.filter(manager.user_group_model.group_id == g.group_id)
     total = _total.scalar()
 
     # 获取本次需要返回的用户的数据
@@ -82,7 +105,7 @@ def get_admin_users():
         user_dict[user.id] = user
 
     # 使用用户组来过滤，则不需要补全用户组信息
-    if not group_id:
+    if not g.group_id:
         # 拿到本次请求返回用户的所有 用户组 id List
         group_ids = [
             int(i)
@@ -104,29 +127,32 @@ def get_admin_users():
             user_dict[user_id].groups = groups
             items.append(user_dict[user_id])
 
-    total_page = math.ceil(total / count)
+    total_page = math.ceil(total / g.count)
     page = get_page_from_query()
-    return {
-        "count": count,
-        "items": users,
-        "page": page,
-        "total": total,
-        "total_page": total_page,
-    }
+    return AdminUserPageSchema(
+        count=g.count, total=total, total_page=total_page, page=page, items=users
+    )
 
 
 @admin_api.route("/user/<int:uid>/password", methods=["PUT"])
 @permission_meta(name="修改用户密码", module="管理员", mount=False)
 @admin_required
-def change_user_password(uid):
-    form = ResetPasswordForm().validate_for_api()
+@api.validate(
+    tags=["管理员"],
+    resp=DocResponse(NotFound("用户不存在"), Success("密码修改成功")),
+    security=[AuthorizationBearerSecurity],
+)
+def change_user_password(uid: int, json: ResetPasswordSchema):
+    """
+    修改用户密码
+    """
 
-    user = find_user(id=uid)
-    if user is None:
+    user = manager.find_user(id=uid)
+    if not user:
         raise NotFound("用户不存在")
 
     with db.auto_commit():
-        user.reset_password(form.new_password.data)
+        user.reset_password(g.new_password)
 
     return Success("密码修改成功")
 
@@ -135,7 +161,15 @@ def change_user_password(uid):
 @permission_meta(name="删除用户", module="管理员", mount=False)
 @Logger(template="管理员删除了一个用户")
 @admin_required
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(NotFound("用户不存在"), Success("删除成功"), Forbidden("用户不能删除")),
+)
 def delete_user(uid):
+    """
+    删除用户
+    """
     user = manager.user_model.get(id=uid)
     if user is None:
         raise NotFound("用户不存在")
@@ -154,19 +188,29 @@ def delete_user(uid):
 @admin_api.route("/user/<int:uid>", methods=["PUT"])
 @permission_meta(name="管理员更新用户信息", module="管理员", mount=False)
 @admin_required
-def update_user(uid):
-    form = UpdateUserInfoForm().validate_for_api()
-
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(
+        NotFound("用户不存在"),
+        Success("更新成功"),
+        ParameterError("邮箱已被注册，请重新输入邮箱"),
+    ),
+)
+def update_user(uid: int, json: UpdateUserInfoSchema):
+    """
+    更新用户信息
+    """
     user = manager.user_model.get(id=uid)
     if user is None:
         raise NotFound("用户不存在")
-    if user.email != form.email.data:
-        exists = manager.user_model.get(email=form.email.data)
+    if user.email != g.email:
+        exists = manager.user_model.get(email=g.email)
         if exists:
             raise ParameterError("邮箱已被注册，请重新输入邮箱")
     with db.auto_commit():
-        user.email = form.email.data
-        group_ids = form.group_ids.data
+        user.email = g.email
+        group_ids = g.group_ids
         # 清空原来的所有关联关系
         manager.user_group_model.query.filter_by(user_id=user.id).delete(
             synchronize_session=False
@@ -174,7 +218,7 @@ def update_user(uid):
         # 根据传入分组ids 新增关联记录
         user_group_list = list()
         # 如果没传分组数据，则将其设定为 guest 分组
-        if len(group_ids) == 0:
+        if not group_ids:
             group_ids = [manager.group_model.get(level=GroupLevelEnum.GUEST.value).id]
         for group_id in group_ids:
             user_group = manager.user_group_model()
@@ -185,54 +229,20 @@ def update_user(uid):
     return Success("操作成功")
 
 
-@admin_api.route("/group")
-@permission_meta(name="查询所有分组及其权限", module="管理员", mount=False)
-@admin_required
-def get_admin_groups():
-    start, count = paginate()
-    groups = (
-        manager.group_model.query.filter(
-            manager.group_model.level != GroupLevelEnum.ROOT.value
-        )
-        .offset(start)
-        .limit(count)
-        .all()
-    )
-    if groups is None:
-        raise NotFound("不存在任何分组")
-
-    for group in groups:
-        permissions = manager.permission_model.select_by_group_id(group.id)
-        setattr(group, "permissions", permissions)
-        group._fields.append("permissions")
-
-    # root分组隐藏不显示
-    total = (
-        db.session.query(func.count(manager.group_model.id))
-        .filter(
-            manager.group_model.level != GroupLevelEnum.ROOT.value,
-            manager.group_model.delete_time == None,
-        )
-        .scalar()
-    )
-    total_page = math.ceil(total / count)
-    page = get_page_from_query()
-
-    return {
-        "count": count,
-        "items": groups,
-        "page": page,
-        "total": total,
-        "total_page": total_page,
-    }
-
-
 @admin_api.route("/group/all")
 @permission_meta(name="查询所有分组", module="管理员", mount=False)
 @admin_required
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(NotFound("不存在任何分组"), r=AdminGroupListSchema),
+)
 def get_all_group():
+    """
+    获取所有分组
+    """
     groups = manager.group_model.query.filter(
-        manager.group_model.delete_time == None,
+        manager.group_model.is_deleted == False,
         manager.group_model.level != GroupLevelEnum.ROOT.value,
     ).all()
     if groups is None:
@@ -243,7 +253,15 @@ def get_all_group():
 @admin_api.route("/group/<int:gid>")
 @permission_meta(name="查询一个分组及其权限", module="管理员", mount=False)
 @admin_required
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(NotFound("分组不存在"), r=AdminGroupPermissionSchema),
+)
 def get_group(gid):
+    """
+    获取一个分组及其权限
+    """
     group = manager.group_model.get(id=gid, one=True, soft=False)
     if group is None:
         raise NotFound("分组不存在")
@@ -257,19 +275,29 @@ def get_group(gid):
 @permission_meta(name="新建分组", module="管理员", mount=False)
 @Logger(template="管理员新建了一个分组")  # 记录日志
 @admin_required
-def create_group():
-    form = NewGroup().validate_for_api()
-    exists = manager.group_model.get(name=form.name.data)
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(
+        ParameterError("用户组已存在, 不可创建同名分组"),
+        Success("新建用户组成功"),
+    ),
+)
+def create_group(json: CreateGroupSchema):
+    """
+    新建分组
+    """
+    exists = manager.group_model.get(name=g.name)
     if exists:
         raise Forbidden("分组已存在，不可创建同名分组")
     with db.auto_commit():
         group = manager.group_model.create(
-            name=form.name.data,
-            info=form.info.data,
+            name=g.name,
+            info=g.info,
         )
         db.session.flush()
         group_permission_list = list()
-        for permission_id in form.permission_ids.data:
+        for permission_id in g.permission_ids:
             gp = manager.group_permission_model()
             gp.group_id = group.id
             gp.permission_id = permission_id
@@ -281,20 +309,38 @@ def create_group():
 @admin_api.route("/group/<int:gid>", methods=["PUT"])
 @permission_meta(name="更新一个分组", module="管理员", mount=False)
 @admin_required
-def update_group(gid):
-    form = UpdateGroup().validate_for_api()
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(
+        ParameterError("分组不存在,更新失败"),
+        Success("更新分组成功"),
+    ),
+)
+def update_group(gid, json: GroupBaseSchema):
+    """
+    更新一个分组基本信息
+    """
     exists = manager.group_model.get(id=gid)
     if not exists:
         raise NotFound("分组不存在，更新失败")
-    exists.update(name=form.name.data, info=form.info.data, commit=True)
-    return Success("更新分组成功")
+    exists.update(name=g.name, info=g.info, commit=True)
+    return Success("更新成功")
 
 
 @admin_api.route("/group/<int:gid>", methods=["DELETE"])
 @permission_meta(name="删除一个分组", module="管理员", mount=False)
 @Logger(template="管理员删除一个分组")  # 记录日志
 @admin_required
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(NotFound("分组不存在，删除失败"), Forbidden("分组不可删除"), Success("删除分组成功")),
+)
 def delete_group(gid):
+    """
+    删除一个分组
+    """
     exist = manager.group_model.get(id=gid)
     if not exist:
         raise NotFound("分组不存在，删除失败")
@@ -314,35 +360,28 @@ def delete_group(gid):
     return Success("删除分组成功")
 
 
-@admin_api.route("/permission/dispatch", methods=["POST"])
-@permission_meta(name="分配单个权限", module="管理员", mount=False)
-@admin_required
-def dispatch_auth():
-    form = DispatchAuth().validate_for_api()
-    one = manager.group_permission_model.get(
-        group_id=form.group_id.data, permission_id=form.permission_id.data
-    )
-    if one:
-        raise Forbidden("已有权限，不可重复添加")
-    manager.group_permission_model.create(
-        group_id=form.group_id.data, permission_id=form.permission_id.data, commit=True
-    )
-    return Success("添加权限成功")
-
-
 @admin_api.route("/permission/dispatch/batch", methods=["POST"])
 @permission_meta(name="分配多个权限", module="管理员", mount=False)
 @admin_required
-def dispatch_auths():
-    form = DispatchAuths().validate_for_api()
+@api.validate(
+    tags=["管理员"],
+    security=[AuthorizationBearerSecurity],
+    resp=DocResponse(
+        Success("添加权限成功"),
+    ),
+)
+def dispatch_auths(json: GroupIdWithPermissionIdListSchema):
+    """
+    分配多个权限
+    """
     with db.auto_commit():
-        for permission_id in form.permission_ids.data:
+        for permission_id in g.permission_ids:
             one = manager.group_permission_model.get(
-                group_id=form.group_id.data, permission_id=permission_id
+                group_id=g.group_id, permission_id=permission_id
             )
             if not one:
                 manager.group_permission_model.create(
-                    group_id=form.group_id.data,
+                    group_id=g.group_id,
                     permission_id=permission_id,
                 )
     return Success("添加权限成功")
@@ -351,13 +390,20 @@ def dispatch_auths():
 @admin_api.route("/permission/remove", methods=["POST"])
 @permission_meta(name="删除多个权限", module="管理员", mount=False)
 @admin_required
-def remove_auths():
-    form = RemoveAuths().validate_for_api()
+@api.validate(
+    tags=["管理员"],
+    resp=DocResponse(Success("删除权限成功")),
+    security=[AuthorizationBearerSecurity],
+)
+def remove_auths(json: GroupIdWithPermissionIdListSchema):
+    """
+    删除多个权限
+    """
 
     with db.auto_commit():
         db.session.query(manager.group_permission_model).filter(
-            manager.group_permission_model.permission_id.in_(form.permission_ids.data),
-            manager.group_permission_model.group_id == form.group_id.data,
+            manager.group_permission_model.permission_id.in_(g.permission_ids),
+            manager.group_permission_model.group_id == g.group_id,
         ).delete(synchronize_session=False)
 
     return Success("删除权限成功")

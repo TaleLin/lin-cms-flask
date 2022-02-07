@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "lin-cms-flask"
+version = "0.4"
+description = "🎀A simple and practical CMS implememted by flask"
+authors = ["sunlin92 <sun.melodies@gmail.com>"]
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+default = true
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Lin-CMS = "^0.4.5"
+pillow = "^9.0.0"
+flask-cors = "^3.0.10"
+gunicorn = "^20.1.0"
+gevent = "^21.8.0"
+flask-socketio = "^5.1.1"
+blinker = "^1.4"
+python-dotenv = "^0.19.2"
+gevent-websocket = "^0.10.1"
+pydantic = {extras = ["email"], version = "^1.9.0"}
+
+[tool.poetry.dev-dependencies]
+flask-sqlacodegen = "^1.1.8"
+black = "^21.10b0"
+isort = "^5.10.1"
+watchdog = "^2.1.6"
+coverage = "^6.1.2"
+pytest = "^6.2.5"
+pre-commit = "^2.16.0"
+pytest-ordering = "^0.6"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

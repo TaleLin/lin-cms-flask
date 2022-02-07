@@ -1,35 +1,29 @@
 import math
 
-from flask import g
-from lin import permission_meta
-from lin.apidoc import DocResponse, api
-from lin.db import db
-from lin.jwt import group_required
-from lin.logger import Log
-from lin.redprint import Redprint
+from flask import Blueprint, g
+from lin import DocResponse, Log, db, group_required, permission_meta
 from sqlalchemy import text
 
-from app.validator.schema import (
-    AuthorizationSchema,
+from app.api import AuthorizationBearerSecurity, api
+from app.api.cms.schema.log import (
     LogPageSchema,
     LogQuerySearchSchema,
     UsernameListSchema,
 )
 
-log_api = Redprint("log")
+log_api = Blueprint("log", __name__)
 
 
 @log_api.route("")
 @permission_meta(name="查询日志", module="日志")
 @group_required
 @api.validate(
-    headers=AuthorizationSchema,
-    query=LogQuerySearchSchema,
     resp=DocResponse(r=LogPageSchema),
     before=LogQuerySearchSchema.offset_handler,
+    security=[AuthorizationBearerSecurity],
     tags=["日志"],
 )
-def get_logs():
+def get_logs(query: LogQuerySearchSchema):
     """
     日志浏览查询（人员，时间, 关键字），分页展示
     """
@@ -44,7 +38,7 @@ def get_logs():
         page=g.page,
         count=g.count,
         total=total,
-        items=get_items_with_time_field(items),
+        items=items,
         total_page=total_page,
     )
 
@@ -53,13 +47,12 @@ def get_logs():
 @permission_meta(name="搜索日志", module="日志")
 @group_required
 @api.validate(
-    headers=AuthorizationSchema,
-    query=LogQuerySearchSchema,
     resp=DocResponse(r=LogPageSchema),
+    security=[AuthorizationBearerSecurity],
     before=LogQuerySearchSchema.offset_handler,
     tags=["日志"],
 )
-def search_logs():
+def search_logs(query: LogQuerySearchSchema):
     """
     日志搜索（人员，时间, 关键字），分页展示
     """
@@ -82,7 +75,7 @@ def search_logs():
         page=g.page,
         count=g.count,
         total=total,
-        items=get_items_with_time_field(items),
+        items=items,
         total_page=total_page,
     )
 
@@ -91,8 +84,8 @@ def search_logs():
 @permission_meta(name="查询日志记录的用户", module="日志")
 @group_required
 @api.validate(
-    headers=AuthorizationSchema,
     resp=DocResponse(r=UsernameListSchema),
+    security=[AuthorizationBearerSecurity],
     tags=["日志"],
 )
 def get_users_for_log():
@@ -107,13 +100,3 @@ def get_users_for_log():
         .all()
     )
     return UsernameListSchema(items=[u.username for u in usernames])
-
-
-# TODO：临时time字段, 等待lin 核心库中调整后移除
-def get_items_with_time_field(items):
-    new_items = list()
-    for item in items:
-        item = dict(item)
-        item["time"] = item["create_time"]
-        new_items.append(item)
-    return new_items

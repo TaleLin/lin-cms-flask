@@ -7,7 +7,7 @@ from .model import Poem
 
 
 def initial_data():
-    from lin.db import db
+    from lin import db
 
     from app import create_app
 

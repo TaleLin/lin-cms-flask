@@ -4,16 +4,13 @@
     """
 
 from app import create_app
+from app.api.cms.model.group import Group
+from app.api.cms.model.group_permission import GroupPermission
+from app.api.cms.model.permission import Permission
+from app.api.cms.model.user import User
+from app.api.cms.model.user_group import UserGroup
+from app.api.cms.model.user_identity import UserIdentity
 from app.config.code_message import MESSAGE
-from app.config.http_status_desc import DESC
-from app.model.lin import (
-    Group,
-    GroupPermission,
-    Permission,
-    User,
-    UserGroup,
-    UserIdentity,
-)
 
 app = create_app(
     group_model=Group,
@@ -23,7 +20,6 @@ app = create_app(
     identity_model=UserIdentity,
     user_group_model=UserGroup,
     config_MESSAGE=MESSAGE,
-    config_DESC=DESC,
 )
 
 
@@ -37,21 +33,21 @@ if app.config.get("ENV") != "production":
                 padding: 0;
                 margin: 0;
             }
-    
+
             div {
                 padding: 4px 48px;
             }
-    
+
             a {
                 color: black;
                 cursor: pointer;
                 text-decoration: none
             }
-    
+
             a:hover {
                 text-decoration: None;
             }
-    
+
             body {
                 background: #fff;
                 font-family:
@@ -59,13 +55,13 @@ if app.config.get("ENV") != "production":
                 color: #333;
                 font-size: 18px;
             }
-    
+
             h1 {
                 font-size: 100px;
                 font-weight: normal;
                 margin-bottom: 12px;
             }
-    
+
             p {
                 line-height: 1.6em;
                 font-size: 42px
