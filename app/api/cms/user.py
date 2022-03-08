@@ -4,6 +4,7 @@
     :copyright: © 2020 by the Lin team.
     :license: MIT, see LICENSE for more details.
 """
+import jwt
 from flask import Blueprint, current_app, g, request
 from flask_jwt_extended import (
     create_access_token,
@@ -12,7 +13,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from itsdangerous import JSONWebSignatureSerializer as JWSSerializer
 from lin import (
     DocResponse,
     Duplicated,
@@ -100,8 +100,7 @@ def login(json: LoginSchema):
     if current_app.config.get("LOGIN_CAPTCHA"):
         tag = request.headers.get("tag")
         secret_key = current_app.config.get("SECRET_KEY")
-        serializer = JWSSerializer(secret_key)
-        if g.captcha != serializer.loads(tag):
+        if g.captcha != jwt.decode(tag, secret_key, algorithms=["HS256"]).get("code"):
             raise Failed("验证码校验失败")  # type: ignore
 
     user = manager.user_model.verify(g.username, g.password)
@@ -251,6 +250,5 @@ def get_captcha():
         return CaptchaSchema()  # type: ignore
     image, code = CaptchaTool().get_verify_code()
     secret_key = current_app.config.get("SECRET_KEY")
-    serializer = JWSSerializer(secret_key)
-    tag = serializer.dumps(code)
+    tag = jwt.encode({"code": code}, secret_key, algorithm="HS256")
     return {"tag": tag, "image": image}
