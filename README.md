@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="http://Flask.pocoo.org/docs/1.0/" rel="nofollow">
-  <img src="https://img.shields.io/badge/Flask-2.0.2-green.svg" alt="Flask version" data-canonical-src="https://img.shields.io/badge/Flask-2.0.2-green.svg" style="max-width:100%;"></a>
+  <img src="https://img.shields.io/badge/Flask-2.0.3-green.svg" alt="Flask version" data-canonical-src="https://img.shields.io/badge/Flask-2.0.3-green.svg" style="max-width:100%;"></a>
   <a href="https://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-skyblue.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-skyblue.svg" style="max-width:100%;"></a>
 </p>
 
