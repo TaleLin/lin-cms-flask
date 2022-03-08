@@ -28,10 +28,6 @@ class AdminUserPageSchema(BasePageSchema):
     items: List[AdminUserSchema]
 
 
-class GroupQuerySearchSchema(QueryPageSchema):
-    group_id: Optional[int] = Field(gt=0, description="用户组ID")
-
-
 class UpdateUserInfoSchema(GroupIdListSchema, EmailSchema):
     pass
 
