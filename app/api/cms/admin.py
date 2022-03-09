@@ -28,13 +28,13 @@ from app.api.cms.schema.admin import (
     AdminGroupListSchema,
     AdminGroupPermissionSchema,
     AdminUserPageSchema,
+    AdminUserSchema,
     CreateGroupSchema,
     GroupBaseSchema,
     GroupIdWithPermissionIdListSchema,
-    GroupQuerySearchSchema,
     UpdateUserInfoSchema,
 )
-from app.util.page import get_page_from_query
+from app.schema import QueryPageSchema
 
 admin_api = Blueprint("admin", __name__)
 
@@ -60,78 +60,70 @@ def permissions():
     tags=["管理员"],
     security=[AuthorizationBearerSecurity],
     resp=DocResponse(r=AdminUserPageSchema),
-    before=GroupQuerySearchSchema.offset_handler,
+    before=QueryPageSchema.offset_handler,
 )
-def get_admin_users(query: GroupQuerySearchSchema):
+def get_admin_users(query: QueryPageSchema):
     """
-    查询所有用户
+    查询所有用户及其所属组信息
     """
-    # 根据筛选条件和分页，获取 用户id 与 用户组id 的一对多 数据
-    # 过滤root 分组
+    # 获取 符合条件的 用户id 数量 ,过滤root 分组
     query_root_group_id = db.session.query(manager.group_model.id).filter(
         manager.group_model.level == GroupLevelEnum.ROOT.value
     )
-    _user_groups_list = db.session.query(
-        manager.user_group_model.user_id.label("user_id"),
-        func.group_concat(manager.user_group_model.group_id).label("group_ids"),
-    ).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
-    if g.group_id:
-        _user_groups_list = _user_groups_list.filter(
-            manager.user_group_model.group_id == g.group_id
-        )
-    user_groups_list = (
-        _user_groups_list.group_by(manager.user_group_model.user_id)
+    # 获取符合条件的用户总量
+    total = (
+        db.session.query(func.count(func.distinct(manager.user_group_model.user_id)))
+        .filter(~manager.user_group_model.group_id.in_(query_root_group_id))
+        .scalar()
+    )
+    # 获取当前分页条件下查询到的非Root组的用户id
+    current_page_user_ids = (
+        db.session.query(manager.user_group_model.user_id)
+        .filter(~manager.user_group_model.group_id.in_(query_root_group_id))
+        .group_by(manager.user_group_model.user_id)
         .offset(g.offset)
         .limit(g.count)
+    )
+    # 获取用户的基本信息
+    current_page_users = manager.user_model.query.filter(
+        manager.user_model.id.in_(current_page_user_ids)
+    ).all()
+    # 获取需要填充分组的基本信息
+    current_groups = manager.group_model.query.filter(
+        manager.group_model.id.in_(
+            db.session.query(manager.user_group_model.group_id)
+            .filter(manager.user_group_model.user_id.in_(current_page_user_ids))
+            .group_by(manager.user_group_model.group_id)
+        )
+    ).all()
+    # 获取这些用户和分组的多对多关联关系
+    user_group_relations = (
+        db.session.query(manager.user_group_model)
+        .filter(manager.user_group_model.user_id.in_(current_page_user_ids))
         .all()
     )
+    # 根据关联关系拼装的items数据结构
+    items = [
+        AdminUserSchema(
+            email=user.email, groups=list(), id=user.id, username=user.username
+        )
+        for user in current_page_users
+    ]
+    # 填充分组信息
+    for item in items:
+        for ug in user_group_relations:
+            if ug.user_id == item.id:
+                for group in current_groups:
+                    if ug.group_id == group.id:
+                        item.groups.append(group)
 
-    # 获取 符合条件的 用户id 数量
-    # 过滤root 分组
-    _total = db.session.query(
-        func.count(func.distinct(manager.user_group_model.user_id))
-    ).filter(~manager.user_group_model.group_id.in_(query_root_group_id))
-    if g.group_id:
-        _total = _total.filter(manager.user_group_model.group_id == g.group_id)
-    total = _total.scalar()
-
-    # 获取本次需要返回的用户的数据
-    user_ids = [x.user_id for x in user_groups_list]
-    users = manager.user_model.query.filter(manager.user_model.id.in_(user_ids)).all()
-    user_dict = dict()
-    for user in users:
-        user.groups = list()
-        user._fields.append("groups")
-        user_dict[user.id] = user
-
-    # 使用用户组来过滤，则不需要补全用户组信息
-    if not g.group_id:
-        # 拿到本次请求返回用户的所有 用户组 id List
-        group_ids = [
-            int(i)
-            for i in set().union(*(x.group_ids.split(",") for x in user_groups_list))
-        ]
-        # 获取本次需要返回的用户组的数据
-        groups = manager.group_model.query.filter(
-            manager.group_model.id.in_(group_ids)
-        ).all()
-        group_dict = dict()
-        for group in groups:
-            group_dict[group.id] = group
-        items = []
-
-        # 根据 用户与用户组 一对多的关系， 补全用户的用户组详细信息
-        for user_id, group_ids in user_groups_list:
-            group_id_list = [int(gid) for gid in group_ids.split(",")]
-            groups = [group_dict[group_id] for group_id in group_id_list]
-            user_dict[user_id].groups = groups
-            items.append(user_dict[user_id])
-
-    total_page = math.ceil(total / g.count)
-    page = get_page_from_query()
-    return AdminUserPageSchema(
-        count=g.count, total=total, total_page=total_page, page=page, items=users
-    )
+    return {
+        "items": items,
+        "count": g.count,
+        "page": g.page,
+        "total": total,
+        "total_page": math.ceil(total / g.count),
+    }
 
 
 @admin_api.route("/user/<int:uid>/password", methods=["PUT"])
