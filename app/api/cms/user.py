@@ -38,7 +38,6 @@ from app.api.cms.schema.user import (
     LoginSchema,
     LoginTokenSchema,
     UserBaseInfoSchema,
-    UserPermissionSchema,
     UserRegisterSchema,
     UserSchema,
 )
@@ -215,7 +214,7 @@ def refresh():
 @api.validate(
     tags=["用户"],
     security=[AuthorizationBearerSecurity],
-    resp=DocResponse(r=UserPermissionSchema),
+    # resp=DocResponse(r=UserPermissionSchema), # 当前数据接口无法使用OpenAPI表示
 )
 def get_allowed_apis():
     """
