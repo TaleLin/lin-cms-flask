@@ -2,7 +2,7 @@ import re
 from typing import List, Optional
 
 from lin import BaseModel, ParameterError
-from pydantic import AnyHttpUrl, Field, validator
+from pydantic import Field, validator
 
 from . import EmailSchema, GroupIdListSchema, ResetPasswordSchema
 
