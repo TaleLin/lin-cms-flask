@@ -3,7 +3,7 @@ from typing import List, Optional
 from lin import BaseModel, ParameterError
 from pydantic import Field, validator
 
-from app.schema import BasePageSchema, QueryPageSchema
+from app.schema import BasePageSchema
 
 from . import EmailSchema, GroupIdListSchema
 
