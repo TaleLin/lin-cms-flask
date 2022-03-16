@@ -4,7 +4,6 @@
 """
 
 import os
-import multiprocessing
 from datetime import timedelta
 
 
@@ -32,9 +31,12 @@ class BaseConfig(object):
 
     # flask-sqlalchemy 引擎配置
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_pre_ping": True,  # 每次请求前 pre-ping一下数据库, 防止db gone away
-        "pool_size": multiprocessing.cpu_count() * 2 + 1,
-        "pool_recycle": 600,  # 小于等于数据库连接主动回收时间
+        # sqlite 不支持pool_size, 其他数据库按需配置
+        # "pool_size": 10,
+        # 每次请求前 pre-ping一下数据库, 防止db gone away
+        "pool_pre_ping": True,
+        # 小于等于数据库连接主动回收时间
+        "pool_recycle": 600,
     }
 
     # 令牌配置
