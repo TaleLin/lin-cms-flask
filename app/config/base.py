@@ -4,6 +4,7 @@
 """
 
 import os
+import multiprocessing
 from datetime import timedelta
 
 
@@ -28,6 +29,13 @@ class BaseConfig(object):
 
     # 屏蔽 sql alchemy 的 FSADeprecationWarning
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # flask-sqlalchemy 引擎配置
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,  # 每次请求前 pre-ping一下数据库, 防止db gone away
+        "pool_size": multiprocessing.cpu_count() * 2 + 1,
+        "pool_recycle": 600,  # 小于等于数据库连接主动回收时间
+    }
 
     # 令牌配置
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
