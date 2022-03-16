@@ -77,13 +77,17 @@ def get_admin_users(query: QueryPageSchema):
         .scalar()
     )
     # 获取当前分页条件下查询到的非Root组的用户id
-    current_page_user_ids = (
+    query_current_page_user_ids = (
         db.session.query(manager.user_group_model.user_id)
         .filter(~manager.user_group_model.group_id.in_(query_root_group_id))
         .group_by(manager.user_group_model.user_id)
         .offset(g.offset)
         .limit(g.count)
     )
+    # 部分数据库不支持子语句 in limit
+    current_page_user_ids = [
+        user_id[0] for user_id in query_current_page_user_ids.all()
+    ]
     # 获取用户的基本信息
     current_page_users = manager.user_model.query.filter(
         manager.user_model.id.in_(current_page_user_ids)
