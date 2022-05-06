@@ -11,12 +11,7 @@ from lin import DocResponse, Success, group_required, login_required, permission
 from app.api import AuthorizationBearerSecurity, api
 from app.api.v1.exception import BookNotFound
 from app.api.v1.model.book import Book
-from app.api.v1.schema import (
-    BookInSchema,
-    BookOutSchema,
-    BookQuerySearchSchema,
-    BookSchemaList,
-)
+from app.api.v1.schema import BookInSchema, BookOutSchema, BookQuerySearchSchema, BookSchemaList
 
 book_api = Blueprint("book", __name__)
 
@@ -57,9 +52,7 @@ def search(query: BookQuerySearchSchema):
     """
     关键字搜索图书
     """
-    return Book.query.filter(
-        Book.title.like("%" + g.q + "%"), Book.is_deleted == False
-    ).all()
+    return Book.query.filter(Book.title.like("%" + g.q + "%"), Book.is_deleted == False).all()
 
 
 @book_api.route("", methods=["POST"])

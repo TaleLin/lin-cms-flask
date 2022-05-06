@@ -92,14 +92,10 @@ class PluginInit:
         for name, val in self.path_info.items():
             # 调用插件__init__模块中的initial_data方法，创建初始的数据
             try:
-                plugin_module = import_module(
-                    self.path_info[name]["plugin_path"] + ".app.__init__"
-                )
+                plugin_module = import_module(self.path_info[name]["plugin_path"] + ".app.__init__")
                 dir_info = dir(plugin_module)
             except ModuleNotFoundError as e:
-                raise Exception(
-                    str(e) + "\n未找到插件" + name + "，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包"
-                )
+                raise Exception(str(e) + "\n未找到插件" + name + "，请检查您输入的插件名是否正确或插件中是否有未安装的依赖包")
             if "initial_data" in dir_info:
                 plugin_module.initial_data()
         print("插件初始化成功")

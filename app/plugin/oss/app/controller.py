@@ -2,15 +2,7 @@ import os
 
 import oss2
 from flask import jsonify, request
-from lin import (
-    Failed,
-    ParameterError,
-    Redprint,
-    Success,
-    db,
-    get_random_str,
-    lin_config,
-)
+from lin import Failed, ParameterError, Redprint, Success, db, get_random_str, lin_config
 
 from .model import OSS
 
@@ -76,9 +68,7 @@ def upload_multiple_to_ali():
 
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1] in lin_config.get_config(
-        "oss.allowed_extensions", []
-    )
+    return "." in filename and filename.rsplit(".", 1)[1] in lin_config.get_config("oss.allowed_extensions", [])
 
 
 def upload_image_bytes(name: str, data: bytes):

@@ -53,9 +53,7 @@ def load_app_config(app):
     # 读取 .env
     load_dotenv(os.path.join(basedir, ".{env}.env").format(env=env))
     # 读取配置类
-    app.config.from_object(
-        "app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize())
-    )
+    app.config.from_object("app.config.{env}.{Env}Config".format(env=env, Env=env.capitalize()))
 
 
 def set_global_config(**kwargs):

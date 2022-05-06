@@ -5,11 +5,7 @@ from lin import DocResponse, Log, db, group_required, permission_meta
 from sqlalchemy import text
 
 from app.api import AuthorizationBearerSecurity, api
-from app.api.cms.schema.log import (
-    LogPageSchema,
-    LogQuerySearchSchema,
-    UsernameListSchema,
-)
+from app.api.cms.schema.log import LogPageSchema, LogQuerySearchSchema, UsernameListSchema
 
 log_api = Blueprint("log", __name__)
 
@@ -29,9 +25,7 @@ def get_logs(query: LogQuerySearchSchema):
     """
     logs = Log.query.filter()
     total = logs.count()
-    items = (
-        logs.order_by(text("create_time desc")).offset(g.offset).limit(g.count).all()
-    )
+    items = logs.order_by(text("create_time desc")).offset(g.offset).limit(g.count).all()
     total_page = math.ceil(total / g.count)
 
     return LogPageSchema(
@@ -66,9 +60,7 @@ def search_logs(query: LogQuerySearchSchema):
         logs = logs.filter(Log.create_time.between(g.start, g.end))
 
     total = logs.count()
-    items = (
-        logs.order_by(text("create_time desc")).offset(g.offset).limit(g.count).all()
-    )
+    items = logs.order_by(text("create_time desc")).offset(g.offset).limit(g.count).all()
     total_page = math.ceil(total / g.count)
 
     return LogPageSchema(
