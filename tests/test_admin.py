@@ -16,7 +16,5 @@ def test_permission(fixtureFunc):
 
 def test_get_root_users(fixtureFunc):
     with app.test_client() as c:
-        rv = c.get(
-            "/cms/admin/users", headers={"Authorization": "Bearer " + get_token()}
-        )
+        rv = c.get("/cms/admin/users", headers={"Authorization": "Bearer " + get_token()})
         assert rv.status_code == 200

@@ -19,17 +19,13 @@ def paginate():
     count = int(
         request.args.get(
             "count",
-            current_app.config.get("COUNT_DEFAULT")
-            if current_app.config.get("COUNT_DEFAULT")
-            else 5,
+            current_app.config.get("COUNT_DEFAULT") if current_app.config.get("COUNT_DEFAULT") else 5,
         )
     )
     start = int(
         request.args.get(
             "page",
-            current_app.config.get("PAGE_DEFAULT")
-            if current_app.config.get("PAGE_DEFAULT")
-            else 0,
+            current_app.config.get("PAGE_DEFAULT") if current_app.config.get("PAGE_DEFAULT") else 0,
         )
     )
     count = 15 if count >= 15 else count

@@ -28,14 +28,11 @@ class LocalUploader(Uploader):
                         "key": single.name,
                         "id": exists.id,
                         "path": exists.path,
-                        "url": site_domain
-                        + os.path.join(current_app.static_url_path, exists.path),
+                        "url": site_domain + os.path.join(current_app.static_url_path, exists.path),
                     }
                 )
             else:
-                absolute_path, relative_path, real_name = self._get_store_path(
-                    single.filename
-                )
+                absolute_path, relative_path, real_name = self._get_store_path(single.filename)
                 secure_filename(single.filename)
                 single.save(absolute_path)
                 file = File.create_file(
@@ -51,8 +48,7 @@ class LocalUploader(Uploader):
                         "key": single.name,
                         "id": file.id,
                         "path": file.path,
-                        "url": site_domain
-                        + os.path.join(current_app.static_url_path, file.path),
+                        "url": site_domain + os.path.join(current_app.static_url_path, file.path),
                     }
                 )
         return ret

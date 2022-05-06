@@ -33,9 +33,7 @@ class RegisterForm(EmailForm):
             EqualTo("confirm_password", message="两次输入的密码不一致，请输入相同的密码"),
         ],
     )
-    confirm_password = PasswordField(
-        "确认新密码", validators=[DataRequired(message="请确认密码")]
-    )
+    confirm_password = PasswordField("确认新密码", validators=[DataRequired(message="请确认密码")])
     username = StringField(
         validators=[
             DataRequired(message="用户名不可为空"),
@@ -77,9 +75,7 @@ class ResetPasswordForm(Form):
             EqualTo("confirm_password", message="两次输入的密码不一致，请输入相同的密码"),
         ],
     )
-    confirm_password = PasswordField(
-        "确认新密码", validators=[DataRequired(message="请确认密码")]
-    )
+    confirm_password = PasswordField("确认新密码", validators=[DataRequired(message="请确认密码")])
 
 
 # 更改密码校验
@@ -128,9 +124,7 @@ class DispatchAuths(Form):
         ],
     )
 
-    permission_ids = FieldList(
-        IntegerField(validators=[DataRequired(message="请输入permission_ids字段")])
-    )
+    permission_ids = FieldList(IntegerField(validators=[DataRequired(message="请输入permission_ids字段")]))
 
 
 class DispatchAuth(Form):
@@ -142,9 +136,7 @@ class DispatchAuth(Form):
             NumberRange(message="分组id必须大于0", min=1),
         ],
     )
-    permission_id = IntegerField(
-        validators=[DataRequired(message="请输入permission_id字段")]
-    )
+    permission_id = IntegerField(validators=[DataRequired(message="请输入permission_id字段")])
 
 
 # 批量删除权限
@@ -156,9 +148,7 @@ class RemoveAuths(Form):
             NumberRange(message="分组id必须大于0", min=1),
         ],
     )
-    permission_ids = FieldList(
-        IntegerField(validators=[DataRequired(message="请输入permission_ids字段")])
-    )
+    permission_ids = FieldList(IntegerField(validators=[DataRequired(message="请输入permission_ids字段")]))
 
 
 # 日志查找范围校验

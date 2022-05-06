@@ -85,13 +85,9 @@ def get_admin_users(query: QueryPageSchema):
         .limit(g.count)
     )
     # 部分数据库不支持子语句 in limit
-    current_page_user_ids = [
-        user_id[0] for user_id in query_current_page_user_ids.all()
-    ]
+    current_page_user_ids = [user_id[0] for user_id in query_current_page_user_ids.all()]
     # 获取用户的基本信息
-    current_page_users = manager.user_model.query.filter(
-        manager.user_model.id.in_(current_page_user_ids)
-    ).all()
+    current_page_users = manager.user_model.query.filter(manager.user_model.id.in_(current_page_user_ids)).all()
     # 获取需要填充分组的基本信息
     current_groups = manager.group_model.query.filter(
         manager.group_model.id.in_(
@@ -108,9 +104,7 @@ def get_admin_users(query: QueryPageSchema):
     )
     # 根据关联关系拼装的items数据结构
     items = [
-        AdminUserSchema(
-            email=user.email, groups=list(), id=user.id, username=user.username
-        )
+        AdminUserSchema(email=user.email, groups=list(), id=user.id, username=user.username)
         for user in current_page_users
     ]
     # 填充分组信息
@@ -174,9 +168,7 @@ def delete_user(uid):
     if groups[0].level == GroupLevelEnum.ROOT.value:
         raise Forbidden("无法删除此用户")
     with db.auto_commit():
-        manager.user_group_model.query.filter_by(user_id=uid).delete(
-            synchronize_session=False
-        )
+        manager.user_group_model.query.filter_by(user_id=uid).delete(synchronize_session=False)
         user.hard_delete()
     return Success("操作成功")
 
@@ -208,9 +200,7 @@ def update_user(uid: int, json: UpdateUserInfoSchema):
         user.email = g.email
         group_ids = g.group_ids
         # 清空原来的所有关联关系
-        manager.user_group_model.query.filter_by(user_id=user.id).delete(
-            synchronize_session=False
-        )
+        manager.user_group_model.query.filter_by(user_id=user.id).delete(synchronize_session=False)
         # 根据传入分组ids 新增关联记录
         user_group_list = list()
         # 如果没传分组数据，则将其设定为 guest 分组
@@ -348,9 +338,7 @@ def delete_group(gid):
         raise Forbidden("分组下存在用户，不可删除")
     with db.auto_commit():
         # 删除group id 对应的关联记录
-        manager.group_permission_model.query.filter_by(group_id=gid).delete(
-            synchronize_session=False
-        )
+        manager.group_permission_model.query.filter_by(group_id=gid).delete(synchronize_session=False)
         # 删除group
         exist.delete()
     return Success("删除分组成功")
@@ -372,9 +360,7 @@ def dispatch_auths(json: GroupIdWithPermissionIdListSchema):
     """
     with db.auto_commit():
         for permission_id in g.permission_ids:
-            one = manager.group_permission_model.get(
-                group_id=g.group_id, permission_id=permission_id
-            )
+            one = manager.group_permission_model.get(group_id=g.group_id, permission_id=permission_id)
             if not one:
                 manager.group_permission_model.create(
                     group_id=g.group_id,

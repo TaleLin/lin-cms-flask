@@ -27,9 +27,7 @@ class File(InfoCrud):
 
     @classmethod
     def count_by_md5(cls, md5):
-        result = db.session.query(func.count(cls.id)).filter(
-            cls.is_deleted == False, cls.md5 == md5
-        )
+        result = db.session.query(func.count(cls.id)).filter(cls.is_deleted == False, cls.md5 == md5)
         count = result.scalar()
         return count
 

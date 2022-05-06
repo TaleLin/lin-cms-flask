@@ -33,11 +33,7 @@ def test_get_books():
 @pytest.mark.run(order=3)
 def test_update(fixtureFunc):
     with app.test_client() as c:
-        id = (
-            c.get("/v1/book", headers={"Authorization": "Bearer "})
-            .get_json()[-1]
-            .get("id")
-        )
+        id = c.get("/v1/book", headers={"Authorization": "Bearer "}).get_json()[-1].get("id")
         rv = c.put(
             "/v1/book/{}".format(id),
             headers={"Authorization": "Bearer " + get_token()},
@@ -54,12 +50,6 @@ def test_update(fixtureFunc):
 @pytest.mark.run(order=4)
 def test_delete():
     with app.test_client() as c:
-        id = (
-            c.get("/v1/book", headers={"Authorization": "Bearer "})
-            .get_json()[-1]
-            .get("id")
-        )
-        rv = c.delete(
-            "/v1/book/{}".format(id), headers={"Authorization": "Bearer " + get_token()}
-        )
+        id = c.get("/v1/book", headers={"Authorization": "Bearer "}).get_json()[-1].get("id")
+        rv = c.delete("/v1/book/{}".format(id), headers={"Authorization": "Bearer " + get_token()})
         assert rv.status_code == 200

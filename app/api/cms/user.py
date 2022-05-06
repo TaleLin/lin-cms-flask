@@ -97,8 +97,8 @@ def login(json: LoginSchema):
     """
     # 校对验证码
     if current_app.config.get("LOGIN_CAPTCHA"):
-        tag = request.headers.get("tag")
-        secret_key = current_app.config.get("SECRET_KEY")
+        tag = request.headers.get("tag", "")
+        secret_key = current_app.config.get("SECRET_KEY", "")
         if g.captcha != jwt.decode(tag, secret_key, algorithms=["HS256"]).get("code"):
             raise Failed("验证码校验失败")  # type: ignore
 
@@ -224,10 +224,7 @@ def get_allowed_apis():
     groups = manager.group_model.select_by_user_id(user.id)
     group_ids = [group.id for group in groups]
     _permissions = manager.permission_model.select_by_group_ids(group_ids)
-    permission_list = [
-        {"permission": permission.name, "module": permission.module}
-        for permission in _permissions
-    ]
+    permission_list = [{"permission": permission.name, "module": permission.module} for permission in _permissions]
     res = split_group(permission_list, "module")
     setattr(user, "permissions", res)
     setattr(user, "admin", user.is_admin)

@@ -35,8 +35,6 @@ class Permission(LinPermission):
         query = db.session.query(manager.group_permission_model.permission_id).filter(
             manager.group_permission_model.group_id.in_(group_ids)
         )
-        result = cls.query.filter_by(soft=True, module=module, mount=True).filter(
-            cls.id.in_(query)
-        )
+        result = cls.query.filter_by(soft=True, module=module, mount=True).filter(cls.id.in_(query))
         permissions = result.all()
         return permissions
