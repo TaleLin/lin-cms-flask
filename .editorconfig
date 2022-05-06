@@ -1,13 +1,16 @@
+# http://editorconfig.org/#file-format-details
 root = true
 
 [*]
-indent_style = space
+charset = utf-8
+end_of_line = lf
 indent_size = 4
+indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
-end_of_line = lf
-charset = utf-8
-max_line_length = 100
 
-[*.{yml,yaml,json,js,css,html}]
-indent_size = 2
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
