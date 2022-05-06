@@ -9,17 +9,13 @@ class User(LinUser):
 
     @classmethod
     def count_by_username(cls, username) -> int:
-        result = db.session.query(func.count(cls.id)).filter(
-            cls.username == username, cls.is_deleted == False
-        )
+        result = db.session.query(func.count(cls.id)).filter(cls.username == username, cls.is_deleted == False)
         count = result.scalar()
         return count
 
     @classmethod
     def count_by_email(cls, email) -> int:
-        result = db.session.query(func.count(cls.id)).filter(
-            cls.email == email, cls.is_deleted == False
-        )
+        result = db.session.query(func.count(cls.id)).filter(cls.email == email, cls.is_deleted == False)
         count = result.scalar()
         return count
 

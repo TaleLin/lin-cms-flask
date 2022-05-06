@@ -3,6 +3,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from typing import Dict
+
 from lin import SpecTree
 from spectree import SecurityScheme
 
@@ -29,4 +31,4 @@ api = SpecTree(
     # SECURITY={"AuthorizationBearer": []},
 )
 
-AuthorizationBearerSecurity = {"AuthorizationBearer": []}
+AuthorizationBearerSecurity: Dict = {"AuthorizationBearer": []}

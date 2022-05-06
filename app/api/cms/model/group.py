@@ -17,9 +17,7 @@ class Group(LinGroup):
                 manager.user_model,
                 manager.user_model.id == manager.user_group_model.user_id,
             )
-            .filter(
-                manager.user_model.delete_time == None, manager.user_model.id == user_id
-            )
+            .filter(manager.user_model.delete_time == None, manager.user_model.id == user_id)
         )
         result = cls.query.filter_by(soft=True).filter(cls.id.in_(query))
         groups = result.all()
