@@ -197,7 +197,7 @@ def refresh():
     try:
         verify_jwt_in_request(refresh=True)
     except Exception:
-        return RefreshFailed
+        raise RefreshFailed
 
     identity = get_jwt_identity()
     if identity:
