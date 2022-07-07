@@ -21,7 +21,7 @@
 </blockquote>
 
 <p align="center">
-  <a href="#简介">简介</a>&nbsp;|&nbsp;<a href="https://doc.cms.talelin.com/start/Flask/">快速起步</a>&nbsp;
+  <a href="#简介">简介</a>&nbsp;|&nbsp;<a href="https://doc.cms.talelin.com/start/flask/">快速起步</a>&nbsp;
 </p>
 
 ## 简介
