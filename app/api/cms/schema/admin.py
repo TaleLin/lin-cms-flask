@@ -3,7 +3,7 @@ from typing import List, Optional
 from lin import BaseModel, ParameterError
 from pydantic import Field, validator
 
-from app.schema import BasePageSchema
+from app.schema import BasePageSchema, QueryPageSchema
 
 from . import EmailSchema, GroupIdListSchema
 
@@ -22,6 +22,10 @@ class AdminUserSchema(EmailSchema):
     id: int = Field(description="用户ID")
     username: str = Field(description="用户名")
     groups: List[AdminGroupSchema] = Field(description="用户组列表")
+
+
+class QueryPageWithGroupIdSchema(QueryPageSchema):
+    group_id: Optional[int] = Field(description="用户ID")
 
 
 class AdminUserPageSchema(BasePageSchema):

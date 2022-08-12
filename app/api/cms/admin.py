@@ -32,9 +32,9 @@ from app.api.cms.schema.admin import (
     CreateGroupSchema,
     GroupBaseSchema,
     GroupIdWithPermissionIdListSchema,
+    QueryPageWithGroupIdSchema,
     UpdateUserInfoSchema,
 )
-from app.schema import QueryPageSchema
 
 admin_api = Blueprint("admin", __name__)
 
@@ -60,26 +60,28 @@ def permissions():
     tags=["管理员"],
     security=[AuthorizationBearerSecurity],
     resp=DocResponse(r=AdminUserPageSchema),
-    before=QueryPageSchema.offset_handler,
+    before=QueryPageWithGroupIdSchema.offset_handler,
 )
-def get_admin_users(query: QueryPageSchema):
+def get_admin_users(query: QueryPageWithGroupIdSchema):
     """
     查询所有用户及其所属组信息
     """
-    # 获取 符合条件的 用户id 数量 ,过滤root 分组
-    query_root_group_id = db.session.query(manager.group_model.id).filter(
-        manager.group_model.level == GroupLevelEnum.ROOT.value
+    # 获取 符合查询 条件的 分组id
+    query_group_id = db.session.query(manager.group_model.id).filter(
+        manager.group_model.level != GroupLevelEnum.ROOT.value
     )
+    if g.group_id:
+        query_group_id = query_group_id.filter(manager.group_model.id == g.group_id)
     # 获取符合条件的用户总量
     total = (
         db.session.query(func.count(func.distinct(manager.user_group_model.user_id)))
-        .filter(~manager.user_group_model.group_id.in_(query_root_group_id))
+        .filter(manager.user_group_model.group_id.in_(query_group_id))
         .scalar()
     )
     # 获取当前分页条件下查询到的非Root组的用户id
     query_current_page_user_ids = (
         db.session.query(manager.user_group_model.user_id)
-        .filter(~manager.user_group_model.group_id.in_(query_root_group_id))
+        .filter(manager.user_group_model.group_id.in_(query_group_id))
         .group_by(manager.user_group_model.user_id)
         .offset(g.offset)
         .limit(g.count)
