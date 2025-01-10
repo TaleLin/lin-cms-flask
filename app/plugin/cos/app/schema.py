@@ -1,6 +1,6 @@
 from typing import List
 
-from lin import BaseModel
+from app.lin import BaseModel
 
 
 class CosOutSchema(BaseModel):

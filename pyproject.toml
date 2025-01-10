@@ -1,17 +1,24 @@
-[tool.poetry]
-name = "lin-cms-flask"
+[project]
+name = "app"
 version = "0.4"
 description = "🎀A simple and practical CMS implememted by flask"
-authors = ["sunlin92 <sun.melodies@gmail.com>"]
+requires-python = ">=3.8,<=3.10"
+author = ["sunlin92 <sun.melodies@gmail.com>"]
 
-[[tool.poetry.source]]
+[tool.poetry.source]
 name = "tsinghua"
 url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
 default = true
 
 [tool.poetry.dependencies]
-python = ">=3.8,<=3.10"
-Lin-CMS = "^0.4.11"
+Flask = "2.0.3"
+Flask_JWT_Extended = "4.3.1"
+pyjwt = "2.7.0"
+Flask_SQLAlchemy = "2.5.1"
+WTForms = "3.0.1"
+tablib = "3.2.0"
+spectree = "0.7.6"
+SQLAlchemy = "1.4.46"
 pillow = "^9.3.0"
 flask-cors = "^3.0.10"
 gunicorn = "^20.1.0"
@@ -24,7 +31,7 @@ pydantic = {extras = ["email"], version = "^1.9.0"}
 mypy = "^0.950"
 Werkzeug = "2.1.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flask-sqlacodegen = "^1.1.8"
 black = "^22.3.0"
 isort = "^5.10.1"

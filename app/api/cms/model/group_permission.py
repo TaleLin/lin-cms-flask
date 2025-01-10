@@ -1,5 +1,5 @@
-from lin import GroupPermission as LinGroupPermission
-from lin import db
+from app.lin import GroupPermission as LinGroupPermission
+from app.lin import db
 
 
 class GroupPermission(LinGroupPermission):

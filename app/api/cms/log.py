@@ -1,7 +1,7 @@
 import math
 
 from flask import Blueprint, g
-from lin import DocResponse, Log, db, group_required, permission_meta
+from app.lin import DocResponse, Log, db, group_required, permission_meta
 from sqlalchemy import text
 
 from app.api import AuthorizationBearerSecurity, api

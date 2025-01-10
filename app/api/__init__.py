@@ -5,7 +5,7 @@
 
 from typing import Dict
 
-from lin import SpecTree
+from app.lin import SpecTree
 from spectree import SecurityScheme
 
 api = SpecTree(

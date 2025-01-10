@@ -3,7 +3,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from flask import Blueprint, request
-from lin import login_required
+from app.lin import login_required
 
 from app.api import AuthorizationBearerSecurity, api
 from app.extension.file.local_uploader import LocalUploader

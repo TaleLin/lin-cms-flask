@@ -1,5 +1,5 @@
-from lin import UserGroup as LinUserGroup
-from lin import db
+from app.lin import UserGroup as LinUserGroup
+from app.lin import db
 
 
 class UserGroup(LinUserGroup):

@@ -6,7 +6,7 @@
 """
 
 from flask import Blueprint, g
-from lin import DocResponse, Success, group_required, login_required, permission_meta
+from app.lin import DocResponse, Success, group_required, login_required, permission_meta
 
 from app.api import AuthorizationBearerSecurity, api
 from app.api.v1.exception import BookNotFound

@@ -1,4 +1,4 @@
-from lin import NotFound
+from app.lin import NotFound
 
 
 class ImageNotFound(NotFound):

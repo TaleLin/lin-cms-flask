@@ -1,4 +1,4 @@
-from lin import Duplicated, NotFound
+from app.lin import Duplicated, NotFound
 
 
 class BookNotFound(NotFound):

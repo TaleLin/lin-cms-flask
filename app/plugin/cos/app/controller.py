@@ -1,5 +1,5 @@
 from flask import request
-from lin import DocResponse, Failed, ParameterError, Redprint, db, lin_config, login_required
+from app.lin import DocResponse, Failed, ParameterError, Redprint, db, lin_config, login_required
 from werkzeug.local import LocalProxy
 
 from app.api import AuthorizationBearerSecurity, api

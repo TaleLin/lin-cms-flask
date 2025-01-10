@@ -1,5 +1,5 @@
-from lin import User as LinUser
-from lin import db, manager
+from app.lin import User as LinUser
+from app.lin import db, manager
 from sqlalchemy import func
 
 

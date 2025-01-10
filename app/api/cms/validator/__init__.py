@@ -5,7 +5,7 @@
 import re
 import time
 
-from lin import Form, ParameterError, manager
+from app.lin import Form, ParameterError, manager
 from wtforms import DateTimeField, FieldList, IntegerField, PasswordField, StringField
 from wtforms.validators import DataRequired, EqualTo, NumberRange, Regexp, length
 

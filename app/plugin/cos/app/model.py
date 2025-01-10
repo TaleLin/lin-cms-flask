@@ -1,6 +1,6 @@
 import hashlib
 
-from lin import BaseCrud, lin_config
+from app.lin import BaseCrud, lin_config
 from sqlalchemy import Column, Integer, String, text
 
 

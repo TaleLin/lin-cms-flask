@@ -7,7 +7,7 @@
 import math
 
 from flask import Blueprint, g
-from lin import (
+from app.lin import (
     DocResponse,
     Forbidden,
     GroupLevelEnum,

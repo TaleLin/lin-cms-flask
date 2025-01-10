@@ -3,7 +3,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from lin import InfoCrud as Base
+from app.lin import InfoCrud as Base
 from sqlalchemy import Column, Integer, String
 
 

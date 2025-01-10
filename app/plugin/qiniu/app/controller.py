@@ -4,7 +4,7 @@
 """
 
 from flask import request
-from lin import FileExtensionError, Redprint, lin_config
+from app.lin import FileExtensionError, Redprint, lin_config
 from qiniu import Auth
 
 from .model import Qiniu

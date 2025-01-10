@@ -1,5 +1,5 @@
-from lin import InfoCrud as Base
-from lin import NotFound, db, lin_config
+from app.lin import InfoCrud as Base
+from app.lin import NotFound, db, lin_config
 from sqlalchemy import Column, Integer, String, Text, text
 
 

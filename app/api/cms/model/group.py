@@ -1,5 +1,5 @@
-from lin import Group as LinGroup
-from lin import db, manager
+from app.lin import Group as LinGroup
+from app.lin import db, manager
 
 
 class Group(LinGroup):

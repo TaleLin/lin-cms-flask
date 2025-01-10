@@ -1,5 +1,5 @@
-from lin import Permission as LinPermission
-from lin import db, manager
+from app.lin import Permission as LinPermission
+from app.lin import db, manager
 
 
 class Permission(LinPermission):

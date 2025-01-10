@@ -57,7 +57,7 @@ def load_app_config(app):
 
 
 def set_global_config(**kwargs):
-    from lin import global_config
+    from app.lin import global_config
 
     # 获取config_*参数对象并挂载到脱离上下文的global config
     for k, v in kwargs.items():
@@ -73,7 +73,7 @@ def create_app(register_all=True, **kwargs):
     app = Flask(__name__, static_folder=os.path.join(basedir, "assets"))
     load_app_config(app)
     if register_all:
-        from lin import Lin
+        from app.lin import Lin
 
         register_blueprints(app)
         register_api(app)

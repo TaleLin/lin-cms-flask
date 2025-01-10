@@ -1,4 +1,4 @@
-from lin import Failed
+from app.lin import Failed
 
 
 class RefreshFailed(Failed):
