@@ -12,7 +12,7 @@ api = SpecTree(
     backend_name="flask",
     title="Lin-CMS-Flask",
     mode="strict",
-    version="0.4.0",
+    version="0.5.0",
     # OpenAPI对所有接口描述默认返回一个参数错误, http_status_code为400。
     validation_error_status=400,
     annotations=True,

@@ -7,7 +7,7 @@ resolution-markers = [
 
 [[package]]
 name = "app"
-version = "0.4"
+version = "0.5"
 source = { editable = "." }
 dependencies = [
     { name = "blinker", version = "1.8.2", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }, marker = "python_full_version < '3.9'" },
