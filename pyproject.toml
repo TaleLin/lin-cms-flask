@@ -29,7 +29,7 @@ python-dotenv = "^0.19.2"
 gevent-websocket = "^0.10.1"
 pydantic = {extras = ["email"], version = "^1.9.0"}
 mypy = "^0.950"
-Werkzeug = "2.1.2"
+Werkzeug = "2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 flask-sqlacodegen = "^1.1.8"
